@@ -1,0 +1,38 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 搜索框 -->
+    <EditText
+        android:id="@+id/searchBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search..." />
+
+    <!-- 推荐词列表 -->
+    <ListView
+        android:id="@+id/suggestionList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" /> <!-- 初始状态为隐藏 -->
+
+    <!-- 默认图片 -->
+    <ImageView
+        android:id="@+id/defaultImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/example"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="16dp"
+        android:visibility="visible" />
+
+    <!-- 搜索结果图片列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imageRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" /> <!-- 初始状态为隐藏 -->
+
+</LinearLayout>
