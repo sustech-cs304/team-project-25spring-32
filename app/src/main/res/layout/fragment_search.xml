@@ -1,25 +1,38 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:ignore="ExtraText">
-    tools:context=".ui.search.SearchFragment">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/text_search"
+    <!-- 搜索框 -->
+    <EditText
+        android:id="@+id/searchBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:hint="Search..." />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- 推荐词列表 -->
+    <ListView
+        android:id="@+id/suggestionList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" /> <!-- 初始状态为隐藏 -->
 
+    <!-- 默认图片 -->
+    <ImageView
+        android:id="@+id/defaultImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/example"
+        android:scaleType="centerCrop"
+        android:layout_marginTop="16dp"
+        android:visibility="visible" />
+
+    <!-- 搜索结果图片列表 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/imageRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" /> <!-- 初始状态为隐藏 -->
+
+</LinearLayout>

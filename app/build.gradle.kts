@@ -36,7 +36,8 @@ android {
 }
 
 dependencies {
-
+    implementation(libs.glide)
+    annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
