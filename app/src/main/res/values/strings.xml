@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PA</string>
+    <string name="title_search">Search</string>
+    <string name="title_photo">Photo</string>
+    <string name="title_album">Album</string>
+    <string name="title_ai">AI</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_search"
+        android:icon="@drawable/icon_search"
+        android:title="@string/title_search" />
+
+    <item
+        android:id="@+id/navigation_photo"
+        android:icon="@drawable/icon_photo"
+        android:title="@string/title_photo" />
+
+    <item
+        android:id="@+id/navigation_album"
+        android:icon="@drawable/icon_album"
+        android:title="@string/title_album" />
+
+    <item
+        android:id="@+id/navigation_ai"
+        android:icon="@drawable/icon_ai"
+        android:title="@string/title_ai" />
+
+
+
+</menu>
