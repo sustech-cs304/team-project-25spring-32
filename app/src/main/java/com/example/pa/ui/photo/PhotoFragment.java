@@ -31,9 +31,9 @@ public class PhotoFragment extends Fragment {
 
         // 初始化数据集合，可先为空，后续通过接口传入数据
         imageList = new ArrayList<>();
-        // 如果需要也可以初始化一些样例图片
-        imageList.add(new ImageItem("https://example.com/photo1.jpg"));
-        imageList.add(new ImageItem("https://example.com/photo2.jpg"));
+        // 初始化一些样例图片
+        imageList.add(new ImageItem("https://cdn.pixabay.com/photo/2024/09/21/10/53/anime-9063542_1280.png"));
+        imageList.add(new ImageItem("https://cdn.pixabay.com/photo/2025/03/06/08/25/blueberries-9450130_1280.jpg"));
         imageList.add(new ImageItem("https://example.com/photo3.jpg"));
         imageList.add(new ImageItem("https://example.com/photo1.jpg"));
         imageList.add(new ImageItem("https://example.com/photo2.jpg"));
@@ -65,7 +65,6 @@ public class PhotoFragment extends Fragment {
         imageList.add(new ImageItem("https://example.com/photo1.jpg"));
         imageList.add(new ImageItem("https://example.com/photo2.jpg"));
         imageList.add(new ImageItem("https://example.com/photo3.jpg"));
-        // 添加更多图片
 
         photoAdapter = new PhotoAdapter(imageList);
         recyclerView.setAdapter(photoAdapter);
@@ -74,14 +73,19 @@ public class PhotoFragment extends Fragment {
     }
 
     // 提供一个接口供外部输入图片列表并实时刷新界面
+    // 如果传入的列表list不为空，就会交由PhotoAdapter更新list
     public void setImageList(List<ImageItem> list) {
-        imageList.clear();
-        imageList.addAll(list);
-        if (photoAdapter == null) {
-            photoAdapter = new PhotoAdapter(imageList);
-            recyclerView.setAdapter(photoAdapter);
-        } else {
-            photoAdapter.notifyDataSetChanged();
-        }
+        // 确保在主线程更新
+        if (getActivity() == null) return;
+        getActivity().runOnUiThread(() -> {
+            // 直接通过适配器更新数据
+            if (photoAdapter == null) {
+                imageList = new ArrayList<>(list); // 创建新列表避免引用问题
+                photoAdapter = new PhotoAdapter(imageList);
+                recyclerView.setAdapter(photoAdapter);
+            } else {
+                photoAdapter.updateData(list); // 调用适配器的更新方法
+            }
+        });
     }
 }

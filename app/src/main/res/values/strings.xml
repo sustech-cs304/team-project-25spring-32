@@ -4,4 +4,8 @@
     <string name="title_photo">Photo</string>
     <string name="title_album">Album</string>
     <string name="title_ai">AI</string>
+    <string name="download">download</string>
+    <string name="share">share</string>
+    <string name="preview">preview</string>
+    <string name="edit">Edit</string>
 </resources>
