@@ -50,5 +50,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             super(itemView);
             imageView = itemView.findViewById(R.id.image_view);
         }
+
+
     }
+
+    // 增加更新数据的方法
+    public void updateData(List<ImageItem> newList) {
+        imageList.clear();
+        imageList.addAll(newList);
+        notifyDataSetChanged();
+    }
+
+
 }
