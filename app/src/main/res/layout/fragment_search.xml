@@ -6,6 +6,7 @@
     <!-- 搜索框 -->
     <EditText
         android:id="@+id/searchBox"
+        android:paddingTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Search..." />
