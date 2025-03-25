@@ -17,8 +17,7 @@
         android:paddingTop="20dp"
         android:paddingEnd="16dp"
         android:layout_marginTop="25dp"/>
-
-    <!-- 其余部分保持不变 -->
+    
     <ListView
         android:id="@+id/suggestionList"
         android:layout_width="match_parent"
