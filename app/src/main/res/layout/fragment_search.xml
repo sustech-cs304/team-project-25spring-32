@@ -19,16 +19,18 @@
         android:visibility="gone" /> <!-- 初始状态为隐藏 -->
 
     <!-- 默认图片 -->
+
+    <!-- 搜索结果图片列表 -->
+
     <ImageView
         android:id="@+id/defaultImage"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/example"
-        android:scaleType="centerCrop"
+        android:layout_height="311dp"
         android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/example"
         android:visibility="visible" />
 
-    <!-- 搜索结果图片列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/imageRecyclerView"
         android:layout_width="match_parent"
