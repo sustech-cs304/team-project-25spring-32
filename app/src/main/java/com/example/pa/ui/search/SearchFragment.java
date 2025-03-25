@@ -116,7 +116,6 @@ public class SearchFragment extends Fragment {
                 // 更新右侧清除按钮可见性
                 //updateClearButtonVisibility(s.length() > 0);
 
-                // 原有逻辑保持不变...
                 if (s.length() == 0) {
                     defaultImage.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
