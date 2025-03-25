@@ -6,21 +6,24 @@
     <!-- 搜索框 -->
     <EditText
         android:id="@+id/searchBox"
-        android:paddingTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search..." />
+        android:background="@android:drawable/edit_text"
+        android:drawableStart="@drawable/ic_search"
+        android:drawableEnd="@drawable/ic_clear"
+        android:drawablePadding="8dp"
+        android:hint="Search..."
+        android:paddingStart="16dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="16dp"
+        android:layout_marginTop="25dp"/>
 
-    <!-- 推荐词列表 -->
+    <!-- 其余部分保持不变 -->
     <ListView
         android:id="@+id/suggestionList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone" /> <!-- 初始状态为隐藏 -->
-
-    <!-- 默认图片 -->
-
-    <!-- 搜索结果图片列表 -->
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/defaultImage"
@@ -36,6 +39,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="16dp"
-        android:visibility="gone" /> <!-- 初始状态为隐藏 -->
+        android:visibility="gone" />
 
 </LinearLayout>
