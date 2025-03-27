@@ -1,4 +1,4 @@
-package com.example.pa.ui.ai;
+package com.example.pa.ui.memory;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,20 +12,20 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pa.databinding.FragmentAiBinding;
 
-public class AIFragment extends Fragment {
+public class MemoryFragment extends Fragment {
 
     private FragmentAiBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        AIViewModel AIViewModel =
-                new ViewModelProvider(this).get(AIViewModel.class);
+        MemoryViewModel MemoryViewModel =
+                new ViewModelProvider(this).get(MemoryViewModel.class);
 
         binding = FragmentAiBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textAi;
-        AIViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final TextView textView = binding.textMemory;
+        MemoryViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

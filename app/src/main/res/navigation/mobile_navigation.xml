@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/navigation_ai"
-        android:name="com.example.pa.ui.ai.AIFragment"
-        android:label="@string/title_ai"
+        android:name="com.example.pa.ui.memory.MemoryFragment"
+        android:label="@string/title_memory"
         tools:layout="@layout/fragment_ai" />
 </navigation>

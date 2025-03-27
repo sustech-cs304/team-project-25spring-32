@@ -18,8 +18,8 @@
 
     <item
         android:id="@+id/navigation_ai"
-        android:icon="@drawable/icon_ai"
-        android:title="@string/title_ai" />
+        android:icon="@drawable/icon_memory"
+        android:title="@string/title_memory" />
 
 
 

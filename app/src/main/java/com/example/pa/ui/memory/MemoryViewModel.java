@@ -1,16 +1,16 @@
-package com.example.pa.ui.ai;
+package com.example.pa.ui.memory;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class AIViewModel extends ViewModel {
+public class MemoryViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public AIViewModel() {
+    public MemoryViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is AI fragment");
+        mText.setValue("This is Memory fragment");
     }
 
     public LiveData<String> getText() {
