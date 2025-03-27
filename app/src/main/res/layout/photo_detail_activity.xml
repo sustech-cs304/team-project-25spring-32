@@ -38,7 +38,7 @@
             android:visibility="gone">
 
             <Button
-                android:id="@+id/btn_download"
+                android:id="@+id/btn_edit"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

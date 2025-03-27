@@ -8,4 +8,11 @@
     <string name="share">share</string>
     <string name="preview">preview</string>
     <string name="edit">Edit</string>
+
+    <string name="title_photo_edit">Photo Edit</string>
+    <string name="rotate">Rotate</string>
+    <string name="brightness">Brightness</string>
+    <string name="contrast">Contrast</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>
