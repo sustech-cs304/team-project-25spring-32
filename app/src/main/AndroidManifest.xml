@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- 添加权限声明,允许访问网络和本地内存-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -32,7 +34,12 @@
 <!--        NoActionBar主题确保全屏显示-->
         <activity
             android:name=".ui.photo.PhotoDetailActivity"
+            android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity
+            android:name=".ui.photo.PhotoEditActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
     </application>
 
 </manifest>
