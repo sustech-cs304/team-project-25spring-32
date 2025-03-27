@@ -1,9 +1,12 @@
 package com.example.pa.ui.search;
 
+import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,6 +34,7 @@ public class SearchFragment extends Fragment {
     private List<String> suggestions;
     private ArrayAdapter<String> suggestionAdapter;
 
+    @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
@@ -81,6 +85,53 @@ public class SearchFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+        searchBox.setOnTouchListener((v, event) -> {
+            // 仅在右侧有drawable且输入不为空时处理
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                Drawable[] drawables = searchBox.getCompoundDrawables();
+                Drawable rightDrawable = drawables[2]; // 索引2表示右侧drawable
+
+                // 检查点击位置是否在右侧drawable区域
+                if (rightDrawable != null && event.getRawX() >=
+                        (searchBox.getRight() - rightDrawable.getBounds().width() -
+                                searchBox.getPaddingRight())) {
+                    // 清空输入并更新UI
+                    searchBox.setText("");
+                    defaultImage.setVisibility(View.VISIBLE);
+                    imageRecyclerView.setVisibility(View.GONE);
+                    suggestionList.setVisibility(View.GONE);
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        // 修改原有TextWatcher，添加图标状态管理
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // 更新右侧清除按钮可见性
+                //updateClearButtonVisibility(s.length() > 0);
+
+                if (s.length() == 0) {
+                    defaultImage.setVisibility(View.VISIBLE);
+                    imageRecyclerView.setVisibility(View.GONE);
+                    suggestionList.setVisibility(View.GONE);
+                } else {
+                    defaultImage.setVisibility(View.GONE);
+                    imageRecyclerView.setVisibility(View.VISIBLE);
+                    suggestionList.setVisibility(View.VISIBLE);
+                    searchViewModel.updateSuggestions(s.toString());
+                    searchViewModel.searchImages(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         // 设置推荐词点击事件
         suggestionList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -108,6 +159,7 @@ public class SearchFragment extends Fragment {
         searchViewModel.getSearchResults().observe(getViewLifecycleOwner(), images -> {
             imageAdapter.updateImages(images); // 更新图片列表
         });
+
 
         return root;
     }
