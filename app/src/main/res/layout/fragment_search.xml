@@ -14,9 +14,8 @@
         android:drawablePadding="8dp"
         android:hint="Search..."
         android:paddingStart="16dp"
-        android:paddingTop="20dp"
         android:paddingEnd="16dp"
-        android:layout_marginTop="25dp"/>
+        />
 
     <ListView
         android:id="@+id/suggestionList"
