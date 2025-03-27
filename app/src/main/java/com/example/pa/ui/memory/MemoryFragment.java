@@ -10,18 +10,18 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.pa.databinding.FragmentAiBinding;
+import com.example.pa.databinding.FragmentMemoryBinding;
 
 public class MemoryFragment extends Fragment {
 
-    private FragmentAiBinding binding;
+    private FragmentMemoryBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         MemoryViewModel MemoryViewModel =
                 new ViewModelProvider(this).get(MemoryViewModel.class);
 
-        binding = FragmentAiBinding.inflate(inflater, container, false);
+        binding = FragmentMemoryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
         final TextView textView = binding.textMemory;

@@ -27,5 +27,5 @@
         android:id="@+id/navigation_ai"
         android:name="com.example.pa.ui.memory.MemoryFragment"
         android:label="@string/title_memory"
-        tools:layout="@layout/fragment_ai" />
+        tools:layout="@layout/fragment_memory" />
 </navigation>
