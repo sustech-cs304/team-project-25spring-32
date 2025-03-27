@@ -17,3 +17,8 @@ local.properties
 .idea/.name
 .idea/AndroidProjectSystem.xml
 /.idea
+/caches
+/wrapper
+/daemon
+/native
+/app/.idea
