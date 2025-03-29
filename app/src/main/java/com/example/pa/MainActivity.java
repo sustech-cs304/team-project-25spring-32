@@ -1,7 +1,6 @@
 package com.example.pa;
 
 import android.annotation.SuppressLint;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,7 +10,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.example.pa.data.UserDao;
 import com.example.pa.databinding.ActivityMainBinding;
+import com.example.pa.util.PasswordUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,12 +26,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 初始化UserDao（不再需要手动open）
+        // 初始化UserDao
         userDao = new UserDao(this);
-        Log.d("Database", "数据库访问对象已初始化");
+        Log.d("UserDB", "UserDao初始化完成");
 
-        // 测试数据库操作
+        // 测试数据库操作（仅在debug模式运行）
         testDatabaseOperations();
+
 
         // 设置底部导航
         setupBottomNavigation();
@@ -51,39 +53,53 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("Range")
     private void testDatabaseOperations() {
-        // 清空旧数据（测试用）
-        userDao.clearTable();
+        try {
+            // 清空测试数据
+            userDao.clearTable();
+            Log.d("UserDB", "已清空测试数据");
 
-        // 添加新用户
-        long id1 = userDao.addUser("张三", "zhangsan@example.com");
-        long id2 = userDao.addUser("李四", "lisi@example.com");
-        Log.d("Database", "添加用户完成，ID: " + id1 + ", " + id2);
+            // 添加测试用户（密码需要哈希处理）
+            String pwdHash1 = PasswordUtil.sha256("123456");
+            String pwdHash2 = PasswordUtil.sha256("654321");
 
-        // 查询并显示所有用户
-        try (Cursor cursor = userDao.getAllUsers()) {
-            StringBuilder userInfo = new StringBuilder("当前用户列表:\n");
-            while (cursor.moveToNext()) {
-                long id = cursor.getLong(cursor.getColumnIndex(UserDao.COLUMN_ID));
-                String name = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_NAME));
-                String email = cursor.getString(cursor.getColumnIndex(UserDao.COLUMN_EMAIL));
+            long id1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
+            long id2 = userDao.addUser("李四", "lisi@example.com", pwdHash2);
 
-                userInfo.append("ID: ").append(id)
-                        .append(", 姓名: ").append(name)
-                        .append(", 邮箱: ").append(email).append("\n");
+            if (id1 == -1 || id2 == -1) {
+                Log.e("UserDB", "添加测试用户失败");
+                return;
             }
-            Log.d("Database", userInfo.toString());
+
+            // 验证用户登录
+            boolean valid = userDao.validateUser("张三", pwdHash1);
+            Log.d("UserDB", "用户验证结果: " + (valid ? "成功" : "失败"));
+
+            // 查询用户详情
+            UserDao.User user = userDao.getUserByUsername("李四");
+            if (user != null) {
+                Log.d("UserDB", String.format(
+                        "用户详情: ID=%d, 用户名=%s, 注册时间=%s",
+                        user.id, user.username, user.createdTime
+                ));
+            }
+
+            // 更新用户头像
+            userDao.updateUserAvatar((int)id1,
+                    "/data/user/0/com.example.pa/avatar_1.jpg",
+                    "https://example.com/avatars/1.jpg");
+
+        } catch (NoSuchAlgorithmException e) {
+            Log.e("UserDB", "密码哈希失败", e);
         } catch (Exception e) {
-            Log.e("Database", "查询用户失败", e);
+            Log.e("UserDB", "数据库测试异常", e);
         }
     }
 
     @Override
     protected void onDestroy() {
-        // 清空表（根据需求决定是否保留）
         userDao.clearTable();
-        Log.d("Database", "已清空用户表数据");
+        Log.d("UserDB", "已清理测试数据");
 
-        // 注意：不再需要手动close，由DatabaseHelper统一管理
         super.onDestroy();
     }
 }
