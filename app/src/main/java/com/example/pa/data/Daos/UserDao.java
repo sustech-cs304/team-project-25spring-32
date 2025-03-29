@@ -1,4 +1,4 @@
-package com.example.pa.data;
+package com.example.pa.data.Daos;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -7,7 +7,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import java.util.Date;
+
+import com.example.pa.data.DatabaseHelper;
 
 public class UserDao {
     // 表结构常量

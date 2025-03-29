@@ -1,4 +1,4 @@
-package com.example.pa.data;
+package com.example.pa.data.Daos;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
@@ -7,9 +7,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+
+import com.example.pa.data.DatabaseHelper;
 import com.google.gson.Gson;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 public class PhotoDao {

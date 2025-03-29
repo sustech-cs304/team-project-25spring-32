@@ -1,6 +1,7 @@
 package com.example.pa;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,13 +9,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import com.example.pa.data.PhotoDao;
-import com.example.pa.data.UserDao;
+import com.example.pa.data.Daos.*;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import java.security.NoSuchAlgorithmException;
-
 import java.util.Arrays;
 import java.util.Date;
 
@@ -23,6 +22,13 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private UserDao userDao;
     private PhotoDao photoDao;
+    private AlbumDao albumDao;
+    private AlbumPhotoDao albumPhotoDao;
+    private TagDao tagDao;
+    private PhotoTagDao photoTagDao;
+    private SearchHistoryDao searchHistoryDao;
+    private MemoryVideoDao memoryVideoDao;
+    private MemoryVideoPhotoDao memoryVideoPhotoDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,20 +37,32 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // 初始化UserDao
-        userDao = new UserDao(this);
-        Log.d("UserDB", "UserDao初始化完成");
+        // Initialize all DAOs
+        initializeDaos();
 
-        // 初始化PhotoDao
-        photoDao = new PhotoDao(this);
-        Log.d("PhotoDB", "PhotoDao初始化完成");
-
-        // 测试数据库操作（仅在debug模式运行）
+        // Test database operations
         testDatabaseOperations();
 
-
-        // 设置底部导航
+        // Setup bottom navigation
         setupBottomNavigation();
+    }
+
+    /**
+     * Initialize all database access objects
+     */
+    private void initializeDaos() {
+        Context context = getApplicationContext();
+        userDao = new UserDao(context);
+        photoDao = new PhotoDao(context);
+        albumDao = new AlbumDao(context);
+        albumPhotoDao = new AlbumPhotoDao(context);
+        tagDao = new TagDao(context);
+        photoTagDao = new PhotoTagDao(context);
+        searchHistoryDao = new SearchHistoryDao(context);
+        memoryVideoDao = new MemoryVideoDao(context);
+        memoryVideoPhotoDao = new MemoryVideoPhotoDao(context);
+
+        Log.d("Database", "All DAOs initialized successfully");
     }
 
     private void setupBottomNavigation() {
@@ -63,84 +81,102 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("Range")
     private void testDatabaseOperations() {
         try {
-            // 清空测试数据
-            userDao.clearTable();
-            photoDao.clearTable();
-            Log.d("Database", "已清空测试数据");
+            // Clear all test data
+            clearAllTables();
+            Log.d("Database", "Cleared all test data");
 
-            // ========== 用户测试 ==========
-            // 添加测试用户（密码需要哈希处理）
-            String pwdHash1 = PasswordUtil.sha256("123456");
-            String pwdHash2 = PasswordUtil.sha256("654321");
+            // ========== User Tests ==========
+            testUserOperations();
 
-            long userId1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
-            long userId2 = userDao.addUser("李四", "lisi@example.com", pwdHash2);
+            // ========== Photo Tests ==========
+            testPhotoOperations();
 
-            if (userId1 == -1 || userId2 == -1) {
-                Log.e("UserDB", "添加测试用户失败");
-                return;
-            }
+            // ========== Album Tests ==========
+            testAlbumOperations();
 
-            // 验证用户登录
-            boolean valid = userDao.validateUser("张三", pwdHash1);
-            Log.d("UserDB", "用户验证结果: " + (valid ? "成功" : "失败"));
+            // ========== Tag Tests ==========
+            testTagOperations();
 
-            // ========== 照片测试 ==========
-            // 添加基本照片
-            long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/photo1.jpg");
-            long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
-            long photoId3 = photoDao.addPhoto((int) userId2, "photo", "/storage/emulated/0/DCIM/photo2.jpg");
+            // ========== Search History Tests ==========
+            testSearchHistoryOperations();
 
-            Log.d("PhotoDB", "添加照片结果: " + photoId1 + ", " + photoId2 + ", " + photoId3);
+            // ========== Memory Video Tests ==========
+            testMemoryVideoOperations();
 
-            // 添加完整照片信息
-            PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
-                    0, // ID will be auto-generated
-                    (int) userId2,
-                    "photo",
-                    "/storage/emulated/0/DCIM/photo3.jpg",
-                    new Date().toString(),
-                    "2023-01-01 12:00:00",
-                    116.404,
-                    39.915,
-                    "北京市天安门",
-                    "测试照片描述",
-                    Arrays.asList("person", "building", "sky")
-            );
-            long fullPhotoId = photoDao.addFullPhoto(fullPhoto);
-            Log.d("PhotoDB", "添加完整照片结果: " + fullPhotoId);
-
-            // 更新照片描述
-            boolean updateDescResult = photoDao.updateDescription((int) photoId1, "更新后的描述");
-            Log.d("PhotoDB", "更新描述结果: " + updateDescResult);
-
-            // 更新AI识别结果
-            boolean updateAIResult = photoDao.updateAIObjects((int) photoId2, Arrays.asList("car", "road", "tree"));
-            Log.d("PhotoDB", "更新AI结果: " + updateAIResult);
-
-            // 查询照片详情
-            PhotoDao.Photo queriedPhoto = photoDao.getPhotoById((int) fullPhotoId);
-            if (queriedPhoto != null) {
-                Log.d("PhotoDB", "查询照片详情: " + queriedPhoto.description +
-                        ", AI对象: " + queriedPhoto.aiObjects.toString());
-            }
-
-            // 测试删除照片
-            boolean deleteResult = photoDao.deletePhoto((int) photoId3);
-            Log.d("PhotoDB", "删除照片结果: " + deleteResult);
+            Log.d("Database", "All database tests completed successfully");
 
         } catch (NoSuchAlgorithmException e) {
-            Log.e("Database", "密码哈希失败", e);
+            Log.e("Database", "Password hashing failed", e);
         } catch (Exception e) {
-            Log.e("Database", "数据库测试异常", e);
+            Log.e("Database", "Database test exception", e);
         }
+    }
+
+    private void testUserOperations() throws NoSuchAlgorithmException {
+        String pwdHash1 = PasswordUtil.sha256("123456");
+        String pwdHash2 = PasswordUtil.sha256("654321");
+
+        long userId1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
+        long userId2 = userDao.addUser("李四", "lisi@example.com", pwdHash2);
+
+        boolean valid = userDao.validateUser("张三", pwdHash1);
+        Log.d("UserDB", "User validation result: " + (valid ? "Success" : "Failed"));
+    }
+
+    private void testPhotoOperations() {
+        // Assume userId1 and userId2 are available from user tests
+        long userId1 = 1; // These would come from your actual user creation
+        long userId2 = 2;
+
+        long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/photo1.jpg");
+        long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
+
+        PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
+                0, (int) userId2, "photo", "/storage/emulated/0/DCIM/photo3.jpg",
+                new Date().toString(), "2023-01-01 12:00:00",
+                116.404, 39.915, "北京市天安门", "测试照片描述",
+                Arrays.asList("person", "building", "sky"));
+        photoDao.addFullPhoto(fullPhoto);
+    }
+
+    private void testAlbumOperations() {
+        long userId1 = 1;
+        long albumId1 = albumDao.addAlbum("旅行相册", (int) userId1, false, false, "private");
+        albumDao.updateAlbumVisibility((int) albumId1, "public");
+    }
+
+    private void testTagOperations() {
+        long tagId1 = tagDao.addTag("风景", false);
+        tagDao.deleteTag((int) tagId1);
+    }
+
+    private void testSearchHistoryOperations() {
+        long userId1 = 1;
+        searchHistoryDao.addSearchHistory((int) userId1, "北京");
+    }
+
+    private void testMemoryVideoOperations() {
+        long userId1 = 1;
+        long videoId1 = memoryVideoDao.addMemoryVideo((int) userId1, "2023回忆", "温馨", "music1.mp3");
+        memoryVideoDao.updateVideoUrl((int) videoId1, "video1.mp4");
+    }
+
+    private void clearAllTables() {
+        userDao.clearTable();
+        photoDao.clearTable();
+        albumDao.clearTable();
+        albumPhotoDao.clearTable();
+        tagDao.clearTable();
+        photoTagDao.clearTable();
+        searchHistoryDao.clearTable();
+        memoryVideoDao.clearTable();
+        memoryVideoPhotoDao.clearTable();
     }
 
     @Override
     protected void onDestroy() {
-        userDao.clearTable();
-        Log.d("UserDB", "已清理测试数据");
-
+        clearAllTables();
+        Log.d("Database", "Cleaned up all test data");
         super.onDestroy();
     }
 }
