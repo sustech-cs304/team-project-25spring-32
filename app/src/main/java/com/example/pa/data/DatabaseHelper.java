@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "app1.db";
+    private static final String DATABASE_NAME = "app.db";
     private static final int DATABASE_VERSION = 1;
 
     // 单例模式
@@ -29,6 +29,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(UserDao.CREATE_TABLE);
         Log.d("Database", "创建表User");
         //db.execSQL(ProductDao.CREATE_TABLE);
+        db.execSQL(PhotoDao.CREATE_TABLE);
+        Log.d("Database", "创建表Photo");
         // 其他表...
     }
 
