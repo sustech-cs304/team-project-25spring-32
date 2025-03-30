@@ -14,14 +14,19 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.example.pa.R;
 import com.example.pa.databinding.FragmentSearchBinding;
+import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +38,7 @@ public class SearchFragment extends Fragment {
     private ImageAdapter imageAdapter;
     private List<String> suggestions;
     private ArrayAdapter<String> suggestionAdapter;
+    private FlexboxLayout flexboxRecommendations;
 
     @SuppressLint("ClickableViewAccessibility")
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -42,7 +48,15 @@ public class SearchFragment extends Fragment {
         binding = FragmentSearchBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        flexboxRecommendations = binding.flexboxRecommendations;
+        // 加载推荐词
+        searchViewModel.loadRecommendations();
+
+        // 观察推荐词变化
+        searchViewModel.getRecommendations().observe(getViewLifecycleOwner(), this::updateRecommendations);
+
         final EditText searchBox = binding.searchBox;
+        //updateClearButtonVisibility(false);
         final ListView suggestionList = binding.suggestionList;
         final RecyclerView imageRecyclerView = binding.imageRecyclerView;
         final ImageView defaultImage = binding.defaultImage;
@@ -116,6 +130,7 @@ public class SearchFragment extends Fragment {
                 // 更新右侧清除按钮可见性
                 //updateClearButtonVisibility(s.length() > 0);
 
+
                 if (s.length() == 0) {
                     defaultImage.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
@@ -128,6 +143,8 @@ public class SearchFragment extends Fragment {
                     searchViewModel.searchImages(s.toString());
                 }
             }
+
+
 
             @Override
             public void afterTextChanged(Editable s) {}
@@ -169,4 +186,36 @@ public class SearchFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+    private void updateRecommendations(List<String> recommendations) {
+        flexboxRecommendations.removeAllViews();
+
+        for (String keyword : recommendations) {
+            TextView textView = new TextView(getContext());
+            textView.setText(keyword);
+            textView.setTextSize(18);
+            textView.setPadding(16, 8, 16, 8);
+            textView.setBackgroundResource(R.drawable.recommendation_bg);
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+
+            FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
+                    // 宽高包裹内容
+                    // 这两行代码不是重复的，是设置宽高的参数，哈哈哈哈，笑嘻了
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0, 0, 8, 8);
+            textView.setLayoutParams(params);
+
+            // 点击推荐词时，填入搜索框并搜索
+            textView.setOnClickListener(v -> {
+                binding.searchBox.setText(keyword);
+                binding.searchBox.setSelection(keyword.length());
+                searchViewModel.searchImages(keyword);
+            });
+            //TODO:是不是还要完善一下点击推荐词后关闭补全框的功能
+
+            flexboxRecommendations.addView(textView);
+        }
+    }
+
 }

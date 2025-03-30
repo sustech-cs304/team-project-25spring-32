@@ -15,4 +15,5 @@
     <string name="contrast">Contrast</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="recommended_keywords">猜你想搜</string>
 </resources>

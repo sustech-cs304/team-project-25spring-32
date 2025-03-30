@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation(libs.glide)
+    implementation (libs.flexbox)
     implementation(libs.room.common)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
