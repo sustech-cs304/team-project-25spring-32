@@ -62,6 +62,18 @@ public class TagDao {
                 COLUMN_NAME + " ASC");
     }
 
+    public Cursor getTagById(int tagId) {
+        return db.query(TABLE_NAME,
+                null,
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(tagId)},
+                null, null, null);
+    }
+
+    public Cursor getRandomTags(int count) {
+        return db.rawQuery("SELECT * FROM " + TABLE_NAME + " ORDER BY RANDOM() LIMIT " + count, null);
+    }
+
     public boolean deleteTag(int tagId) {
         try {
             int affected = db.delete(TABLE_NAME,

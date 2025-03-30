@@ -2,6 +2,7 @@ package com.example.pa;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
@@ -103,6 +104,22 @@ public class MainActivity extends AppCompatActivity {
             // ========== Memory Video Tests ==========
             testMemoryVideoOperations();
 
+            //TEST SEARCH
+            Cursor cursor = albumDao.getAlbumsByUser(1);
+            if (cursor.moveToFirst()) {
+                do {
+                    Log.d("testSEARCH", "Album name: " + cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
+                } while (cursor.moveToNext());
+            }
+
+            //TEST TAG
+            Cursor cursor2 = tagDao.getRandomTags(3);
+            if (cursor2.moveToFirst()) {
+                do {
+                    Log.d("testTAG", "Tag name: " + cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
+                } while (cursor2.moveToNext());
+            }
+
             Log.d("Database", "All database tests completed successfully");
 
         } catch (NoSuchAlgorithmException e) {
@@ -147,7 +164,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void testTagOperations() {
         long tagId1 = tagDao.addTag("风景", false);
-        tagDao.deleteTag((int) tagId1);
+        long tagId2 = tagDao.addTag("人物", false);
+        long tagId3 = tagDao.addTag("建筑", false);
+        long tagId4 = tagDao.addTag("天空", false);
+        long tagId5 = tagDao.addTag("动物", false);
+        //tagDao.deleteTag((int) tagId1);
     }
 
     private void testSearchHistoryOperations() {
@@ -162,15 +183,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void clearAllTables() {
-        userDao.clearTable();
-        photoDao.clearTable();
-        albumDao.clearTable();
-        albumPhotoDao.clearTable();
-        tagDao.clearTable();
-        photoTagDao.clearTable();
-        searchHistoryDao.clearTable();
-        memoryVideoDao.clearTable();
         memoryVideoPhotoDao.clearTable();
+        memoryVideoDao.clearTable();
+        searchHistoryDao.clearTable();
+        photoTagDao.clearTable();
+        tagDao.clearTable();
+        albumPhotoDao.clearTable();
+        albumDao.clearTable();
+        photoDao.clearTable();
+        userDao.clearTable();
     }
 
     @Override
