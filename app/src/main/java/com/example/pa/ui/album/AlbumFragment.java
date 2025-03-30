@@ -25,8 +25,8 @@ public class AlbumFragment extends Fragment {
     private RecyclerView recyclerView;
     private AlbumAdapter albumAdapter;
     private List<String> imageList;
+    private AlbumViewModel albumViewModel;
 
-    // 按钮图标
     private ImageView addIcon;
     private ImageView cameraIcon;
     private ImageView moreIcon;
@@ -34,22 +34,16 @@ public class AlbumFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // 使用inflater加载fragment_album布局文件
+        // 使用 inflater 加载 fragment_album 布局文件
         View rootView = inflater.inflate(R.layout.fragment_album, container, false);
 
-        // 初始化RecyclerView
+        // 初始化 RecyclerView
         recyclerView = rootView.findViewById(R.id.grid_recycler_view);
-
-        // 设置GridLayoutManager
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 3);
         recyclerView.setLayoutManager(layoutManager);
 
-        // 创建并设置适配器
-        imageList = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            imageList.add("Image " + i);
-        }
-        albumAdapter = new AlbumAdapter(imageList);
+        // 设置适配器
+        albumAdapter = new AlbumAdapter(new ArrayList<>());
         recyclerView.setAdapter(albumAdapter);
 
         // 初始化右上角的图标
@@ -57,22 +51,26 @@ public class AlbumFragment extends Fragment {
         cameraIcon = rootView.findViewById(R.id.camera_icon);
         moreIcon = rootView.findViewById(R.id.more_icon);
 
+        // 获取 ViewModel
+        albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
+
+        // 观察图片列表变化
+        albumViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
+            albumAdapter = new AlbumAdapter(images);
+            recyclerView.setAdapter(albumAdapter);
+        });
+
+        // 观察事件变化
+        albumViewModel.getEvent().observe(getViewLifecycleOwner(), event -> {
+            Toast.makeText(getContext(), event, Toast.LENGTH_SHORT).show();
+        });
+
         // 设置点击事件
-        addIcon.setOnClickListener(v -> {
-            // 处理加号按钮点击事件
-            Toast.makeText(getContext(), "Add clicked", Toast.LENGTH_SHORT).show();
-        });
+        addIcon.setOnClickListener(v -> albumViewModel.onAddClicked());
+        cameraIcon.setOnClickListener(v -> albumViewModel.onCameraClicked());
+        moreIcon.setOnClickListener(v -> albumViewModel.onMoreClicked());
 
-        cameraIcon.setOnClickListener(v -> {
-            // 处理相机按钮点击事件
-            Toast.makeText(getContext(), "Camera clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        moreIcon.setOnClickListener(v -> {
-            // 处理更多按钮点击事件
-            Toast.makeText(getContext(), "More clicked", Toast.LENGTH_SHORT).show();
-        });
-
-        return rootView; // 返回根视图
+        return rootView;
     }
 }
+
