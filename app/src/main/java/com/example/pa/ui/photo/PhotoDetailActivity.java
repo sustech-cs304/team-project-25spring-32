@@ -37,7 +37,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
         );
-        // 以下内容存储在 res.latout.photo_detail_activity.xml里
+        // 以下内容存储在 res.layout.photo_detail_activity.xml里
         ivDetail = findViewById(R.id.iv_detail); // 整个大图的背景板和格式
         btnBack = findViewById(R.id.btn_back); // 左上角返回键
         toolbar = findViewById(R.id.toolbar); // 底部工具栏
@@ -53,7 +53,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
             intent.putExtra("image_url", imageUrl);
             startActivity(intent);
 
-            // 添加过渡动画（可选）
+            // 添加过渡动画
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         });
 
