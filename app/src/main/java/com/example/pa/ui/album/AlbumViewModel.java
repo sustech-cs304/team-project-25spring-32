@@ -33,11 +33,11 @@ public class AlbumViewModel extends ViewModel {
         event.setValue("Add clicked");
     }
 
-    public void onCameraClicked() {
-        event.setValue("Camera clicked");
+    public void onOrderClicked() {
+        event.setValue("Order clicked");
     }
 
-    public void onMoreClicked() {
-        event.setValue("More clicked");
+    public void onSetClicked() {
+        event.setValue("Set clicked");
     }
 }

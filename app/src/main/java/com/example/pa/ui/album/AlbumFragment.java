@@ -1,21 +1,19 @@
 package com.example.pa.ui.album;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
-import com.example.pa.databinding.FragmentAlbumBinding;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +29,7 @@ public class AlbumFragment extends Fragment {
     private ImageView cameraIcon;
     private ImageView moreIcon;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -48,8 +47,8 @@ public class AlbumFragment extends Fragment {
 
         // 初始化右上角的图标
         addIcon = rootView.findViewById(R.id.add_icon);
-        cameraIcon = rootView.findViewById(R.id.camera_icon);
-        moreIcon = rootView.findViewById(R.id.more_icon);
+        cameraIcon = rootView.findViewById(R.id.order_icon);
+        moreIcon = rootView.findViewById(R.id.set_icon);
 
         // 获取 ViewModel
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
@@ -67,8 +66,8 @@ public class AlbumFragment extends Fragment {
 
         // 设置点击事件
         addIcon.setOnClickListener(v -> albumViewModel.onAddClicked());
-        cameraIcon.setOnClickListener(v -> albumViewModel.onCameraClicked());
-        moreIcon.setOnClickListener(v -> albumViewModel.onMoreClicked());
+        cameraIcon.setOnClickListener(v -> albumViewModel.onOrderClicked());
+        moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
 
         return rootView;
     }

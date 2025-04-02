@@ -95,5 +95,4 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         notifyDataSetChanged(); // 必须确保在主线程调用
     }
 
-
 }
