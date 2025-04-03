@@ -8,21 +8,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
+import com.example.pa.ui.photo.PhotoFragment;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
-public class AlbumFragment extends Fragment {
+public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
     private RecyclerView recyclerView;
     private AlbumAdapter albumAdapter;
-    private List<String> imageList;
     private AlbumViewModel albumViewModel;
 
     private ImageView addIcon;
@@ -42,7 +44,7 @@ public class AlbumFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // 设置适配器
-        albumAdapter = new AlbumAdapter(new ArrayList<>());
+        albumAdapter = new AlbumAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(albumAdapter);
 
         // 初始化右上角的图标
@@ -54,8 +56,8 @@ public class AlbumFragment extends Fragment {
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
         // 观察图片列表变化
-        albumViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
-            albumAdapter = new AlbumAdapter(images);
+        albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
+            albumAdapter = new AlbumAdapter(albums, this);
             recyclerView.setAdapter(albumAdapter);
         });
 
@@ -70,6 +72,16 @@ public class AlbumFragment extends Fragment {
         moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
 
         return rootView;
+    }
+
+    @Override
+    public void onAlbumClick(String albumName) {
+        // 进入相册二级界面
+        PhotoFragment photoFragment = PhotoFragment.newInstance(albumName);
+        requireActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, photoFragment)
+                .addToBackStack(null)
+                .commit();
     }
 }
 
