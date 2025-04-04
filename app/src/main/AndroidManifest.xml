@@ -41,6 +41,9 @@
             android:name=".ui.photo.PhotoEditActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
+        <activity
+            android:name=".ui.album.PhotoinAlbumActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

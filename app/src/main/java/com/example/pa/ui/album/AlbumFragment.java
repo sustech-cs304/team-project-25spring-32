@@ -1,6 +1,7 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,18 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
-import com.example.pa.ui.photo.PhotoFragment;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
@@ -77,11 +74,24 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     @Override
     public void onAlbumClick(String albumName) {
         // 进入相册二级界面
-        PhotoFragment photoFragment = PhotoFragment.newInstance(albumName);
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, photoFragment)
-                .addToBackStack(null)
-                .commit();
+//        PhotoinAlbumFragment photoinAlbumFragment = PhotoinAlbumFragment.newInstance(albumName);
+//        requireActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.photo_fragment_container, photoinAlbumFragment)
+//                .addToBackStack(null)
+//                .commit();
+
+        Intent intent = new Intent(getActivity(), PhotoinAlbumActivity.class);
+        intent.putExtra("album_name", albumName);
+        startActivity(intent);
+
+        // 添加Activity过渡动画（可选）
+        if (getActivity() != null) {
+            getActivity().overridePendingTransition(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+            );
+        }
+
     }
 }
 
