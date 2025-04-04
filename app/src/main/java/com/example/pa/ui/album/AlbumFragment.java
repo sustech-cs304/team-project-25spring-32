@@ -1,6 +1,7 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pa.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class AlbumFragment extends Fragment {
+public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
     private RecyclerView recyclerView;
     private AlbumAdapter albumAdapter;
-    private List<String> imageList;
     private AlbumViewModel albumViewModel;
 
     private ImageView addIcon;
@@ -42,7 +41,7 @@ public class AlbumFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // 设置适配器
-        albumAdapter = new AlbumAdapter(new ArrayList<>());
+        albumAdapter = new AlbumAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(albumAdapter);
 
         // 初始化右上角的图标
@@ -54,8 +53,8 @@ public class AlbumFragment extends Fragment {
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
         // 观察图片列表变化
-        albumViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
-            albumAdapter = new AlbumAdapter(images);
+        albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
+            albumAdapter = new AlbumAdapter(albums, this);
             recyclerView.setAdapter(albumAdapter);
         });
 
@@ -70,6 +69,29 @@ public class AlbumFragment extends Fragment {
         moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
 
         return rootView;
+    }
+
+    @Override
+    public void onAlbumClick(String albumName) {
+        // 进入相册二级界面
+//        PhotoinAlbumFragment photoinAlbumFragment = PhotoinAlbumFragment.newInstance(albumName);
+//        requireActivity().getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.photo_fragment_container, photoinAlbumFragment)
+//                .addToBackStack(null)
+//                .commit();
+
+        Intent intent = new Intent(getActivity(), PhotoinAlbumActivity.class);
+        intent.putExtra("album_name", albumName);
+        startActivity(intent);
+
+        // 添加Activity过渡动画（可选）
+        if (getActivity() != null) {
+            getActivity().overridePendingTransition(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+            );
+        }
+
     }
 }
 

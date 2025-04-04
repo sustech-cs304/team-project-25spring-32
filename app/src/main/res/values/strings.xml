@@ -16,4 +16,9 @@
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="recommended_keywords">猜你想搜</string>
+
+    <string name="back" >return</string>
+    <string name="add">Add</string>
+    <string name="order">Order</string>
+    <string name="set">Set</string>
 </resources>

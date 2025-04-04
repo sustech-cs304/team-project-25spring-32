@@ -1,3 +1,4 @@
+// PhotoFragment.java
 package com.example.pa.ui.photo;
 
 import android.content.Context;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pa.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClickListener {
 
