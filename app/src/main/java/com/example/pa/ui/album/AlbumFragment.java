@@ -8,23 +8,21 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
-import com.example.pa.ui.photo.PhotoFragment;
 
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 
-public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
+public class AlbumFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private AlbumAdapter albumAdapter;
+    private List<String> imageList;
     private AlbumViewModel albumViewModel;
 
     private ImageView addIcon;
@@ -44,7 +42,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         recyclerView.setLayoutManager(layoutManager);
 
         // 设置适配器
-        albumAdapter = new AlbumAdapter(new ArrayList<>(), this);
+        albumAdapter = new AlbumAdapter(new ArrayList<>());
         recyclerView.setAdapter(albumAdapter);
 
         // 初始化右上角的图标
@@ -56,8 +54,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
         // 观察图片列表变化
-        albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
-            albumAdapter = new AlbumAdapter(albums, this);
+        albumViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
+            albumAdapter = new AlbumAdapter(images);
             recyclerView.setAdapter(albumAdapter);
         });
 
@@ -72,16 +70,6 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
 
         return rootView;
-    }
-
-    @Override
-    public void onAlbumClick(String albumName) {
-        // 进入相册二级界面
-        PhotoFragment photoFragment = PhotoFragment.newInstance(albumName);
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, photoFragment)
-                .addToBackStack(null)
-                .commit();
     }
 }
 

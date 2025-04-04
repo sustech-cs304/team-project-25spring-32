@@ -18,27 +18,9 @@ import java.util.ArrayList;
 
 public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClickListener {
 
-    private static final String ARG_ALBUM_NAME = "album_name";
-    private String albumName;
     private RecyclerView recyclerView;
     private PhotoAdapter photoAdapter;
     private PhotoViewModel photoViewModel;
-
-    public static PhotoFragment newInstance(String albumName) {
-        PhotoFragment fragment = new PhotoFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_ALBUM_NAME, albumName);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            albumName = getArguments().getString(ARG_ALBUM_NAME);
-        }
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,13 +36,13 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
 
         // 获取 ViewModel 实例，并观察图片列表的 LiveData
         photoViewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
-        photoViewModel.getImagesByAlbum(albumName).observe(getViewLifecycleOwner(), images -> {
+        photoViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
             // 当数据更新时，刷新适配器的数据
             photoAdapter.updateData(images);
         });
 
         // 加载初始数据（也可以通过网络请求获取）
-//        photoViewModel.loadInitialData();
+        photoViewModel.loadInitialData();
 
         return root;
     }

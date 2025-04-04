@@ -12,54 +12,42 @@ import com.bumptech.glide.Glide;
 import com.example.pa.R;
 
 import java.util.List;
-public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
+public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ImageViewHolder> {
 
-    private List<String> albumList;
-    private OnAlbumClickListener listener;
+    private List<String> imageList;
 
-    public interface OnAlbumClickListener {
-        void onAlbumClick(String albumName);
-    }
-
-    public AlbumAdapter(List<String> albumList, OnAlbumClickListener listener) {
-        this.albumList = albumList;
-        this.listener = listener;
+    public AlbumAdapter(List<String> imageList) {
+        this.imageList = imageList;
     }
 
     @Override
-    public AlbumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // 加载每个项的布局
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_album, parent, false);
-        return new AlbumViewHolder(view);
+        return new ImageViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(AlbumViewHolder holder, int position) {
+    public void onBindViewHolder(ImageViewHolder holder, int position) {
         // 在这里加载图片
-        String albumName = albumList.get(position);
-        holder.textView.setText(albumName);
+        String imagePath = imageList.get(position);
+        holder.textView.setText(imagePath);
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
-                .load(albumName) // 如果是本地图片，路径可以直接使用
+                .load(imagePath) // 如果是本地图片，路径可以直接使用
                 .into(holder.imageView);
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onAlbumClick(albumName);
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
-        return albumList.size();
+        return imageList.size();
     }
 
-    public static class AlbumViewHolder extends RecyclerView.ViewHolder {
+    public static class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textView;
 
-        public AlbumViewHolder(View itemView) {
+        public ImageViewHolder(View itemView) {
             super(itemView);
             // 引用布局中的 ImageView 和 TextView
             imageView = itemView.findViewById(R.id.imageView);
