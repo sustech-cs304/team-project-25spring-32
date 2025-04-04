@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.fragment.app.Fragment;
@@ -27,7 +28,7 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     private RecyclerView recyclerView;
     private PhotoinAlbumAdapter photoinAlbumAdapter;
     private PhotoinAlbumViewModel photoinAlbumViewModel;
-    private ImageView backButton;  // 用于处理返回按钮
+
 
     public static PhotoinAlbumFragment newInstance(String albumName) {
         PhotoinAlbumFragment fragment = new PhotoinAlbumFragment();
@@ -65,11 +66,6 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
             photoinAlbumAdapter.updateData(images);
         });
 
-//        // 设置返回按钮的点击事件
-//        backButton = root.findViewById(R.id.back_button);
-//        backButton.setOnClickListener(v -> {
-//            requireActivity().getSupportFragmentManager().popBackStack();  // 返回到上一个 Fragment (AlbumFragment)
-//        });
 
         return root;
     }

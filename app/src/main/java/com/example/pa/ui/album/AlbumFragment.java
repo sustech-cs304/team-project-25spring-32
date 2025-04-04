@@ -73,12 +73,6 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
 
     @Override
     public void onAlbumClick(String albumName) {
-        // 进入相册二级界面
-//        PhotoinAlbumFragment photoinAlbumFragment = PhotoinAlbumFragment.newInstance(albumName);
-//        requireActivity().getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.photo_fragment_container, photoinAlbumFragment)
-//                .addToBackStack(null)
-//                .commit();
 
         Intent intent = new Intent(getActivity(), PhotoinAlbumActivity.class);
         intent.putExtra("album_name", albumName);
