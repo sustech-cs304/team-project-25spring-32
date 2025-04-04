@@ -9,21 +9,20 @@ import java.util.List;
 
 public class AlbumViewModel extends ViewModel {
 
-    private MutableLiveData<List<String>> albumList = new MutableLiveData<>();
+    private MutableLiveData<List<String>> imageList = new MutableLiveData<>();
     private MutableLiveData<String> event = new MutableLiveData<>();
 
     public AlbumViewModel() {
         // 初始化数据
-        List<String> initialAlbums= new ArrayList<>();
-        initialAlbums.add("旅行");
-        initialAlbums.add("家人");
-        initialAlbums.add("朋友");
-        initialAlbums.add("宠物");
-        albumList.setValue(initialAlbums);
+        List<String> initialData = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            initialData.add("Image " + i);
+        }
+        imageList.setValue(initialData);
     }
 
-    public LiveData<List<String>> getAlbumList() {
-        return albumList;
+    public LiveData<List<String>> getImageList() {
+        return imageList;
     }
 
     public LiveData<String> getEvent() {
