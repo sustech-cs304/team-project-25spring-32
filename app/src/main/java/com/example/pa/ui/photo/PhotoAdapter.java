@@ -13,20 +13,21 @@ import com.example.pa.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.example.pa.data.Daos.PhotoDao.Photo;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
     // 内部持有图片数据列表
-    private List<ImageItem> imageList;
+    private List<Photo> imageList;
     // 定义点击回调接口
     private OnPhotoClickListener listener;
 
     // 回调接口：由外部（比如Fragment）实现点击后的操作
     public interface OnPhotoClickListener {
-        void onPhotoClick(ImageItem imageItem);
+        void onPhotoClick(Photo imageItem);
     }
 
-    public PhotoAdapter(List<ImageItem> imageList, OnPhotoClickListener listener) {
+    public PhotoAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
         // 创建新集合以避免外部数据引用问题
         this.imageList = new ArrayList<>(imageList);
         this.listener = listener;
@@ -42,10 +43,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        ImageItem imageItem = imageList.get(position);
+        Photo photo = imageList.get(position);
         // 使用 Glide 加载图片
         Glide.with(holder.itemView.getContext())
-                .load(imageItem.getUrl())
+                .load(photo.fileUrl)
                 .placeholder(R.drawable.placeholder_image)
                 .error(R.drawable.error_image)
                 .centerCrop()
@@ -58,7 +59,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     }
 
     // 更新数据方法：外部可以调用此方法来刷新图片列表
-    public void updateData(List<ImageItem> newList) {
+    public void updateData(List<Photo> newList) {
         this.imageList.clear();
         this.imageList.addAll(newList);
         notifyDataSetChanged(); // 确保在主线程调用

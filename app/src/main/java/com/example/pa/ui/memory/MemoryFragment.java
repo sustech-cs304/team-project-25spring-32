@@ -24,8 +24,6 @@ public class MemoryFragment extends Fragment {
         binding = FragmentMemoryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textMemory;
-        MemoryViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 

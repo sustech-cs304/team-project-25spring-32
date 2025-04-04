@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
+import com.example.pa.data.Daos.PhotoDao.Photo;
 
 import java.util.ArrayList;
 
@@ -49,11 +50,11 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
 
     // 实现点击事件回调，处理图片点击后跳转到大图展示页面
     @Override
-    public void onPhotoClick(ImageItem imageItem) {
+    public void onPhotoClick(Photo photo) {
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            intent.putExtra("image_url", imageItem.getUrl());
+            intent.putExtra("image_url", photo.fileUrl);
             startActivity(intent);
 
             // 添加Activity过渡动画

@@ -24,7 +24,7 @@
         tools:layout="@layout/fragment_album" />
 
     <fragment
-        android:id="@+id/navigation_ai"
+        android:id="@+id/navigation_memory"
         android:name="com.example.pa.ui.memory.MemoryFragment"
         android:label="@string/title_memory"
         tools:layout="@layout/fragment_memory" />
