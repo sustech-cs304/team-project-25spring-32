@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
                 0, (int) userId2, "photo", "/storage/emulated/0/DCIM/photo3.jpg",
+                "https://gd-hbimg.huaban.com/758e7de9f82dc52f2c8840915a5acfa9458fa15c50d3e-Bv5Tcc_fw480webp",
                 new Date().toString(), "2023-01-01 12:00:00",
                 116.404, 39.915, "北京市天安门", "测试照片描述",
                 Arrays.asList("person", "building", "sky"));

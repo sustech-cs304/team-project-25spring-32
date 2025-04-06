@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.example.pa.data.DatabaseHelper;
 import com.google.gson.Gson;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -65,6 +66,7 @@ public class PhotoDao {
 
     /**
      * 添加照片（基础信息）
+     *
      * @return 新照片ID，失败返回-1
      */
     public long addPhoto(int userId, String type, String filePath) {
@@ -208,6 +210,7 @@ public class PhotoDao {
         @SuppressLint("Range") int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
         @SuppressLint("Range") String type = cursor.getString(cursor.getColumnIndex(COLUMN_TYPE));
         @SuppressLint("Range") String filePath = cursor.getString(cursor.getColumnIndex(COLUMN_FILE_PATH));
+        @SuppressLint("Range") String fileUrl = cursor.getString(cursor.getColumnIndex(COLUMN_FILE_URL));
         @SuppressLint("Range") String uploadedTime = cursor.getString(cursor.getColumnIndex(COLUMN_UPLOADED_TIME));
         @SuppressLint("Range") String takenTime = cursor.getString(cursor.getColumnIndex(COLUMN_TAKEN_TIME));
         @SuppressLint("Range") double longitude = cursor.getDouble(cursor.getColumnIndex(COLUMN_LONGITUDE));
@@ -218,7 +221,7 @@ public class PhotoDao {
 
         List<String> aiObjects = Arrays.asList(gson.fromJson(aiJson, String[].class));
 
-        return new Photo(id, userId, type, filePath, uploadedTime, takenTime,
+        return new Photo(id, userId, type, filePath,fileUrl, uploadedTime, takenTime,
                 longitude, latitude, location, description, aiObjects);
     }
 
@@ -275,7 +278,7 @@ public class PhotoDao {
         public final String description;
         public final List<String> aiObjects;
 
-        public Photo(int id, int userId, String type, String filePath,
+        public Photo(int id, int userId, String type, String filePath, String fileUrl,
                      String uploadedTime, String takenTime,
                      double longitude, double latitude,
                      String location, String description,
@@ -284,7 +287,7 @@ public class PhotoDao {
             this.userId = userId;
             this.type = type;
             this.filePath = filePath;
-            this.fileUrl = null; // 未来删除
+            this.fileUrl = fileUrl; // 未来删除
             this.uploadedTime = uploadedTime;
             this.takenTime = takenTime;
             this.longitude = longitude;
