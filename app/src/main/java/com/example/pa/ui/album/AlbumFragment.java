@@ -1,36 +1,34 @@
 package com.example.pa.ui.album;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
-import com.example.pa.databinding.FragmentAlbumBinding;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class AlbumFragment extends Fragment {
+public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
     private RecyclerView recyclerView;
     private AlbumAdapter albumAdapter;
-    private List<String> imageList;
     private AlbumViewModel albumViewModel;
 
     private ImageView addIcon;
     private ImageView cameraIcon;
     private ImageView moreIcon;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -43,20 +41,20 @@ public class AlbumFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         // 设置适配器
-        albumAdapter = new AlbumAdapter(new ArrayList<>());
+        albumAdapter = new AlbumAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(albumAdapter);
 
         // 初始化右上角的图标
         addIcon = rootView.findViewById(R.id.add_icon);
-        cameraIcon = rootView.findViewById(R.id.camera_icon);
-        moreIcon = rootView.findViewById(R.id.more_icon);
+        cameraIcon = rootView.findViewById(R.id.order_icon);
+        moreIcon = rootView.findViewById(R.id.set_icon);
 
         // 获取 ViewModel
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
         // 观察图片列表变化
-        albumViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
-            albumAdapter = new AlbumAdapter(images);
+        albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
+            albumAdapter = new AlbumAdapter(albums, this);
             recyclerView.setAdapter(albumAdapter);
         });
 
@@ -67,10 +65,27 @@ public class AlbumFragment extends Fragment {
 
         // 设置点击事件
         addIcon.setOnClickListener(v -> albumViewModel.onAddClicked());
-        cameraIcon.setOnClickListener(v -> albumViewModel.onCameraClicked());
-        moreIcon.setOnClickListener(v -> albumViewModel.onMoreClicked());
+        cameraIcon.setOnClickListener(v -> albumViewModel.onOrderClicked());
+        moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
 
         return rootView;
+    }
+
+    @Override
+    public void onAlbumClick(String albumName) {
+
+        Intent intent = new Intent(getActivity(), PhotoinAlbumActivity.class);
+        intent.putExtra("album_name", albumName);
+        startActivity(intent);
+
+        // 添加Activity过渡动画（可选）
+        if (getActivity() != null) {
+            getActivity().overridePendingTransition(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+            );
+        }
+
     }
 }
 

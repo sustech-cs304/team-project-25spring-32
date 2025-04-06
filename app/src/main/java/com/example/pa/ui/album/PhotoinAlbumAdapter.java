@@ -1,5 +1,4 @@
-
-package com.example.pa.ui.photo;
+package com.example.pa.ui.album;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,24 +10,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.pa.R;
+import com.example.pa.ui.photo.ImageItem;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.example.pa.data.Daos.PhotoDao.Photo;
 
-public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
+public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapter.PhotoViewHolder> {
 
     // 内部持有图片数据列表
-    private List<Photo> imageList;
+    private List<ImageItem> imageList;
     // 定义点击回调接口
     private OnPhotoClickListener listener;
 
     // 回调接口：由外部（比如Fragment）实现点击后的操作
     public interface OnPhotoClickListener {
-        void onPhotoClick(Photo imageItem);
+        void onPhotoClick(ImageItem imageItem);
     }
 
-    public PhotoAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
+    public PhotoinAlbumAdapter(List<ImageItem> imageList, OnPhotoClickListener listener) {
         // 创建新集合以避免外部数据引用问题
         this.imageList = new ArrayList<>(imageList);
         this.listener = listener;
@@ -44,10 +43,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo photo = imageList.get(position);
+        ImageItem imageItem = imageList.get(position);
         // 使用 Glide 加载图片
         Glide.with(holder.itemView.getContext())
-                .load(photo.fileUrl)
+                .load(imageItem.getUrl())
                 .placeholder(R.drawable.placeholder_image)
                 .error(R.drawable.error_image)
                 .centerCrop()
@@ -60,7 +59,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     }
 
     // 更新数据方法：外部可以调用此方法来刷新图片列表
-    public void updateData(List<Photo> newList) {
+    public void updateData(List<ImageItem> newList) {
         this.imageList.clear();
         this.imageList.addAll(newList);
         notifyDataSetChanged(); // 确保在主线程调用

@@ -1,3 +1,4 @@
+// PhotoFragment.java
 package com.example.pa.ui.photo;
 
 import android.content.Context;
@@ -16,6 +17,7 @@ import com.example.pa.R;
 import com.example.pa.data.Daos.PhotoDao.Photo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClickListener {
 
