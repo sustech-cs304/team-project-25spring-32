@@ -50,6 +50,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 .into(holder.imageView);
     }
 
+
     @Override
     public int getItemCount() {
         return imageList.size();
