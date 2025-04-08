@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,6 +28,14 @@ import com.example.pa.data.Daos.UserDao;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+    private MyApplication app;
+
+    @Before //这个就是测试前的准备工作
+    public void setUp() {
+        // 获取 Application 实例, 这个一定要有
+        app = (MyApplication) InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
+    }
+
     @Test
     public void useAppContext() {
         // Context of the app under test.
@@ -36,8 +45,6 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_daos() {
-        // 获取 Application 中的 DAO 实例
-        MyApplication app= (MyApplication) MyApplication.getInstance();
         // 测试 UserDao
         UserDao userDao = app.getUserDao();
         assertNotNull(userDao);
