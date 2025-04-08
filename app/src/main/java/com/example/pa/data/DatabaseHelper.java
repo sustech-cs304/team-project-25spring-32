@@ -11,6 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "app.db";
     private static final int DATABASE_VERSION = 1;
 
+
     // 单例模式
     private static DatabaseHelper instance;
 

@@ -11,6 +11,7 @@ import com.example.pa.MyApplication;
 import com.example.pa.data.Daos.PhotoDao;
 import com.example.pa.data.Daos.PhotoTagDao;
 import com.example.pa.data.Daos.TagDao;
+import com.example.pa.data.MainRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,7 @@ public class SearchViewModel extends ViewModel {
     private PhotoTagDao photoTagDao;
     private PhotoDao photoDao;
     private TagDao tagDao;
+    private MainRepository mainRepository;
 
 
 
@@ -33,6 +35,7 @@ public class SearchViewModel extends ViewModel {
         photoTagDao = MyApplication.getInstance().getPhotoTagDao();
         photoDao = MyApplication.getInstance().getPhotoDao();
         tagDao = MyApplication.getInstance().getTagDao();
+        mainRepository= MyApplication.getInstance().getMainRepository();
 
         mSuggestions = new MutableLiveData<>();
         mSuggestions.setValue(new ArrayList<>());
@@ -65,11 +68,7 @@ public class SearchViewModel extends ViewModel {
     }
 
     public void searchImages(String query) {
-        List<String> results = new ArrayList<>();
-        Cursor cursor=tagDao.getTagByName(query);
-        
-
-
+        List<String> results = mainRepository.getPhotoPathByTagName(query);
 
         mSearchResults.setValue(results);
     }

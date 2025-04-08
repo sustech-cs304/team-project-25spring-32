@@ -1,0 +1,57 @@
+package com.example.pa.data;
+
+import com.example.pa.data.Daos.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainRepository {
+    private final UserDao userDao;
+    private final AlbumDao albumDao;
+    private final AlbumPhotoDao albumPhotoDao;
+    private final PhotoDao photoDao;
+    private final PhotoTagDao photoTagDao;
+    private final TagDao tagDao;
+    private final SearchHistoryDao searchHistoryDao;
+    private final MemoryVideoDao memoryVideoDao;
+    private final MemoryVideoPhotoDao memoryVideoPhotoDao;
+
+    public MainRepository(
+            UserDao userDao,
+            AlbumDao albumDao,
+            AlbumPhotoDao albumPhotoDao,
+            PhotoDao photoDao,
+            PhotoTagDao photoTagDao,
+            TagDao tagDao,
+            SearchHistoryDao searchHistoryDao,
+            MemoryVideoDao memoryVideoDao,
+            MemoryVideoPhotoDao memoryVideoPhotoDao
+    ) {
+        this.userDao = userDao;
+        this.albumDao = albumDao;
+        this.albumPhotoDao = albumPhotoDao;
+        this.photoDao = photoDao;
+        this.photoTagDao = photoTagDao;
+        this.tagDao = tagDao;
+        this.searchHistoryDao = searchHistoryDao;
+        this.memoryVideoDao = memoryVideoDao;
+        this.memoryVideoPhotoDao = memoryVideoPhotoDao;
+    }
+
+
+    public List<String> getPhotoPathByTagName(String tagName) {
+        List<String> photoPaths = new ArrayList<>();
+        int id = tagDao.getTagIdByName(tagName);//先获取tag的id
+        if (id != -1) {
+            List<Integer> photoIds = photoTagDao.getPhotoIdsByTag(id);//获取tag对应的所有照片id
+            for (int photoId : photoIds) {
+                PhotoDao.Photo photo = photoDao.getPhotoById(photoId);
+                photoPaths.add(photo.filePath);
+            }
+        }else
+            return null;
+
+        return photoPaths;
+    }
+
+}

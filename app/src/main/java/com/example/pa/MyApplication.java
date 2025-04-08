@@ -13,11 +13,13 @@ import com.example.pa.data.Daos.SearchHistoryDao;
 import com.example.pa.data.Daos.TagDao;
 import com.example.pa.data.Daos.UserDao;
 import com.example.pa.data.DatabaseHelper;
+import com.example.pa.data.MainRepository;
 
 public class MyApplication extends Application {
     private static MyApplication instance;
     private DatabaseHelper databaseHelper;//这里是数据库帮助类的实例，有个警告，
     // 但是getInstance方法之后是直接执行了onCreate
+    private MainRepository mainRepository;
     private UserDao userDao;
     private PhotoDao photoDao;
     private AlbumDao albumDao;
@@ -38,6 +40,15 @@ public class MyApplication extends Application {
 
         // 初始化所有DAO
         initializeDaos();
+        mainRepository= new MainRepository(
+                userDao,
+                albumDao,
+                albumPhotoDao,
+                photoDao,photoTagDao,
+                tagDao,searchHistoryDao,
+                memoryVideoDao,
+                memoryVideoPhotoDao
+        );
 
         Log.d("MyApplication", "Application and DAOs initialized");
     }
@@ -93,5 +104,9 @@ public class MyApplication extends Application {
 
     public MemoryVideoPhotoDao getMemoryVideoPhotoDao() {
         return memoryVideoPhotoDao;
+    }
+
+    public MainRepository getMainRepository() {
+        return mainRepository;
     }
 }

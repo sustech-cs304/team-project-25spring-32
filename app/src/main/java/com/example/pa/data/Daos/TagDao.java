@@ -1,5 +1,6 @@
 package com.example.pa.data.Daos;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -69,12 +70,31 @@ public class TagDao {
                 new String[]{String.valueOf(tagId)},
                 null, null, null);
     }
-    public Cursor getTagByName(String name) {
-        return db.query(TABLE_NAME,
-                null,
+    public int getTagIdByName(String tagName) {
+        Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_ID},
                 COLUMN_NAME + " = ?",
-                new String[]{name},
+                new String[]{tagName},
                 null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int tagId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+            cursor.close();
+            return tagId;
+        }
+        return -1; // 如果没有找到，返回-1
+    }
+    public String getPhotoPathByTagId(int tagId) {
+        Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_NAME},
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(tagId)},
+                null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") String photoPath = cursor.getString(cursor.getColumnIndex(PhotoDao.COLUMN_FILE_PATH));
+            cursor.close();
+            return photoPath;
+        }
+        return null; // 如果没有找到，返回null
     }
 
     public Cursor getRandomTags(int count) {
