@@ -1,7 +1,6 @@
 package com.example.pa;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,17 +18,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-
     private ActivityMainBinding binding;
-    private UserDao userDao;
-    private PhotoDao photoDao;
-    private AlbumDao albumDao;
-    private AlbumPhotoDao albumPhotoDao;
-    private TagDao tagDao;
-    private PhotoTagDao photoTagDao;
-    private SearchHistoryDao searchHistoryDao;
-    private MemoryVideoDao memoryVideoDao;
-    private MemoryVideoPhotoDao memoryVideoPhotoDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,32 +27,13 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize all DAOs
-        initializeDaos();
+        // 测试数据库操作 (仅用于开发环境)
 
-        // Test database operations
         testDatabaseOperations();
 
-        // Setup bottom navigation
+
+        // 设置底部导航
         setupBottomNavigation();
-    }
-
-    /**
-     * Initialize all database access objects
-     */
-    private void initializeDaos() {
-        Context context = getApplicationContext();
-        userDao = new UserDao(context);
-        photoDao = new PhotoDao(context);
-        albumDao = new AlbumDao(context);
-        albumPhotoDao = new AlbumPhotoDao(context);
-        tagDao = new TagDao(context);
-        photoTagDao = new PhotoTagDao(context);
-        searchHistoryDao = new SearchHistoryDao(context);
-        memoryVideoDao = new MemoryVideoDao(context);
-        memoryVideoPhotoDao = new MemoryVideoPhotoDao(context);
-
-        Log.d("Database", "All DAOs initialized successfully");
     }
 
     private void setupBottomNavigation() {
@@ -82,42 +52,47 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("Range")
     private void testDatabaseOperations() {
         try {
-            // Clear all test data
-            clearAllTables();
+            // 获取 Application 中的 DAO 实例
+            MyApplication app = (MyApplication) getApplication();
+
+            // 清空所有测试数据
+            clearAllTables(app);
             Log.d("Database", "Cleared all test data");
 
-            // ========== User Tests ==========
-            testUserOperations();
+            // ========== 用户测试 ==========
+            testUserOperations(app.getUserDao());
 
-            // ========== Photo Tests ==========
-            testPhotoOperations();
+            // ========== 照片测试 ==========
+            testPhotoOperations(app.getPhotoDao());
 
-            // ========== Album Tests ==========
-            testAlbumOperations();
+            // ========== 相册测试 ==========
+            testAlbumOperations(app.getAlbumDao());
 
-            // ========== Tag Tests ==========
-            testTagOperations();
+            // ========== 标签测试 ==========
+            testTagOperations(app.getTagDao());
 
-            // ========== Search History Tests ==========
-            testSearchHistoryOperations();
+            // ========== 搜索历史测试 ==========
+            testSearchHistoryOperations(app.getSearchHistoryDao());
 
-            // ========== Memory Video Tests ==========
-            testMemoryVideoOperations();
+            // ========== 记忆视频测试 ==========
+            testMemoryVideoOperations(app.getMemoryVideoDao());
 
-            //TEST SEARCH
-            Cursor cursor = albumDao.getAlbumsByUser(1);
+            // 测试搜索
+            Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
             if (cursor.moveToFirst()) {
                 do {
                     Log.d("testSEARCH", "Album name: " + cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
                 } while (cursor.moveToNext());
+                cursor.close();
             }
 
-            //TEST TAG
-            Cursor cursor2 = tagDao.getRandomTags(3);
+            // 测试标签
+            Cursor cursor2 = app.getTagDao().getRandomTags(3);
             if (cursor2.moveToFirst()) {
                 do {
                     Log.d("testTAG", "Tag name: " + cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
                 } while (cursor2.moveToNext());
+                cursor2.close();
             }
 
             Log.d("Database", "All database tests completed successfully");
@@ -129,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void testUserOperations() throws NoSuchAlgorithmException {
+    private void testUserOperations(UserDao userDao) throws NoSuchAlgorithmException {
         String pwdHash1 = PasswordUtil.sha256("123456");
         String pwdHash2 = PasswordUtil.sha256("654321");
 
@@ -140,9 +115,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d("UserDB", "User validation result: " + (valid ? "Success" : "Failed"));
     }
 
-    private void testPhotoOperations() {
-        // Assume userId1 and userId2 are available from user tests
-        long userId1 = 1; // These would come from your actual user creation
+    private void testPhotoOperations(PhotoDao photoDao) {
+        long userId1 = 1;
         long userId2 = 2;
 
         long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/photo1.jpg");
@@ -157,48 +131,49 @@ public class MainActivity extends AppCompatActivity {
         photoDao.addFullPhoto(fullPhoto);
     }
 
-    private void testAlbumOperations() {
+    private void testAlbumOperations(AlbumDao albumDao) {
         long userId1 = 1;
         long albumId1 = albumDao.addAlbum("旅行相册", (int) userId1, false, false, "private");
         albumDao.updateAlbumVisibility((int) albumId1, "public");
     }
 
-    private void testTagOperations() {
+    private void testTagOperations(TagDao tagDao) {
         long tagId1 = tagDao.addTag("风景", false);
         long tagId2 = tagDao.addTag("人物", false);
         long tagId3 = tagDao.addTag("建筑", false);
         long tagId4 = tagDao.addTag("天空", false);
         long tagId5 = tagDao.addTag("动物", false);
-        //tagDao.deleteTag((int) tagId1);
     }
 
-    private void testSearchHistoryOperations() {
+    private void testSearchHistoryOperations(SearchHistoryDao searchHistoryDao) {
         long userId1 = 1;
         searchHistoryDao.addSearchHistory((int) userId1, "北京");
     }
 
-    private void testMemoryVideoOperations() {
+    private void testMemoryVideoOperations(MemoryVideoDao memoryVideoDao) {
         long userId1 = 1;
         long videoId1 = memoryVideoDao.addMemoryVideo((int) userId1, "2023回忆", "温馨", "music1.mp3");
         memoryVideoDao.updateVideoUrl((int) videoId1, "video1.mp4");
     }
 
-    private void clearAllTables() {
-        memoryVideoPhotoDao.clearTable();
-        memoryVideoDao.clearTable();
-        searchHistoryDao.clearTable();
-        photoTagDao.clearTable();
-        tagDao.clearTable();
-        albumPhotoDao.clearTable();
-        albumDao.clearTable();
-        photoDao.clearTable();
-        userDao.clearTable();
+    private void clearAllTables(MyApplication app) {
+        app.getMemoryVideoPhotoDao().clearTable();
+        app.getMemoryVideoDao().clearTable();
+        app.getSearchHistoryDao().clearTable();
+        app.getPhotoTagDao().clearTable();
+        app.getTagDao().clearTable();
+        app.getAlbumPhotoDao().clearTable();
+        app.getAlbumDao().clearTable();
+        app.getPhotoDao().clearTable();
+        app.getUserDao().clearTable();
     }
 
     @Override
     protected void onDestroy() {
-        clearAllTables();
+
+        clearAllTables((MyApplication) getApplication());
         Log.d("Database", "Cleaned up all test data");
+
         super.onDestroy();
     }
 }

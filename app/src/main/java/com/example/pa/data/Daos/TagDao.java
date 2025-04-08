@@ -69,6 +69,13 @@ public class TagDao {
                 new String[]{String.valueOf(tagId)},
                 null, null, null);
     }
+    public Cursor getTagByName(String name) {
+        return db.query(TABLE_NAME,
+                null,
+                COLUMN_NAME + " = ?",
+                new String[]{name},
+                null, null, null);
+    }
 
     public Cursor getRandomTags(int count) {
         return db.rawQuery("SELECT * FROM " + TABLE_NAME + " ORDER BY RANDOM() LIMIT " + count, null);

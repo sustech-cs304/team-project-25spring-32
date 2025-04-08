@@ -1,8 +1,16 @@
 package com.example.pa.ui.search;
 
+import android.database.Cursor;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.example.pa.MainActivity;
+import com.example.pa.MyApplication;
+import com.example.pa.data.Daos.PhotoDao;
+import com.example.pa.data.Daos.PhotoTagDao;
+import com.example.pa.data.Daos.TagDao;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,9 +22,18 @@ public class SearchViewModel extends ViewModel {
     private final MutableLiveData<List<String>> mSuggestions;
     private final MutableLiveData<List<String>> mSearchResults;
     private final MutableLiveData<List<String>> mRecommendations = new MutableLiveData<>();
+    private PhotoTagDao photoTagDao;
+    private PhotoDao photoDao;
+    private TagDao tagDao;
+
+
 
 
     public SearchViewModel() {
+        photoTagDao = MyApplication.getInstance().getPhotoTagDao();
+        photoDao = MyApplication.getInstance().getPhotoDao();
+        tagDao = MyApplication.getInstance().getTagDao();
+
         mSuggestions = new MutableLiveData<>();
         mSuggestions.setValue(new ArrayList<>());
 
@@ -49,12 +66,11 @@ public class SearchViewModel extends ViewModel {
 
     public void searchImages(String query) {
         List<String> results = new ArrayList<>();
-        if (query.length() > 0) {
-            // 模拟一些搜索结果图片
-            results.add("https://example.com/image1.jpg");
-            results.add("https://example.com/image2.jpg");
-            results.add("https://example.com/image3.jpg");
-        }
+        Cursor cursor=tagDao.getTagByName(query);
+        
+
+
+
         mSearchResults.setValue(results);
     }
     public void loadRecommendations() {
