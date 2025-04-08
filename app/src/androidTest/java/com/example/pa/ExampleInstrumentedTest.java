@@ -10,6 +10,16 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
+import com.example.pa.data.Daos.AlbumDao;
+import com.example.pa.data.Daos.AlbumPhotoDao;
+import com.example.pa.data.Daos.MemoryVideoDao;
+import com.example.pa.data.Daos.MemoryVideoPhotoDao;
+import com.example.pa.data.Daos.PhotoDao;
+import com.example.pa.data.Daos.PhotoTagDao;
+import com.example.pa.data.Daos.SearchHistoryDao;
+import com.example.pa.data.Daos.TagDao;
+import com.example.pa.data.Daos.UserDao;
+
 /**
  * Instrumented test, which will execute on an Android device.
  *
@@ -22,5 +32,46 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         assertEquals("com.example.pa", appContext.getPackageName());
+    }
+
+    @Test
+    public void test_daos() {
+        // 获取 Application 中的 DAO 实例
+        MyApplication app= (MyApplication) MyApplication.getInstance();
+        // 测试 UserDao
+        UserDao userDao = app.getUserDao();
+        assertNotNull(userDao);
+
+        // 测试 PhotoDao
+        PhotoDao photoDao = app.getPhotoDao();
+        assertNotNull(photoDao);
+
+        // 测试 AlbumDao
+        AlbumDao albumDao = app.getAlbumDao();
+        assertNotNull(albumDao);
+
+        // 测试 AlbumPhotoDao
+        AlbumPhotoDao albumPhotoDao = app.getAlbumPhotoDao();
+        assertNotNull(albumPhotoDao);
+
+        // 测试 TagDao
+        TagDao tagDao = app.getTagDao();
+        assertNotNull(tagDao);
+
+        // 测试 PhotoTagDao
+        PhotoTagDao photoTagDao = app.getPhotoTagDao();
+        assertNotNull(photoTagDao);
+
+        // 测试 SearchHistoryDao
+        SearchHistoryDao searchHistoryDao = app.getSearchHistoryDao();
+        assertNotNull(searchHistoryDao);
+
+        // 测试 MemoryVideoDao
+        MemoryVideoDao memoryVideoDao = app.getMemoryVideoDao();
+        assertNotNull(memoryVideoDao);
+
+        // 测试 MemoryVideoPhotoDao
+        MemoryVideoPhotoDao memoryVideoPhotoDao = app.getMemoryVideoPhotoDao();
+        assertNotNull(memoryVideoPhotoDao);
     }
 }
