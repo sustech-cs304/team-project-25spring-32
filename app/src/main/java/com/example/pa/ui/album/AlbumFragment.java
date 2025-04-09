@@ -117,6 +117,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         String inputText = ((EditText) view.findViewById(R.id.editText)).getText().toString();
         // 处理输入内容，做相应的操作
         Toast.makeText(getContext(), "提交内容: " + inputText, Toast.LENGTH_SHORT).show();
+        albumViewModel.addAlbum(inputText);
         hideKeyboard();
 
         // 隐藏遮罩层和输入框

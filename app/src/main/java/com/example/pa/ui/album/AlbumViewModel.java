@@ -26,6 +26,25 @@ public class AlbumViewModel extends ViewModel {
         return albumList;
     }
 
+    // 添加相册
+    public void addAlbum(String albumName) {
+        List<String> currentList = albumList.getValue();
+        if (currentList == null) {
+            currentList = new ArrayList<>();
+        }
+        currentList.add(albumName);
+        albumList.setValue(currentList);
+    }
+
+    // 删除相册
+    public void removeAlbum(String albumName) {
+        List<String> currentList = albumList.getValue();
+        if (currentList != null) {
+            currentList.remove(albumName);
+            albumList.setValue(currentList);
+        }
+    }
+
     public LiveData<String> getEvent() {
         return event;
     }
