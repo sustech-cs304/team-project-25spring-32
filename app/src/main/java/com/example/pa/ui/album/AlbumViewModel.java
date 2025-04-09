@@ -41,4 +41,12 @@ public class AlbumViewModel extends ViewModel {
     public void onSetClicked() {
         event.setValue("Set clicked");
     }
+
+    public void onCancelClicked() {
+        event.setValue("Cancel clicked");
+    }
+
+    public void onConfirmClicked() {
+        event.setValue("Confirm clicked");
+    }
 }

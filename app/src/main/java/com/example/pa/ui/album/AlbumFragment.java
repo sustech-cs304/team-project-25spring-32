@@ -1,12 +1,18 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -17,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pa.R;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
@@ -27,6 +34,10 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     private ImageView addIcon;
     private ImageView cameraIcon;
     private ImageView moreIcon;
+    private FrameLayout maskLayer;
+    private LinearLayout inputContainer;
+    private Button confirm;
+    private Button cancel;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -49,6 +60,12 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         cameraIcon = rootView.findViewById(R.id.order_icon);
         moreIcon = rootView.findViewById(R.id.set_icon);
 
+        // 遮罩层和输入栏
+        maskLayer = rootView.findViewById(R.id.mask_layer);
+        inputContainer = rootView.findViewById(R.id.input_container);
+        confirm = rootView.findViewById(R.id.btnConfirm);
+        cancel = rootView.findViewById(R.id.btnCancel);
+
         // 获取 ViewModel
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
@@ -60,16 +77,71 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
 
         // 观察事件变化
         albumViewModel.getEvent().observe(getViewLifecycleOwner(), event -> {
-            Toast.makeText(getContext(), event, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getContext(), event, Toast.LENGTH_SHORT).show();
+            switch (event){
+                case "Add clicked":
+                    showInputLayer(); // 显示输入框和遮罩层
+                    break;
+                case "Order clicked":
+                    break;
+                case "Set clicked":
+                    break;
+                case "Cancel clicked":
+                    onCancelClicked(requireView());
+                    break;
+                case "Confirm clicked":
+                    onConfirmClicked(requireView());
+                    break;
+            }
         });
 
         // 设置点击事件
         addIcon.setOnClickListener(v -> albumViewModel.onAddClicked());
         cameraIcon.setOnClickListener(v -> albumViewModel.onOrderClicked());
         moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
+        cancel.setOnClickListener(v -> albumViewModel.onCancelClicked());
+        confirm.setOnClickListener(v -> albumViewModel.onConfirmClicked());
+
 
         return rootView;
     }
+
+    private void showInputLayer() {
+        // 显示遮罩层和输入框
+        maskLayer.setVisibility(View.VISIBLE);
+        inputContainer.setVisibility(View.VISIBLE);
+    }
+
+    // 提交输入的内容
+    public void onConfirmClicked(View view) {
+        String inputText = ((EditText) view.findViewById(R.id.editText)).getText().toString();
+        // 处理输入内容，做相应的操作
+        Toast.makeText(getContext(), "提交内容: " + inputText, Toast.LENGTH_SHORT).show();
+        hideKeyboard();
+
+        // 隐藏遮罩层和输入框
+        hideInputLayer();
+    }
+
+    // 取消按钮的点击事件
+    public void onCancelClicked(View view) {
+        hideKeyboard();
+        hideInputLayer();  // 关闭输入框和遮罩层
+    }
+
+    private void hideInputLayer() {
+        // 隐藏遮罩层和输入框
+        maskLayer.setVisibility(View.GONE);
+        inputContainer.setVisibility(View.GONE);
+    }
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && getActivity().getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+
+
 
     @Override
     public void onAlbumClick(String albumName) {
