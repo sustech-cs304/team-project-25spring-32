@@ -53,8 +53,8 @@ public class AlbumViewModel extends ViewModel {
         event.setValue("Add clicked");
     }
 
-    public void onOrderClicked() {
-        event.setValue("Order clicked");
+    public void onManageClicked() {
+        event.setValue("Manage clicked");
     }
 
     public void onSetClicked() {

@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pa.R;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
@@ -32,8 +30,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     private AlbumViewModel albumViewModel;
 
     private ImageView addIcon;
-    private ImageView cameraIcon;
-    private ImageView moreIcon;
+    private ImageView manageIcon;
+    private ImageView setIcon;
     private FrameLayout maskLayer;
     private LinearLayout inputContainer;
     private Button confirm;
@@ -57,8 +55,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
 
         // 初始化右上角的图标
         addIcon = rootView.findViewById(R.id.add_icon);
-        cameraIcon = rootView.findViewById(R.id.order_icon);
-        moreIcon = rootView.findViewById(R.id.set_icon);
+        manageIcon = rootView.findViewById(R.id.order_icon);
+        setIcon = rootView.findViewById(R.id.set_icon);
 
         // 遮罩层和输入栏
         maskLayer = rootView.findViewById(R.id.mask_layer);
@@ -82,7 +80,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
                 case "Add clicked":
                     showInputLayer(); // 显示输入框和遮罩层
                     break;
-                case "Order clicked":
+                case "Manage clicked":
+                    albumAdapter.setManageMode(!albumAdapter.getManageMode());
                     break;
                 case "Set clicked":
                     break;
@@ -97,8 +96,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
 
         // 设置点击事件
         addIcon.setOnClickListener(v -> albumViewModel.onAddClicked());
-        cameraIcon.setOnClickListener(v -> albumViewModel.onOrderClicked());
-        moreIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
+        manageIcon.setOnClickListener(v -> albumViewModel.onManageClicked());
+        setIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
         cancel.setOnClickListener(v -> albumViewModel.onCancelClicked());
         confirm.setOnClickListener(v -> albumViewModel.onConfirmClicked());
 
@@ -116,7 +115,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     public void onConfirmClicked(View view) {
         String inputText = ((EditText) view.findViewById(R.id.editText)).getText().toString();
         // 处理输入内容，做相应的操作
-        Toast.makeText(getContext(), "提交内容: " + inputText, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getContext(), "提交内容: " + inputText, Toast.LENGTH_SHORT).show();
         albumViewModel.addAlbum(inputText);
         hideKeyboard();
 
@@ -159,6 +158,11 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
             );
         }
 
+    }
+
+    @Override
+    public void onDeleteAlbum(String albumName) {
+        albumViewModel.removeAlbum(albumName);  // 调用 ViewModel 删除相册
     }
 }
 
