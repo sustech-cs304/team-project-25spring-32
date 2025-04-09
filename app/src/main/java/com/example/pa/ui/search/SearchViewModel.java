@@ -1,5 +1,6 @@
 package com.example.pa.ui.search;
 
+import android.annotation.SuppressLint;
 import android.database.Cursor;
 
 import androidx.lifecycle.LiveData;
@@ -69,19 +70,20 @@ public class SearchViewModel extends ViewModel {
 
     public void searchImages(String query) {
         List<String> results = mainRepository.getPhotoPathByTagName(query);
-
-        mSearchResults.setValue(results);
+        if (results!=null)
+            mSearchResults.setValue(results);
     }
     public void loadRecommendations() {
         // 模拟从数据库获取推荐词
         List<String> recommendations = new ArrayList<>();
-        recommendations.add("Nature");
-        recommendations.add("Animals");
-        recommendations.add("Travel");
-        recommendations.add("Food");
-        recommendations.add("Technology");
-        recommendations.add("Sports");
-        recommendations.add("Art");
+        Cursor cursor=tagDao.getAllTags();
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                @SuppressLint("Range") String tagName = cursor.getString(cursor.getColumnIndex("name"));
+                recommendations.add(tagName);
+            }
+            cursor.close();
+        }
 
         // 随机选择3-5个推荐词
         Collections.shuffle(recommendations);

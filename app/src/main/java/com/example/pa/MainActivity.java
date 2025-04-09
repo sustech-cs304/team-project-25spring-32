@@ -77,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
             // ========== 记忆视频测试 ==========
             testMemoryVideoOperations(app.getMemoryVideoDao());
 
+            // ========== 照片标签测试 ==========
+            testPhotoTagOperations(app.getPhotoTagDao());
+
             // 测试搜索
             Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
             if (cursor.moveToFirst()) {
@@ -119,11 +122,11 @@ public class MainActivity extends AppCompatActivity {
         long userId1 = 1;
         long userId2 = 2;
 
-        long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/photo1.jpg");
+        long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
         long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
 
         PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
-                0, (int) userId2, "photo", "/storage/emulated/0/DCIM/photo3.jpg",
+                0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
                 "https://gd-hbimg.huaban.com/758e7de9f82dc52f2c8840915a5acfa9458fa15c50d3e-Bv5Tcc_fw480webp",
                 new Date().toString(), "2023-01-01 12:00:00",
                 116.404, 39.915, "北京市天安门", "测试照片描述",
@@ -154,6 +157,15 @@ public class MainActivity extends AppCompatActivity {
         long userId1 = 1;
         long videoId1 = memoryVideoDao.addMemoryVideo((int) userId1, "2023回忆", "温馨", "music1.mp3");
         memoryVideoDao.updateVideoUrl((int) videoId1, "video1.mp4");
+    }
+
+    private void testPhotoTagOperations(PhotoTagDao photoTagDao) {
+        long photoId1 = 1;
+        long tagId1 = 1;
+        long tagId2 = 2;
+
+        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId1);
+        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId2);
     }
 
     private void clearAllTables(MyApplication app) {
