@@ -324,11 +324,17 @@ public class PhotoViewModel extends ViewModel {
 
     private void downloadAndSaveImage(Context context, Photo photo) {
         executorService.execute(() -> {
+            // 检查图片是否已存在
+            File imageFile = new File(photo.filePath);
+            if (imageFile.exists()) {
+                Log.d("PhotoViewModel", "Image already exists: " + photo.filePath);
+                return;
+            }
             try {
                 // 创建本地存储目录
                 File storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                 String fileName = "photo_" + photo.id + ".jpg";
-                File imageFile = new File(storageDir, fileName);
+                imageFile = new File(storageDir, fileName);
 
                 // 如果文件已存在，跳过下载
                 if (imageFile.exists()) {
