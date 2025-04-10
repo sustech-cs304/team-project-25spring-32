@@ -4,15 +4,18 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
 import com.example.pa.data.Daos.*;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_search,
                 R.id.navigation_photo,
                 R.id.navigation_album,
-                R.id.navigation_ai)
+                R.id.navigation_memory)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

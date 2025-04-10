@@ -11,6 +11,8 @@ import android.util.Log;
 import com.example.pa.data.DatabaseHelper;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -85,6 +87,7 @@ public class PhotoDao {
         values.put(COLUMN_USER_ID, userId);
         values.put(COLUMN_TYPE, type.toLowerCase());
         values.put(COLUMN_FILE_PATH, filePath);
+        values.put(COLUMN_AI_OBJECTS, "test");
 
         try {
             return db.insert(TABLE_NAME, null, values);
@@ -219,6 +222,23 @@ public class PhotoDao {
                 String.valueOf(limit));
     }
 
+    // 添加将 Cursor 转换为 Photo 列表的方法
+    public List<Photo> getPhotosByUserAsList(int userId) {
+        List<Photo> photos = new ArrayList<>();
+        try (Cursor cursor = getPhotosByUser(userId)) {
+            while (cursor.moveToNext()) {
+                Photo photo = cursorToPhoto(cursor);
+                if (photo != null) {
+                    photos.add(photo);
+                    return photos;
+                }
+            }
+        } catch (Exception e) {
+            Log.e("PhotoDao", "加载用户照片失败", e);
+        }
+        return photos;
+    }
+
     // ===================== 工具方法 =====================
 
     // 数据转换：Cursor → Photo
@@ -238,7 +258,9 @@ public class PhotoDao {
         @SuppressLint("Range") String description = cursor.getString(cursor.getColumnIndex(COLUMN_DESCRIPTION));
         @SuppressLint("Range") String aiJson = cursor.getString(cursor.getColumnIndex(COLUMN_AI_OBJECTS));
 
-        List<String> aiObjects = Arrays.asList(gson.fromJson(aiJson, String[].class));
+//        List<String> aiObjects = Arrays.asList(gson.fromJson(aiJson, String[].class));
+        List<String> aiObjects = new ArrayList<>();
+        aiObjects.add(aiJson);
 
         return new Photo(id, userId, type, filePath,fileUrl, uploadedTime, takenTime,
                 longitude, latitude, location, description, aiObjects);
