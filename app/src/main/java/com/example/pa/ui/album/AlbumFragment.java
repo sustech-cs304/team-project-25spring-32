@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
+import com.example.pa.data.Daos.AlbumDao.Album;
 
 import java.util.ArrayList;
 
@@ -98,7 +99,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         String inputText = ((EditText) view.findViewById(R.id.editText)).getText().toString();
         // 处理输入内容，做相应的操作
 //        Toast.makeText(getContext(), "提交内容: " + inputText, Toast.LENGTH_SHORT).show();
-        albumViewModel.addAlbum(inputText);
+        albumViewModel.addAlbum(inputText,1,false,false,"private");
         hideKeyboard();
 
         // 隐藏遮罩层和输入框
@@ -143,8 +144,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     }
 
     @Override
-    public void onDeleteAlbum(String albumName) {
-        albumViewModel.removeAlbum(albumName);  // 调用 ViewModel 删除相册
+    public void onDeleteAlbum(Album album) {
+        albumViewModel.deleteAlbum(album.id);  // 调用 ViewModel 删除相册
     }
 }
 
