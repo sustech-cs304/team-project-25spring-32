@@ -45,7 +45,7 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
         });
 
         // 加载初始数据（也可以通过网络请求获取）
-        photoViewModel.loadInitialData();
+        photoViewModel.loadInitialData(requireContext());
 
         return root;
     }
