@@ -1,7 +1,12 @@
 package com.example.pa;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -80,5 +85,15 @@ public class ExampleInstrumentedTest {
         // 测试 MemoryVideoPhotoDao
         MemoryVideoPhotoDao memoryVideoPhotoDao = app.getMemoryVideoPhotoDao();
         assertNotNull(memoryVideoPhotoDao);
+    }
+
+    @Test
+    public void test_getPhoto_from_path(){
+        // 测试从路径获取照片
+        String path = "/storage/emulated/0/DCIM/ic_launcher.png";
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
+        assertNotNull("Failed to load image from path", bitmap);
+
+
     }
 }

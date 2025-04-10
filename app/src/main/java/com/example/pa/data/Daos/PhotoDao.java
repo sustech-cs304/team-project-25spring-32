@@ -171,10 +171,29 @@ public class PhotoDao {
                 null, null, null)) {
 
             return cursorToPhoto(cursor);
+            //return null;
         } catch (Exception e) {
             Log.e("PhotoDao", "查询照片失败", e);
+            Log.e("PhotoDao", "ID: " + photoId);
             return null;
         }
+    }
+    @SuppressLint("Range")
+    public String getPhotoPathById(int photoId) {
+        try (Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_FILE_PATH},
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(photoId)},
+                null, null, null)) {
+
+            if (cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndex(COLUMN_FILE_PATH));
+            }
+        } catch (Exception e) {
+            Log.e("PhotoDao", "查询照片路径失败", e);
+            Log.e("PhotoDao", "ID: " + photoId);
+        }
+        return null;
     }
 
     /**
