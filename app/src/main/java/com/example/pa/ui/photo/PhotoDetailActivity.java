@@ -59,9 +59,14 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         // 加载图片，目前支持URL导入图片
         // TODO: 希望能够通过本地存储导入图片，希望对URL图片进行缓存加速
-        String imageUrl = getIntent().getStringExtra("image_url");
+//        String imageUrl = getIntent().getStringExtra("image_url");
+//        Glide.with(this)
+//                .load(imageUrl)
+//                .into(ivDetail);
+
+        String imagePath = getIntent().getStringExtra("image_path");
         Glide.with(this)
-                .load(imageUrl)
+                .load(imagePath)
                 .into(ivDetail);
 
         // 点击图片切换工具栏可见性
