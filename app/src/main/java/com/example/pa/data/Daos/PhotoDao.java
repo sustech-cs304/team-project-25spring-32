@@ -268,7 +268,7 @@ public class PhotoDao {
         public final int id;
         public final int userId;
         public final String type;
-        public final String filePath;
+        public String filePath;
         public final String fileUrl;
         public final String uploadedTime;
         public final String takenTime;
