@@ -39,13 +39,14 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
 
         // 获取 ViewModel 实例，并观察图片列表的 LiveData
         photoViewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
+        photoViewModel.initPhotoDao(requireContext());
         photoViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
             // 当数据更新时，刷新适配器的数据
             photoAdapter.updateData(images);
         });
 
-        // 加载初始数据（也可以通过网络请求获取）
-        photoViewModel.loadInitialData();
+        // 从数据库加载数据
+        photoViewModel.loadPhotosFromDatabase();
 
         return root;
     }
@@ -56,7 +57,8 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            intent.putExtra("image_url", photo.fileUrl);
+            intent.putExtra("image_path", photo.filePath);
+
             startActivity(intent);
 
             // 添加Activity过渡动画

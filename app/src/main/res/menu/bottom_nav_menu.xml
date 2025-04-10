@@ -17,7 +17,7 @@
         android:title="@string/title_album" />
 
     <item
-        android:id="@+id/navigation_ai"
+        android:id="@+id/navigation_memory"
         android:icon="@drawable/icon_memory"
         android:title="@string/title_memory" />
 
