@@ -44,28 +44,4 @@ public class AlbumViewModel extends ViewModel {
             albumList.setValue(currentList);
         }
     }
-
-    public LiveData<String> getEvent() {
-        return event;
-    }
-
-    public void onAddClicked() {
-        event.setValue("Add clicked");
-    }
-
-    public void onManageClicked() {
-        event.setValue("Manage clicked");
-    }
-
-    public void onSetClicked() {
-        event.setValue("Set clicked");
-    }
-
-    public void onCancelClicked() {
-        event.setValue("Cancel clicked");
-    }
-
-    public void onConfirmClicked() {
-        event.setValue("Confirm clicked");
-    }
 }

@@ -73,36 +73,18 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
             recyclerView.setAdapter(albumAdapter);
         });
 
-        // 观察事件变化
-        albumViewModel.getEvent().observe(getViewLifecycleOwner(), event -> {
-//            Toast.makeText(getContext(), event, Toast.LENGTH_SHORT).show();
-            switch (event){
-                case "Add clicked":
-                    showInputLayer(); // 显示输入框和遮罩层
-                    break;
-                case "Manage clicked":
-                    albumAdapter.setManageMode(!albumAdapter.getManageMode());
-                    break;
-                case "Set clicked":
-                    break;
-                case "Cancel clicked":
-                    onCancelClicked(requireView());
-                    break;
-                case "Confirm clicked":
-                    onConfirmClicked(requireView());
-                    break;
-            }
-        });
-
         // 设置点击事件
-        addIcon.setOnClickListener(v -> albumViewModel.onAddClicked());
-        manageIcon.setOnClickListener(v -> albumViewModel.onManageClicked());
-        setIcon.setOnClickListener(v -> albumViewModel.onSetClicked());
-        cancel.setOnClickListener(v -> albumViewModel.onCancelClicked());
-        confirm.setOnClickListener(v -> albumViewModel.onConfirmClicked());
+        addIcon.setOnClickListener(v -> showInputLayer());
+        manageIcon.setOnClickListener(v -> albumAdapter.setManageMode(!albumAdapter.getManageMode()));
+        setIcon.setOnClickListener(v -> onSetClicked());
+        cancel.setOnClickListener(v -> onCancelClicked(requireView()));
+        confirm.setOnClickListener(v -> onConfirmClicked(requireView()));
 
 
         return rootView;
+    }
+
+    private void onSetClicked() {
     }
 
     private void showInputLayer() {
