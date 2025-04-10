@@ -1,4 +1,3 @@
-
 package com.example.pa.ui.photo;
 
 import android.view.LayoutInflater;
@@ -47,7 +46,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         Photo photo = imageList.get(position);
         // 使用 Glide 加载图片
         Glide.with(holder.itemView.getContext())
-                .load(photo.fileUrl)
+                .load(photo.filePath)
                 .placeholder(R.drawable.placeholder_image)
                 .error(R.drawable.error_image)
                 .centerCrop()
@@ -82,3 +81,4 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         }
     }
 }
+

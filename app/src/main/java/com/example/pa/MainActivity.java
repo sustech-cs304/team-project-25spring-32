@@ -4,15 +4,18 @@ import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
 import com.example.pa.data.Daos.*;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_search,
                 R.id.navigation_photo,
                 R.id.navigation_album,
-                R.id.navigation_ai)
+                R.id.navigation_memory)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -76,6 +79,9 @@ public class MainActivity extends AppCompatActivity {
 
             // ========== 记忆视频测试 ==========
             testMemoryVideoOperations(app.getMemoryVideoDao());
+
+            // ========== 照片标签测试 ==========
+            testPhotoTagOperations(app.getPhotoTagDao());
 
             // 测试搜索
             Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
@@ -119,11 +125,11 @@ public class MainActivity extends AppCompatActivity {
         long userId1 = 1;
         long userId2 = 2;
 
-        long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/photo1.jpg");
+        long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
         long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
 
         PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
-                0, (int) userId2, "photo", "/storage/emulated/0/DCIM/photo3.jpg",
+                0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
                 "https://gd-hbimg.huaban.com/758e7de9f82dc52f2c8840915a5acfa9458fa15c50d3e-Bv5Tcc_fw480webp",
                 new Date().toString(), "2023-01-01 12:00:00",
                 116.404, 39.915, "北京市天安门", "测试照片描述",
@@ -154,6 +160,15 @@ public class MainActivity extends AppCompatActivity {
         long userId1 = 1;
         long videoId1 = memoryVideoDao.addMemoryVideo((int) userId1, "2023回忆", "温馨", "music1.mp3");
         memoryVideoDao.updateVideoUrl((int) videoId1, "video1.mp4");
+    }
+
+    private void testPhotoTagOperations(PhotoTagDao photoTagDao) {
+        long photoId1 = 1;
+        long tagId1 = 1;
+        long tagId2 = 2;
+
+        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId1);
+        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId2);
     }
 
     private void clearAllTables(MyApplication app) {

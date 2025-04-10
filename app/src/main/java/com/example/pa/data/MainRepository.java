@@ -45,8 +45,7 @@ public class MainRepository {
         if (id != -1) {
             List<Integer> photoIds = photoTagDao.getPhotoIdsByTag(id);//获取tag对应的所有照片id
             for (int photoId : photoIds) {
-                PhotoDao.Photo photo = photoDao.getPhotoById(photoId);
-                photoPaths.add(photo.filePath);
+                photoPaths.add(photoDao.getPhotoPathById(photoId));
             }
         }else
             return null;
