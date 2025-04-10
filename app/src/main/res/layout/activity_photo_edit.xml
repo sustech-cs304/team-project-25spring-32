@@ -33,6 +33,32 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/editToolsLayout"/>
 
+
+    <LinearLayout
+        android:id="@+id/adjustmentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:padding="16dp"
+        android:background="#80000000"
+        app:layout_constraintBottom_toTopOf="@id/editToolsLayout">
+
+        <TextView
+            android:id="@+id/adjustmentLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"/>
+
+        <SeekBar
+            android:id="@+id/adjustmentSeekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="200"
+            android:progress="100"/>
+    </LinearLayout>
+
+
     <LinearLayout
         android:id="@+id/editToolsLayout"
         android:layout_width="match_parent"
