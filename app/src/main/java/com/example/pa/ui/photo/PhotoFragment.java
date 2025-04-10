@@ -45,8 +45,11 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
             photoAdapter.updateData(images);
         });
 
+
+
         // 从数据库加载数据
         photoViewModel.loadPhotosFromDatabase();
+
 
         return root;
     }
