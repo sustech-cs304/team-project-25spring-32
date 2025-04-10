@@ -5,15 +5,32 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 public class MemoryViewModel extends ViewModel {
-
-    private final MutableLiveData<String> mText;
+    private final MutableLiveData<MemoryData> memoryData = new MutableLiveData<>();
 
     public MemoryViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is Memory fragment");
+        // Initialize with sample data
+        MemoryData data = new MemoryData(
+                "Memory Tracker",
+                "Track and optimize your device memory usage",
+                75 // percentage used
+        );
+        memoryData.setValue(data);
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<MemoryData> getMemoryData() {
+        return memoryData;
+    }
+
+    // Data holder class
+    public static class MemoryData {
+        public final String title;
+        public final String description;
+        public final int usagePercentage;
+
+        public MemoryData(String title, String description, int usagePercentage) {
+            this.title = title;
+            this.description = description;
+            this.usagePercentage = usagePercentage;
+        }
     }
 }

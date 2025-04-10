@@ -1,5 +1,6 @@
 package com.example.pa.data.Daos;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.pa.data.DatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoTagDao {
     public static final String TABLE_NAME = "PhotoTag";
@@ -52,12 +56,22 @@ public class PhotoTagDao {
                 null, null, null);
     }
 
-    public Cursor getPhotosWithTag(int tagId) {
-        return db.query(TABLE_NAME,
-                null,
+    @SuppressLint("Range")
+    public List<Integer> getPhotoIdsByTag(int tagId) {
+        List<Integer> photoIds = new ArrayList<>();
+        Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_PHOTO_ID},
                 COLUMN_TAG_ID + " = ?",
                 new String[]{String.valueOf(tagId)},
                 null, null, null);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                photoIds.add(cursor.getInt(cursor.getColumnIndex(COLUMN_PHOTO_ID)));
+            }
+            cursor.close();
+        }
+        return photoIds;
     }
 
     public boolean removeTagFromPhoto(int photoId, int tagId) {

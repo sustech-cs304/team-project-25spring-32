@@ -1,5 +1,6 @@
 package com.example.pa.ui.album;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,46 +13,84 @@ import com.bumptech.glide.Glide;
 import com.example.pa.R;
 
 import java.util.List;
-public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.ImageViewHolder> {
+public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
 
-    private List<String> imageList;
+    private List<String> albumList;
+    private OnAlbumClickListener listener;
+    private boolean isManageMode = false;  // 控制删除图标显示
 
-    public AlbumAdapter(List<String> imageList) {
-        this.imageList = imageList;
+    public interface OnAlbumClickListener {
+        void onAlbumClick(String albumName);
+        void onDeleteAlbum(String albumName);
+    }
+
+    public AlbumAdapter(List<String> albumList, OnAlbumClickListener listener) {
+        this.albumList = albumList;
+        this.listener = listener;
     }
 
     @Override
-    public ImageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AlbumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // 加载每个项的布局
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_album, parent, false);
-        return new ImageViewHolder(view);
+        return new AlbumViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ImageViewHolder holder, int position) {
+    public void onBindViewHolder(AlbumViewHolder holder, int position) {
         // 在这里加载图片
-        String imagePath = imageList.get(position);
-        holder.textView.setText(imagePath);
+        String albumName = albumList.get(position);
+        holder.textView.setText(albumName);
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
-                .load(imagePath) // 如果是本地图片，路径可以直接使用
+                .load(albumName) // 如果是本地图片，路径可以直接使用
                 .into(holder.imageView);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onAlbumClick(albumName);
+            }
+        });
+
+        // 绑定删除图标的显示与点击事件
+        if (isManageMode) {
+            holder.deleteIcon.setVisibility(View.VISIBLE);
+            holder.deleteIcon.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onDeleteAlbum(albumName);  // 调用删除接口
+                }
+            });
+        } else {
+            holder.deleteIcon.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return imageList.size();
+        return albumList.size();
     }
 
-    public static class ImageViewHolder extends RecyclerView.ViewHolder {
+    @SuppressLint("NotifyDataSetChanged")
+    public void setManageMode(boolean isManageMode) {
+        this.isManageMode = isManageMode;
+        notifyDataSetChanged();  // 更新图标显示
+    }
+
+    public boolean getManageMode(){
+        return isManageMode;
+    }
+
+    public static class AlbumViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textView;
+        ImageView deleteIcon;
 
-        public ImageViewHolder(View itemView) {
+        public AlbumViewHolder(View itemView) {
             super(itemView);
             // 引用布局中的 ImageView 和 TextView
             imageView = itemView.findViewById(R.id.imageView);
             textView = itemView.findViewById(R.id.image_text);
+            deleteIcon = itemView.findViewById(R.id.delete_icon);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.pa.ui.photo;
+package com.example.pa.ui.album;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +13,10 @@ import com.example.pa.R;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import com.example.pa.data.Daos.PhotoDao.Photo;
 
-public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
+public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapter.PhotoViewHolder> {
 
     // 内部持有图片数据列表
     private List<Photo> imageList;
@@ -27,7 +28,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         void onPhotoClick(Photo imageItem);
     }
 
-    public PhotoAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
+    public PhotoinAlbumAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
         // 创建新集合以避免外部数据引用问题
         this.imageList = new ArrayList<>(imageList);
         this.listener = listener;
@@ -43,10 +44,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo photo = imageList.get(position);
+        Photo imageItem = imageList.get(position);
         // 使用 Glide 加载图片
         Glide.with(holder.itemView.getContext())
-                .load(photo.filePath)
+                .load(imageItem.fileUrl)
                 .placeholder(R.drawable.placeholder_image)
                 .error(R.drawable.error_image)
                 .centerCrop()
@@ -81,4 +82,3 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         }
     }
 }
-

@@ -1,3 +1,4 @@
+// PhotoViewModel.java
 package com.example.pa.ui.photo;
 
 import android.content.Context;
@@ -6,11 +7,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.pa.data.DatabaseHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.example.pa.data.Daos.PhotoDao;
+
 import com.example.pa.data.Daos.PhotoDao.Photo;
 
 public class PhotoViewModel extends ViewModel {

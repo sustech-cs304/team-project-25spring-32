@@ -12,6 +12,7 @@ import com.example.pa.data.DatabaseHelper;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -173,10 +174,29 @@ public class PhotoDao {
                 null, null, null)) {
 
             return cursorToPhoto(cursor);
+            //return null;
         } catch (Exception e) {
             Log.e("PhotoDao", "查询照片失败", e);
+            Log.e("PhotoDao", "ID: " + photoId);
             return null;
         }
+    }
+    @SuppressLint("Range")
+    public String getPhotoPathById(int photoId) {
+        try (Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_FILE_PATH},
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(photoId)},
+                null, null, null)) {
+
+            if (cursor.moveToFirst()) {
+                return cursor.getString(cursor.getColumnIndex(COLUMN_FILE_PATH));
+            }
+        } catch (Exception e) {
+            Log.e("PhotoDao", "查询照片路径失败", e);
+            Log.e("PhotoDao", "ID: " + photoId);
+        }
+        return null;
     }
 
     /**
@@ -241,6 +261,7 @@ public class PhotoDao {
 //        List<String> aiObjects = Arrays.asList(gson.fromJson(aiJson, String[].class));
         List<String> aiObjects = new ArrayList<>();
         aiObjects.add(aiJson);
+
         return new Photo(id, userId, type, filePath,fileUrl, uploadedTime, takenTime,
                 longitude, latitude, location, description, aiObjects);
     }

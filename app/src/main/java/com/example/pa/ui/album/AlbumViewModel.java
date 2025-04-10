@@ -9,35 +9,39 @@ import java.util.List;
 
 public class AlbumViewModel extends ViewModel {
 
-    private MutableLiveData<List<String>> imageList = new MutableLiveData<>();
+    private MutableLiveData<List<String>> albumList = new MutableLiveData<>();
     private MutableLiveData<String> event = new MutableLiveData<>();
 
     public AlbumViewModel() {
         // 初始化数据
-        List<String> initialData = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            initialData.add("Image " + i);
+        List<String> initialAlbums= new ArrayList<>();
+        initialAlbums.add("旅行");
+        initialAlbums.add("家人");
+        initialAlbums.add("朋友");
+        initialAlbums.add("宠物");
+        albumList.setValue(initialAlbums);
+    }
+
+    public LiveData<List<String>> getAlbumList() {
+        return albumList;
+    }
+
+    // 添加相册
+    public void addAlbum(String albumName) {
+        List<String> currentList = albumList.getValue();
+        if (currentList == null) {
+            currentList = new ArrayList<>();
         }
-        imageList.setValue(initialData);
+        currentList.add(albumName);
+        albumList.setValue(currentList);
     }
 
-    public LiveData<List<String>> getImageList() {
-        return imageList;
-    }
-
-    public LiveData<String> getEvent() {
-        return event;
-    }
-
-    public void onAddClicked() {
-        event.setValue("Add clicked");
-    }
-
-    public void onCameraClicked() {
-        event.setValue("Camera clicked");
-    }
-
-    public void onMoreClicked() {
-        event.setValue("More clicked");
+    // 删除相册
+    public void removeAlbum(String albumName) {
+        List<String> currentList = albumList.getValue();
+        if (currentList != null) {
+            currentList.remove(albumName);
+            albumList.setValue(currentList);
+        }
     }
 }
