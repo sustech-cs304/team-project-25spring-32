@@ -357,6 +357,9 @@ public class PhotoViewModel extends ViewModel {
                 // 更新照片路径并存入数据库
                 updatePhotoPath(photo, imageFile.getAbsolutePath());
 
+                // 保存到数据库
+                photoDao.addFullPhoto(photo);
+
                 Log.d("PhotoViewModel", "Image saved: " + fileName);
 
             } catch (Exception e) {
@@ -367,7 +370,8 @@ public class PhotoViewModel extends ViewModel {
 
     private void updatePhotoPath(Photo photo, String localPath) {
         // 更新数据库中的本地路径
-        photoDao.addPhoto(photo.userId, "photo", localPath);
+        // TODO: 添加 updatePhotoPath 方法到 PhotoDao
+//        photoDao.updatePhotoPath(photo.id, localPath);
 
         // 更新内存中的对象
         photo.filePath = localPath;
