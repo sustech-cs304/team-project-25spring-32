@@ -96,8 +96,6 @@ public class PhotoEditActivity extends AppCompatActivity {
         btnBrightness.setOnClickListener(v -> setupAdjustment("Brightness"));
         btnContrast.setOnClickListener(v -> setupAdjustment("Contrast"));
 
-//        btnBrightness.setOnClickListener(v -> adjustBrightness());
-//        btnContrast.setOnClickListener(v -> adjustContrast());
         btnCancel.setOnClickListener(v -> finish());
         btnSave.setOnClickListener(v -> saveImage());
 
@@ -138,18 +136,24 @@ public class PhotoEditActivity extends AppCompatActivity {
         editImageView.setImageBitmap(rotatedBitmap);
     }
 
+
     private void setupAdjustment(String type) {
         adjustmentLabel.setText(type + " Adjustment");
         adjustmentLayout.setVisibility(View.VISIBLE);
-        adjustmentSeekBar.setProgress(100);
+        // 不重置进度条，保持当前值
+        if (type.equals("Brightness")) {
+            adjustmentSeekBar.setProgress((int)(brightness / 255f * 100f + 100));
+        } else if (type.equals("Contrast")) {
+            adjustmentSeekBar.setProgress((int)(contrast * 100f));
+        }
     }
 
     private void applyImageAdjustments() {
-        if (originalBitmap == null) return;
+        if (currentBitmap == null) return;
 
         Bitmap adjustedBitmap = Bitmap.createBitmap(
-                originalBitmap.getWidth(),
-                originalBitmap.getHeight(),
+                currentBitmap.getWidth(),
+                currentBitmap.getHeight(),
                 Bitmap.Config.ARGB_8888
         );
 
@@ -177,18 +181,10 @@ public class PhotoEditActivity extends AppCompatActivity {
 
         paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
         canvas.drawBitmap(originalBitmap, 0, 0, paint);
-        editImageView.setImageBitmap(adjustedBitmap);
+        // 更新当前bitmap
+        currentBitmap = adjustedBitmap;
+        editImageView.setImageBitmap(currentBitmap);
     }
-
-
-
-//    private void adjustBrightness() {
-//        Toast.makeText(this, "Brightness adjustment coming soon", Toast.LENGTH_SHORT).show();
-//    }
-//
-//    private void adjustContrast() {
-//        Toast.makeText(this, "Contrast adjustment coming soon", Toast.LENGTH_SHORT).show();
-//    }
 
     private void saveImage() {
         Toast.makeText(this, "Saving edited image...", Toast.LENGTH_SHORT).show();
