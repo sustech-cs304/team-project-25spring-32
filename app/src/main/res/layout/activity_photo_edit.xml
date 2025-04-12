@@ -82,13 +82,24 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/icon_rotate"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@android:color/white"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
                     android:text="@string/rotate"/>
+
 
                 <Button
                     android:id="@+id/btnBrightness"
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/icon_brightness"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@android:color/white"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
                     android:text="@string/brightness"/>
 
                 <Button
@@ -96,6 +107,11 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/icon_contrast"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@android:color/white"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
                     android:text="@string/contrast"/>
             </LinearLayout>
         </HorizontalScrollView>

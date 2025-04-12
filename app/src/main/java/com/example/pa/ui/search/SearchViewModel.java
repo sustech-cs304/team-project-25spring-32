@@ -65,7 +65,8 @@ public class SearchViewModel extends ViewModel {
             newSuggestions.add(query + "2");
             newSuggestions.add(query + "3");
         }
-        mSuggestions.setValue(newSuggestions);
+        //mSuggestions.setValue(newSuggestions);
+        //这里下个sprint实现
     }
 
     public void searchImages(String query) {

@@ -15,7 +15,7 @@
         android:drawableStart="@drawable/ic_search"
         android:drawableEnd="@drawable/ic_clear"
         android:drawablePadding="8dp"
-        android:hint="Search..."
+        android:hint="@string/searchWord"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         />

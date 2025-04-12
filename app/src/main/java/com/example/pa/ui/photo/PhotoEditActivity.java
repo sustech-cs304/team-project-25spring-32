@@ -96,8 +96,6 @@ public class PhotoEditActivity extends AppCompatActivity {
         btnBrightness.setOnClickListener(v -> setupAdjustment("Brightness"));
         btnContrast.setOnClickListener(v -> setupAdjustment("Contrast"));
 
-//        btnBrightness.setOnClickListener(v -> adjustBrightness());
-//        btnContrast.setOnClickListener(v -> adjustContrast());
         btnCancel.setOnClickListener(v -> finish());
         btnSave.setOnClickListener(v -> saveImage());
 
@@ -121,74 +119,71 @@ public class PhotoEditActivity extends AppCompatActivity {
         });
     }
 
-    private void rotateImage() {
-        if (currentBitmap == null) return;
-        currentRotation = (currentRotation + 90) % 360;
-        Matrix matrix = new Matrix();
-        matrix.postRotate(currentRotation);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(
-                currentBitmap,
-                0,
-                0,
-                currentBitmap.getWidth(),
-                currentBitmap.getHeight(),
-                matrix,
-                true
-        );
-        editImageView.setImageBitmap(rotatedBitmap);
-    }
-
-    private void setupAdjustment(String type) {
-        adjustmentLabel.setText(type + " Adjustment");
-        adjustmentLayout.setVisibility(View.VISIBLE);
-        adjustmentSeekBar.setProgress(100);
-    }
-
-    private void applyImageAdjustments() {
+    private void render() {
         if (originalBitmap == null) return;
 
-        Bitmap adjustedBitmap = Bitmap.createBitmap(
-                originalBitmap.getWidth(),
-                originalBitmap.getHeight(),
-                Bitmap.Config.ARGB_8888
-        );
+        /* ① 先做旋转 */
+        Matrix matrix = new Matrix();
+        matrix.postRotate(currentRotation);
+        Bitmap rotated = Bitmap.createBitmap(
+                originalBitmap, 0, 0,
+                originalBitmap.getWidth(), originalBitmap.getHeight(),
+                matrix, true);
 
-        Canvas canvas = new Canvas(adjustedBitmap);
-        Paint paint = new Paint();
-        ColorMatrix colorMatrix = new ColorMatrix();
-
-        // 设置对比度
+        /* ② 再做亮度/对比度 */
+        ColorMatrix cm = new ColorMatrix();
+        // 对比度
         float scale = contrast;
         float translate = (-.5f * scale + .5f) * 255f;
-        colorMatrix.set(new float[] {
+        cm.set(new float[]{
                 scale, 0, 0, 0, translate,
                 0, scale, 0, 0, translate,
                 0, 0, scale, 0, translate,
                 0, 0, 0, 1, 0
         });
-
-        // 设置亮度
-        colorMatrix.postConcat(new ColorMatrix(new float[] {
+        // 亮度
+        cm.postConcat(new ColorMatrix(new float[]{
                 1, 0, 0, 0, brightness,
                 0, 1, 0, 0, brightness,
                 0, 0, 1, 0, brightness,
                 0, 0, 0, 1, 0
         }));
 
-        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
-        canvas.drawBitmap(originalBitmap, 0, 0, paint);
-        editImageView.setImageBitmap(adjustedBitmap);
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+
+        Bitmap out = Bitmap.createBitmap(
+                rotated.getWidth(), rotated.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(out);
+        canvas.drawBitmap(rotated, 0, 0, paint);
+
+        currentBitmap = out;
+        editImageView.setImageBitmap(currentBitmap);
     }
 
 
+    private void rotateImage() {
+        currentRotation = (currentRotation + 90) % 360;
+        render();
+    }
 
-//    private void adjustBrightness() {
-//        Toast.makeText(this, "Brightness adjustment coming soon", Toast.LENGTH_SHORT).show();
-//    }
-//
-//    private void adjustContrast() {
-//        Toast.makeText(this, "Contrast adjustment coming soon", Toast.LENGTH_SHORT).show();
-//    }
+    private void applyImageAdjustments() {
+        render();
+    }
+
+
+    private void setupAdjustment(String type) {
+        adjustmentLabel.setText(type + " Adjustment");
+        adjustmentLayout.setVisibility(View.VISIBLE);
+        // 不重置进度条，保持当前值
+        if (type.equals("Brightness")) {
+            adjustmentSeekBar.setProgress((int)(brightness / 255f * 100f + 100));
+        } else if (type.equals("Contrast")) {
+            adjustmentSeekBar.setProgress((int)(contrast * 100f));
+        }
+    }
+
+
 
     private void saveImage() {
         Toast.makeText(this, "Saving edited image...", Toast.LENGTH_SHORT).show();
