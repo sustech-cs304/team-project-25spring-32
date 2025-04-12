@@ -88,6 +88,7 @@ public class SearchFragment extends Fragment {
                     defaultImage.setVisibility(View.GONE);
                     imageRecyclerView.setVisibility(View.VISIBLE);
                     suggestionList.setVisibility(View.VISIBLE); // 显示推荐框
+                    //这里下个sprint实现
 
                     // 更新推荐词列表
                     searchViewModel.updateSuggestions(s.toString());
