@@ -119,21 +119,56 @@ public class PhotoEditActivity extends AppCompatActivity {
         });
     }
 
-    private void rotateImage() {
-        if (currentBitmap == null) return;
-        currentRotation = (currentRotation + 90) % 360;
+    private void render() {
+        if (originalBitmap == null) return;
+
+        /* ① 先做旋转 */
         Matrix matrix = new Matrix();
         matrix.postRotate(currentRotation);
-        Bitmap rotatedBitmap = Bitmap.createBitmap(
-                currentBitmap,
-                0,
-                0,
-                currentBitmap.getWidth(),
-                currentBitmap.getHeight(),
-                matrix,
-                true
-        );
-        editImageView.setImageBitmap(rotatedBitmap);
+        Bitmap rotated = Bitmap.createBitmap(
+                originalBitmap, 0, 0,
+                originalBitmap.getWidth(), originalBitmap.getHeight(),
+                matrix, true);
+
+        /* ② 再做亮度/对比度 */
+        ColorMatrix cm = new ColorMatrix();
+        // 对比度
+        float scale = contrast;
+        float translate = (-.5f * scale + .5f) * 255f;
+        cm.set(new float[]{
+                scale, 0, 0, 0, translate,
+                0, scale, 0, 0, translate,
+                0, 0, scale, 0, translate,
+                0, 0, 0, 1, 0
+        });
+        // 亮度
+        cm.postConcat(new ColorMatrix(new float[]{
+                1, 0, 0, 0, brightness,
+                0, 1, 0, 0, brightness,
+                0, 0, 1, 0, brightness,
+                0, 0, 0, 1, 0
+        }));
+
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(cm));
+
+        Bitmap out = Bitmap.createBitmap(
+                rotated.getWidth(), rotated.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(out);
+        canvas.drawBitmap(rotated, 0, 0, paint);
+
+        currentBitmap = out;
+        editImageView.setImageBitmap(currentBitmap);
+    }
+
+
+    private void rotateImage() {
+        currentRotation = (currentRotation + 90) % 360;
+        render();
+    }
+
+    private void applyImageAdjustments() {
+        render();
     }
 
 
@@ -148,43 +183,7 @@ public class PhotoEditActivity extends AppCompatActivity {
         }
     }
 
-    private void applyImageAdjustments() {
-        if (currentBitmap == null) return;
 
-        Bitmap adjustedBitmap = Bitmap.createBitmap(
-                currentBitmap.getWidth(),
-                currentBitmap.getHeight(),
-                Bitmap.Config.ARGB_8888
-        );
-
-        Canvas canvas = new Canvas(adjustedBitmap);
-        Paint paint = new Paint();
-        ColorMatrix colorMatrix = new ColorMatrix();
-
-        // 设置对比度
-        float scale = contrast;
-        float translate = (-.5f * scale + .5f) * 255f;
-        colorMatrix.set(new float[] {
-                scale, 0, 0, 0, translate,
-                0, scale, 0, 0, translate,
-                0, 0, scale, 0, translate,
-                0, 0, 0, 1, 0
-        });
-
-        // 设置亮度
-        colorMatrix.postConcat(new ColorMatrix(new float[] {
-                1, 0, 0, 0, brightness,
-                0, 1, 0, 0, brightness,
-                0, 0, 1, 0, brightness,
-                0, 0, 0, 1, 0
-        }));
-
-        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
-        canvas.drawBitmap(originalBitmap, 0, 0, paint);
-        // 更新当前bitmap
-        currentBitmap = adjustedBitmap;
-        editImageView.setImageBitmap(currentBitmap);
-    }
 
     private void saveImage() {
         Toast.makeText(this, "Saving edited image...", Toast.LENGTH_SHORT).show();
