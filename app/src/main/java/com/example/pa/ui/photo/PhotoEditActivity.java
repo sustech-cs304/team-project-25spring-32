@@ -1,6 +1,7 @@
 package com.example.pa.ui.photo;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -21,13 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
 import com.example.pa.R;
 
 public class PhotoEditActivity extends AppCompatActivity {
@@ -74,22 +69,32 @@ public class PhotoEditActivity extends AppCompatActivity {
 
     private void loadImage() {
         String imagePath = getIntent().getStringExtra("image_path");
-        Glide.with(this)
-                .asBitmap()
-                .load(imagePath)
-                .into(new CustomTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(@NonNull Bitmap bitmap, Transition<? super Bitmap> transition) {
-                        originalBitmap = bitmap;
-                        currentBitmap = bitmap;
-                        editImageView.setImageBitmap(currentBitmap);
-                    }
 
-                    @Override//must implement, to clean resources
-                    public void onLoadCleared(@Nullable Drawable placeholder) {}
-                });
+        // TEST
+//        String imagePath = "/storage/emulated/0/DCIM/example.png";
+        if (imagePath == null) {
+            Toast.makeText(this, "Image path is null", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        try {
+            // Load the image from the file path
+            originalBitmap = BitmapFactory.decodeFile(imagePath);
+            if (originalBitmap == null) {
+                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+
+            currentBitmap = originalBitmap;
+            editImageView.setImageBitmap(currentBitmap);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error loading image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
-
+//   /storage/emulated/0/DCIM/
     private void setupListeners() {
         btnRotate.setOnClickListener(v -> rotateImage());
 
