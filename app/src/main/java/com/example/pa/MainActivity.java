@@ -134,6 +134,21 @@ public class MainActivity extends AppCompatActivity {
         long photoId6 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/hehua.jpeg");
         long photoId7 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/bird.jpeg");
         long photoId8 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId9 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId10 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId11 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId12 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId13 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId14 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId15 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId16 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId17 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId18 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId19 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId20 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId21 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId22 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId23 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
 
         PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
                 0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
@@ -207,6 +222,12 @@ public class MainActivity extends AppCompatActivity {
 
         // 可添加日志验证结果
         Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", " + success4 + ", " + success5 + ", " + success6 + ", " + success7);
+
+// 遍历为每个 photoId 添加 tag1
+        for (long photoId = 9; photoId <= 23; photoId++) {
+            boolean success = photoTagDao.addTagToPhoto((int) photoId, (int) tagId1);
+            Log.d("TagTest", "照片 " + photoId + " 添加标签1结果: " + (success ? "成功" : "失败"));
+        }
     }
 
     private void testSearchHistoryOperations(SearchHistoryDao searchHistoryDao) {
