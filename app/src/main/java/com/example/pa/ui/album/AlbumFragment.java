@@ -24,6 +24,13 @@ import com.example.pa.data.Daos.AlbumDao.Album;
 
 import java.util.ArrayList;
 
+/**
+ * AI-generated-content
+ * tool: ChatGPT
+ * version: 4o
+ * usage: I described my UI design to it, and asked how to program.
+ * I use the generated code as template.
+ */
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
     private RecyclerView recyclerView;
@@ -125,7 +132,13 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     }
 
 
-
+    /**
+     * AI-generated-content
+     * tool: ChatGPT
+     * version: 4o
+     * usage: I asked it how to implement interface jumps.
+     * Directly copy the code from its response.
+     */
     @Override
     public void onAlbumClick(String albumName) {
 

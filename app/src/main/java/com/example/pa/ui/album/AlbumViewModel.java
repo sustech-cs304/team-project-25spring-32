@@ -14,6 +14,13 @@ import com.example.pa.MyApplication;
 import com.example.pa.data.Daos.AlbumDao;
 import com.example.pa.data.Daos.AlbumDao.Album;
 
+/**
+ * AI-generated-content
+ * tool: ChatGPT
+ * version: 4o
+ * usage: I described my UI design to it, and asked how to program.
+ * I use the generated code as template.
+ */
 public class AlbumViewModel extends ViewModel {
 
     private MutableLiveData<List<Album>> albumList = new MutableLiveData<>();

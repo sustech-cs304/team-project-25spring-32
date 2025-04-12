@@ -14,6 +14,14 @@ import com.example.pa.R;
 import com.example.pa.data.Daos.AlbumDao.Album;
 
 import java.util.List;
+
+/**
+ * AI-generated-content
+ * tool: ChatGPT
+ * version: 4o
+ * usage: I described my UI design to it, and asked how to program.
+ * I use the generated code as template.
+ */
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
 
     private List<Album> albumList;
