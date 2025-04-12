@@ -1,6 +1,8 @@
 package com.example.pa.ui.search;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -26,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
 import com.example.pa.databinding.FragmentSearchBinding;
+import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
@@ -70,6 +73,23 @@ public class SearchFragment extends Fragment {
         imageRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3)); // 3列网格布局
         imageAdapter = new ImageAdapter(new ArrayList<>());
         imageRecyclerView.setAdapter(imageAdapter);
+
+        // 点击展示大图
+        imageAdapter.setOnImageClickListener(imagePath -> {
+            Context context = getContext();
+            if (context != null) {
+                Intent intent = new Intent(context, PhotoDetailActivity.class);
+                intent.putExtra("image_path", imagePath);
+                startActivity(intent);
+
+                if (getActivity() != null) {
+                    getActivity().overridePendingTransition(
+                            android.R.anim.fade_in,
+                            android.R.anim.fade_out
+                    );
+                }
+            }
+        });
 
         // 监听输入框内容变化
         searchBox.addTextChangedListener(new TextWatcher() {

@@ -69,6 +69,7 @@ public class PhotoEditActivity extends AppCompatActivity {
 
     private void loadImage() {
         String imagePath = getIntent().getStringExtra("image_path");
+
         // TEST
 //        String imagePath = "/storage/emulated/0/DCIM/example.png";
         if (imagePath == null) {
@@ -84,6 +85,7 @@ public class PhotoEditActivity extends AppCompatActivity {
                 finish();
                 return;
             }
+
 
             currentBitmap = originalBitmap;
             editImageView.setImageBitmap(currentBitmap);

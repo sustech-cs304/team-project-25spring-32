@@ -50,6 +50,11 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         Button btnEdit = findViewById(R.id.btn_edit);
         btnEdit.setOnClickListener(v -> {
+
+            // 获取当前图片URL
+            String imagePath = getIntent().getStringExtra("image_path");
+
+
             // 创建跳转意图
             Intent intent = new Intent(PhotoDetailActivity.this, PhotoEditActivity.class);
             intent.putExtra("image_path", imagePath);

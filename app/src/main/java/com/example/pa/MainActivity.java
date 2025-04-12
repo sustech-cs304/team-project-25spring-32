@@ -127,6 +127,28 @@ public class MainActivity extends AppCompatActivity {
 
         long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
         long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
+        // 假设 userId1 是已定义的有效用户ID
+        long photoId3 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/girl.jpeg");
+        long photoId4 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/boy.jpeg");
+        long photoId5 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/pig.jpg");
+        long photoId6 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/hehua.jpeg");
+        long photoId7 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/bird.jpeg");
+        long photoId8 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId9 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId10 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId11 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId12 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId13 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId14 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId15 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId16 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId17 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId18 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId19 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId20 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId21 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId22 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
+        long photoId23 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
 
         PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
                 0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
@@ -151,6 +173,63 @@ public class MainActivity extends AppCompatActivity {
         long tagId5 = tagDao.addTag("动物", false);
     }
 
+    private void testPhotoTagOperations(PhotoTagDao photoTagDao) {
+        long photoId1 = 1;
+        // 假设以下 photoId 已通过 addPhoto 生成（对应之前的照片3-8）
+        long photoId3 = 3; // girl.jpeg
+        long photoId4 = 4; // boy.jpeg
+        long photoId5 = 5; // pig.jpg
+        long photoId6 = 6; // hehua.jpeg
+        long photoId7 = 7; // bird.jpeg
+        long photoId8 = 8; // juhua.png
+
+        // 假设已通过 testTagOperations 生成的标签ID
+        long tagId1 = 1; // 风景
+        long tagId2 = 2; // 人物
+        long tagId3 = 3; // 建筑
+        long tagId4 = 4; // 天空
+        long tagId5 = 5; // 动物
+
+        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId1);
+        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId2);
+
+        // 为每张照片添加标签（根据内容模拟逻辑）
+        // 1. girl.jpeg → 人物 + 风景
+        boolean success1 = photoTagDao.addTagToPhoto((int) photoId3, (int) tagId2); // 人物
+        boolean success11 = photoTagDao.addTagToPhoto((int) photoId3, (int) tagId1); // 人物
+
+        // 2. boy.jpeg → 人物
+        boolean success2 = photoTagDao.addTagToPhoto((int) photoId4, (int) tagId2);
+        boolean success21 = photoTagDao.addTagToPhoto((int) photoId4, (int) tagId1);
+
+
+        // 3. pig.jpg → 动物
+        boolean success3 = photoTagDao.addTagToPhoto((int) photoId5, (int) tagId5);
+        boolean success31 = photoTagDao.addTagToPhoto((int) photoId5, (int) tagId1);
+
+
+        // 4. hehua.jpeg → 风景 + 植物（若存在植物标签）
+        boolean success4 = photoTagDao.addTagToPhoto((int) photoId6, (int) tagId1); // 风景
+
+        // 5. bird.jpeg → 动物 + 天空
+        boolean success5 = photoTagDao.addTagToPhoto((int) photoId7, (int) tagId4); // 天空
+        boolean success6 = photoTagDao.addTagToPhoto((int) photoId7, (int) tagId5); // 动物
+        photoTagDao.addTagToPhoto((int) photoId7, (int) tagId1);
+
+        // 6. juhua.png → 建筑（假设菊花是建筑装饰）
+        boolean success7 = photoTagDao.addTagToPhoto((int) photoId8, (int) tagId3);
+        photoTagDao.addTagToPhoto((int) photoId8, (int) tagId1);
+
+        // 可添加日志验证结果
+        Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", " + success4 + ", " + success5 + ", " + success6 + ", " + success7);
+
+// 遍历为每个 photoId 添加 tag1
+        for (long photoId = 9; photoId <= 23; photoId++) {
+            boolean success = photoTagDao.addTagToPhoto((int) photoId, (int) tagId1);
+            Log.d("TagTest", "照片 " + photoId + " 添加标签1结果: " + (success ? "成功" : "失败"));
+        }
+    }
+
     private void testSearchHistoryOperations(SearchHistoryDao searchHistoryDao) {
         long userId1 = 1;
         searchHistoryDao.addSearchHistory((int) userId1, "北京");
@@ -160,15 +239,6 @@ public class MainActivity extends AppCompatActivity {
         long userId1 = 1;
         long videoId1 = memoryVideoDao.addMemoryVideo((int) userId1, "2023回忆", "温馨", "music1.mp3");
         memoryVideoDao.updateVideoUrl((int) videoId1, "video1.mp4");
-    }
-
-    private void testPhotoTagOperations(PhotoTagDao photoTagDao) {
-        long photoId1 = 1;
-        long tagId1 = 1;
-        long tagId2 = 2;
-
-        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId1);
-        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId2);
     }
 
     private void clearAllTables(MyApplication app) {
