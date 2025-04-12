@@ -43,6 +43,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:drawableTop="@drawable/icon_edit"
+                android:drawablePadding="8dp"
+                android:drawableTint="@android:color/white"
+                android:gravity="center"
+                android:textColor="@android:color/white"
                 android:text="@string/edit" />
 
             <Button
@@ -51,6 +56,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:drawableTop="@drawable/icon_share"
+                android:drawablePadding="8dp"
+                android:drawableTint="@android:color/white"
+                android:gravity="center"
+                android:textColor="@android:color/white"
                 android:text="@string/share"/>
         </LinearLayout>
 
