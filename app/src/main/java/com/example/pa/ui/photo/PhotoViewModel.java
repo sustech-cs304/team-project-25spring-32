@@ -39,7 +39,7 @@ public class PhotoViewModel extends ViewModel {
     private final MutableLiveData<List<Photo>> imageList = new MutableLiveData<>(new ArrayList<>());
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
-    private final PhotoDao photoDao;
+
     public LiveData<List<Photo>> getImageList() {
         return imageList;
     }
