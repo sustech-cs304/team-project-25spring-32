@@ -73,10 +73,10 @@ public class PhotoEditActivity extends AppCompatActivity {
     }
 
     private void loadImage() {
-        String imageUrl = getIntent().getStringExtra("image_url");
+        String imagePath = getIntent().getStringExtra("image_path");
         Glide.with(this)
                 .asBitmap()
-                .load(imageUrl)
+                .load(imagePath)
                 .into(new CustomTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap bitmap, Transition<? super Bitmap> transition) {

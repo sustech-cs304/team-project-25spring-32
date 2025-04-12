@@ -46,11 +46,11 @@ public class PhotoDetailActivity extends AppCompatActivity {
         Button btnEdit = findViewById(R.id.btn_edit);
         btnEdit.setOnClickListener(v -> {
             // 获取当前图片URL
-            String imageUrl = getIntent().getStringExtra("image_url");
+            String imagePath = getIntent().getStringExtra("image_path");
 
             // 创建跳转意图
             Intent intent = new Intent(PhotoDetailActivity.this, PhotoEditActivity.class);
-            intent.putExtra("image_url", imageUrl);
+            intent.putExtra("image_path", imagePath);
             startActivity(intent);
 
             // 添加过渡动画
