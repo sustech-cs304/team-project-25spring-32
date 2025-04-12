@@ -174,7 +174,6 @@ public class PhotoDao {
                 null, null, null)) {
 
             return cursorToPhoto(cursor);
-            //return null;
         } catch (Exception e) {
             Log.e("PhotoDao", "查询照片失败", e);
             Log.e("PhotoDao", "ID: " + photoId);
@@ -226,11 +225,13 @@ public class PhotoDao {
     public List<Photo> getPhotosByUserAsList(int userId) {
         List<Photo> photos = new ArrayList<>();
         try (Cursor cursor = getPhotosByUser(userId)) {
+            Log.d("CursorCount", "Total rows: " + cursor.getCount());
             while (cursor.moveToNext()) {
+                Log.d("CursorData", "Row: " + cursor.getString(0) + ", " + cursor.getString(1));
                 Photo photo = cursorToPhoto(cursor);
                 if (photo != null) {
                     photos.add(photo);
-                    return photos;
+//                    return photos;
                 }
             }
         } catch (Exception e) {
@@ -243,7 +244,7 @@ public class PhotoDao {
 
     // 数据转换：Cursor → Photo
     private Photo cursorToPhoto(Cursor cursor) {
-        if (!cursor.moveToFirst()) return null;
+        if (cursor == null || cursor.getCount() == 0) return null;
 
         @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
         @SuppressLint("Range") int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
