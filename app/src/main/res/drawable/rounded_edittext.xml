@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 设置背景颜色 -->
+    <solid android:color="@android:color/white"/>
+    <!-- 设置圆角半径，调整这个值可以改变圆角大小 -->
+    <corners
+        android:radius="20dp"
+        android:topLeftRadius="20dp"
+        android:topRightRadius="20dp"
+        android:bottomLeftRadius="20dp"
+        android:bottomRightRadius="20dp"/>
+    <!-- 设置边框 -->
+    <stroke
+        android:width="1dp"
+        android:color="#CCCCCC"/>
+</shape>
