@@ -3,7 +3,10 @@ package com.example.pa.ui.album;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,21 +16,35 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import com.example.pa.R;
+import com.example.pa.data.Daos.AlbumDao.Album;
 
 import java.util.ArrayList;
 
+/**
+ * AI-generated-content
+ * tool: ChatGPT
+ * version: 4o
+ * usage: I described my UI design to it, and asked how to program.
+ * I use the generated code as template.
+ */
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
     private RecyclerView recyclerView;
     private AlbumAdapter albumAdapter;
     private AlbumViewModel albumViewModel;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     private ImageView addIcon;
     private ImageView manageIcon;
@@ -67,6 +84,12 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         // 获取 ViewModel
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
+        if (checkPermissions()) {
+            albumViewModel.addAlbum("所有照片",1,false,false,"private");
+        } else {
+            Toast.makeText(getContext(), "需要权限才能创建相册", Toast.LENGTH_SHORT).show();
+        }
+
         // 观察图片列表变化
         albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
             albumAdapter = new AlbumAdapter(albums, this);
@@ -84,6 +107,29 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         return rootView;
     }
 
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to create a local folder, and
+     * directly copy the code from its response.
+     */
+    // 直接检查权限是否已授予
+    private boolean checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED;
+        }
+        return true; // Android 5.1 及以下默认授予权限
+    }
+
     private void onSetClicked() {
     }
 
@@ -98,7 +144,9 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         String inputText = ((EditText) view.findViewById(R.id.editText)).getText().toString();
         // 处理输入内容，做相应的操作
 //        Toast.makeText(getContext(), "提交内容: " + inputText, Toast.LENGTH_SHORT).show();
-        albumViewModel.addAlbum(inputText);
+        if (checkPermissions()) {
+            albumViewModel.addAlbum(inputText,1,false,false,"private");
+        }
         hideKeyboard();
 
         // 隐藏遮罩层和输入框
@@ -124,7 +172,13 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     }
 
 
-
+    /**
+     * AI-generated-content
+     * tool: ChatGPT
+     * version: 4o
+     * usage: I asked it how to implement interface jumps.
+     * Directly copy the code from its response.
+     */
     @Override
     public void onAlbumClick(String albumName) {
 
@@ -143,8 +197,8 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     }
 
     @Override
-    public void onDeleteAlbum(String albumName) {
-        albumViewModel.removeAlbum(albumName);  // 调用 ViewModel 删除相册
+    public void onDeleteAlbum(Album album) {
+        albumViewModel.deleteAlbum(album.id, album.name);  // 调用 ViewModel 删除相册
     }
 }
 

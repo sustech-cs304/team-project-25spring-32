@@ -53,4 +53,9 @@ public class MainRepository {
         return photoPaths;
     }
 
+    // 选择最新的照片作为封面
+//    public String getLatestPhotoPathByAlbumName(String albumName) {
+//        int id =
+//    }
+
 }

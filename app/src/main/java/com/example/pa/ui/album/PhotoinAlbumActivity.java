@@ -17,7 +17,7 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_in_album);
 
-        // 获取传递的相册名称
+        // 获取传递的相册名称"
         String albumName = getIntent().getStringExtra("album_name");
 
         // 加载PhotoinAlbumFragment到容器

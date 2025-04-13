@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI-generated-content
+    tool: ChatGPT
+    version: 4o
+    usage: I described my UI design to it, and asked how to program.
+    directly copy the code from its response
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
