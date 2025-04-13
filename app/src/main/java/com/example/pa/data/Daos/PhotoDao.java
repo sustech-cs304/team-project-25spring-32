@@ -17,6 +17,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PhotoDao {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response and modify the logic of some method, add some
+     * methods we need but it did not generate, and add some logs.
+     */
     // ===================== 表结构常量 =====================
     public static final String TABLE_NAME = "Photo";
     public static final String COLUMN_ID = "id";
@@ -174,7 +181,6 @@ public class PhotoDao {
                 null, null, null)) {
 
             return cursorToPhoto(cursor);
-            //return null;
         } catch (Exception e) {
             Log.e("PhotoDao", "查询照片失败", e);
             Log.e("PhotoDao", "ID: " + photoId);
@@ -226,11 +232,13 @@ public class PhotoDao {
     public List<Photo> getPhotosByUserAsList(int userId) {
         List<Photo> photos = new ArrayList<>();
         try (Cursor cursor = getPhotosByUser(userId)) {
+            Log.d("CursorCount", "Total rows: " + cursor.getCount());
             while (cursor.moveToNext()) {
+                Log.d("CursorData", "Row: " + cursor.getString(0) + ", " + cursor.getString(1));
                 Photo photo = cursorToPhoto(cursor);
                 if (photo != null) {
                     photos.add(photo);
-                    return photos;
+//                    return photos;
                 }
             }
         } catch (Exception e) {
@@ -243,7 +251,7 @@ public class PhotoDao {
 
     // 数据转换：Cursor → Photo
     private Photo cursorToPhoto(Cursor cursor) {
-        if (!cursor.moveToFirst()) return null;
+        if (cursor == null || cursor.getCount() == 0) return null;
 
         @SuppressLint("Range") int id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
         @SuppressLint("Range") int userId = cursor.getInt(cursor.getColumnIndex(COLUMN_USER_ID));
@@ -309,7 +317,7 @@ public class PhotoDao {
         public final int id;
         public final int userId;
         public final String type;
-        public final String filePath;
+        public String filePath;
         public final String fileUrl;
         public final String uploadedTime;
         public final String takenTime;

@@ -43,14 +43,21 @@ public class PhotoDetailActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar); // 底部工具栏
         //TODO: 目前有工具栏有 edit share两个按钮，点击功能暂未实现
         // 获取编辑按钮并设置点击事件
+        String imagePath = getIntent().getStringExtra("image_path");
+        Glide.with(this)
+                .load(imagePath)
+                .into(ivDetail);
+
         Button btnEdit = findViewById(R.id.btn_edit);
         btnEdit.setOnClickListener(v -> {
+
             // 获取当前图片URL
-            String imageUrl = getIntent().getStringExtra("image_url");
+            //String imagePath = getIntent().getStringExtra("image_path");
+
 
             // 创建跳转意图
             Intent intent = new Intent(PhotoDetailActivity.this, PhotoEditActivity.class);
-            intent.putExtra("image_url", imageUrl);
+            intent.putExtra("image_path", imagePath);
             startActivity(intent);
 
             // 添加过渡动画
@@ -59,10 +66,11 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         // 加载图片，目前支持URL导入图片
         // TODO: 希望能够通过本地存储导入图片，希望对URL图片进行缓存加速
-        String imageUrl = getIntent().getStringExtra("image_url");
-        Glide.with(this)
-                .load(imageUrl)
-                .into(ivDetail);
+//        String imageUrl = getIntent().getStringExtra("image_url");
+//        Glide.with(this)
+//                .load(imageUrl)
+//                .into(ivDetail);
+
 
         // 点击图片切换工具栏可见性
         ivDetail.setOnClickListener(v -> toggleToolbar());

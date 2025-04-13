@@ -14,15 +14,32 @@ import com.example.pa.R;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response
+     */
 
-    private List<String> imageUrls;
+    private List<String> imagePaths;
+    private OnImageClickListener listener;
 
-    public ImageAdapter(List<String> imageUrls) {
-        this.imageUrls = imageUrls;
+    // 点击事件接口
+    public interface OnImageClickListener {
+        void onImageClick(String imagePath);
     }
 
-    public void updateImages(List<String> newImageUrls) {
-        this.imageUrls = newImageUrls;
+    // 提供给外部设置点击监听器的方法
+    public void setOnImageClickListener(OnImageClickListener listener) {
+        this.listener = listener;
+    }
+
+    public ImageAdapter(List<String> imagePaths) {
+        this.imagePaths = imagePaths;
+    }
+
+    public void updateImages(List<String> newImagePaths) {
+        this.imagePaths = newImagePaths;
         notifyDataSetChanged();
     }
 
@@ -36,23 +53,31 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        String imageUrl = imageUrls.get(position);
+        String imagePath = imagePaths.get(position);
         Glide.with(holder.itemView.getContext())
-                .load(imageUrl)
+                .load(imagePath)
                 .into(holder.imageView);
     }
 
     @Override
     public int getItemCount() {
-        return imageUrls.size();
+        return imagePaths.size();
     }
 
-    static class ImageViewHolder extends RecyclerView.ViewHolder {
+    // 内部 ViewHolder 类，实现点击事件
+     class ImageViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
 
         public ImageViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onImageClick(imagePaths.get(position));
+                }
+            });
         }
     }
 }

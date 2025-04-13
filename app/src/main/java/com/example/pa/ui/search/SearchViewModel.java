@@ -20,6 +20,12 @@ import java.util.List;
 import java.util.Random;
 
 public class SearchViewModel extends ViewModel {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: 生成所有方法，自己修改了loadRecommendations的内容，改变了searchImages的逻辑
+     */
 
     private final MutableLiveData<List<String>> mSuggestions;
     private final MutableLiveData<List<String>> mSearchResults;
@@ -65,7 +71,8 @@ public class SearchViewModel extends ViewModel {
             newSuggestions.add(query + "2");
             newSuggestions.add(query + "3");
         }
-        mSuggestions.setValue(newSuggestions);
+        //mSuggestions.setValue(newSuggestions);
+        //这里下个sprint实现
     }
 
     public void searchImages(String query) {

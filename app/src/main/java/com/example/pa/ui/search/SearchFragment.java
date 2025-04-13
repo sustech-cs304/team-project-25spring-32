@@ -1,6 +1,8 @@
 package com.example.pa.ui.search;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -26,12 +28,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
 import com.example.pa.databinding.FragmentSearchBinding;
+import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchFragment extends Fragment {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: 生成整体模板，改动了部分参数和变化逻辑.
+     *
+     */
 
     private FragmentSearchBinding binding;
     private SearchViewModel searchViewModel;
@@ -46,6 +56,9 @@ public class SearchFragment extends Fragment {
         searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
+
+        ImageView clearButton = binding.clearButton;//清除按钮
+
         View root = binding.getRoot();
 
         flexboxRecommendations = binding.flexboxRecommendations;
@@ -59,7 +72,9 @@ public class SearchFragment extends Fragment {
         //updateClearButtonVisibility(false);
         final ListView suggestionList = binding.suggestionList;
         final RecyclerView imageRecyclerView = binding.imageRecyclerView;
-        final ImageView defaultImage = binding.defaultImage;
+        //final ImageView defaultImage = binding.defaultImage;
+        //这个是初始默认图片的展示，改成文字描述了
+        final TextView descriptionText = binding.descriptionText;
 
         // 初始化推荐词列表
         suggestions = new ArrayList<>();
@@ -71,6 +86,23 @@ public class SearchFragment extends Fragment {
         imageAdapter = new ImageAdapter(new ArrayList<>());
         imageRecyclerView.setAdapter(imageAdapter);
 
+        // 点击展示大图
+        imageAdapter.setOnImageClickListener(imagePath -> {
+            Context context = getContext();
+            if (context != null) {
+                Intent intent = new Intent(context, PhotoDetailActivity.class);
+                intent.putExtra("image_path", imagePath);
+                startActivity(intent);
+
+                if (getActivity() != null) {
+                    getActivity().overridePendingTransition(
+                            android.R.anim.fade_in,
+                            android.R.anim.fade_out
+                    );
+                }
+            }
+        });
+
         // 监听输入框内容变化
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -80,14 +112,17 @@ public class SearchFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0) {
                     // 如果输入框为空，显示默认图片并隐藏 RecyclerView
-                    defaultImage.setVisibility(View.VISIBLE);
+                    //defaultImage.setVisibility(View.VISIBLE);
+                    descriptionText.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
                     suggestionList.setVisibility(View.GONE); // 隐藏推荐框
                 } else {
                     // 如果输入框有内容，隐藏默认图片并显示 RecyclerView
-                    defaultImage.setVisibility(View.GONE);
+                    //defaultImage.setVisibility(View.GONE);
+                    descriptionText.setVisibility(View.GONE);
                     imageRecyclerView.setVisibility(View.VISIBLE);
                     suggestionList.setVisibility(View.VISIBLE); // 显示推荐框
+                    //这里下个sprint实现
 
                     // 更新推荐词列表
                     searchViewModel.updateSuggestions(s.toString());
@@ -99,26 +134,30 @@ public class SearchFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-        searchBox.setOnTouchListener((v, event) -> {
-            // 仅在右侧有drawable且输入不为空时处理
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                Drawable[] drawables = searchBox.getCompoundDrawables();
-                Drawable rightDrawable = drawables[2]; // 索引2表示右侧drawable
+//        searchBox.setOnTouchListener((v, event) -> {
+//            // 仅在右侧有drawable且输入不为空时处理
+//            if (event.getAction() == MotionEvent.ACTION_UP) {
+//                Drawable[] drawables = searchBox.getCompoundDrawables();
+//                Drawable rightDrawable = drawables[2]; // 索引2表示右侧drawable
+//
+//                if (rightDrawable != null) {
+//                    // 计算点击区域是否在右侧drawable范围内
+//                    int rightDrawableStart = searchBox.getWidth() - searchBox.getPaddingRight() - rightDrawable.getBounds().width();
+//
+//                    // 使用 getX() 获取相对于 EditText 的点击位置
+//                    if (event.getX() >= rightDrawableStart) {
+//                        // 清空输入并更新UI
+//                        searchBox.setText("");
+//                        descriptionText.setVisibility(View.VISIBLE);
+//                        imageRecyclerView.setVisibility(View.GONE);
+//                        suggestionList.setVisibility(View.GONE);
+//                        return true; // 消费事件，阻止后续默认行为（如长按菜单）
+//                    }
+//                }
+//            }
+//            return false; // 其他情况让 EditText 正常处理
+//        });
 
-                // 检查点击位置是否在右侧drawable区域
-                if (rightDrawable != null && event.getRawX() >=
-                        (searchBox.getRight() - rightDrawable.getBounds().width() -
-                                searchBox.getPaddingRight())) {
-                    // 清空输入并更新UI
-                    searchBox.setText("");
-                    defaultImage.setVisibility(View.VISIBLE);
-                    imageRecyclerView.setVisibility(View.GONE);
-                    suggestionList.setVisibility(View.GONE);
-                    return true;
-                }
-            }
-            return false;
-        });
 
         // 修改原有TextWatcher，添加图标状态管理
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -130,13 +169,18 @@ public class SearchFragment extends Fragment {
                 // 更新右侧清除按钮可见性
                 //updateClearButtonVisibility(s.length() > 0);
 
+                clearButton.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                //控制清除按钮的显示与隐藏
+
 
                 if (s.length() == 0) {
-                    defaultImage.setVisibility(View.VISIBLE);
+                    //defaultImage.setVisibility(View.VISIBLE);
+                    descriptionText.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
                     suggestionList.setVisibility(View.GONE);
                 } else {
-                    defaultImage.setVisibility(View.GONE);
+                    //defaultImage.setVisibility(View.GONE);
+                    descriptionText.setVisibility(View.GONE);
                     imageRecyclerView.setVisibility(View.VISIBLE);
                     suggestionList.setVisibility(View.VISIBLE);
                     searchViewModel.updateSuggestions(s.toString());
@@ -148,6 +192,13 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {}
+        });
+
+        clearButton.setOnClickListener(v -> {
+            searchBox.setText("");
+            descriptionText.setVisibility(View.VISIBLE);
+            imageRecyclerView.setVisibility(View.GONE);
+            suggestionList.setVisibility(View.GONE);
         });
 
         // 设置推荐词点击事件
@@ -195,7 +246,7 @@ public class SearchFragment extends Fragment {
             textView.setTextSize(18);
             textView.setPadding(16, 8, 16, 8);
             textView.setBackgroundResource(R.drawable.recommendation_bg);
-            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
 
             FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
                     // 宽高包裹内容
