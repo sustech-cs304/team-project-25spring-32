@@ -56,6 +56,9 @@ public class SearchFragment extends Fragment {
         searchViewModel = new ViewModelProvider(this).get(SearchViewModel.class);
 
         binding = FragmentSearchBinding.inflate(inflater, container, false);
+
+        ImageView clearButton = binding.clearButton;//清除按钮
+
         View root = binding.getRoot();
 
         flexboxRecommendations = binding.flexboxRecommendations;
@@ -70,6 +73,7 @@ public class SearchFragment extends Fragment {
         final ListView suggestionList = binding.suggestionList;
         final RecyclerView imageRecyclerView = binding.imageRecyclerView;
         //final ImageView defaultImage = binding.defaultImage;
+        //这个是初始默认图片的展示，改成文字描述了
         final TextView descriptionText = binding.descriptionText;
 
         // 初始化推荐词列表
@@ -130,27 +134,30 @@ public class SearchFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {}
         });
-        searchBox.setOnTouchListener((v, event) -> {
-            // 仅在右侧有drawable且输入不为空时处理
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                Drawable[] drawables = searchBox.getCompoundDrawables();
-                Drawable rightDrawable = drawables[2]; // 索引2表示右侧drawable
+//        searchBox.setOnTouchListener((v, event) -> {
+//            // 仅在右侧有drawable且输入不为空时处理
+//            if (event.getAction() == MotionEvent.ACTION_UP) {
+//                Drawable[] drawables = searchBox.getCompoundDrawables();
+//                Drawable rightDrawable = drawables[2]; // 索引2表示右侧drawable
+//
+//                if (rightDrawable != null) {
+//                    // 计算点击区域是否在右侧drawable范围内
+//                    int rightDrawableStart = searchBox.getWidth() - searchBox.getPaddingRight() - rightDrawable.getBounds().width();
+//
+//                    // 使用 getX() 获取相对于 EditText 的点击位置
+//                    if (event.getX() >= rightDrawableStart) {
+//                        // 清空输入并更新UI
+//                        searchBox.setText("");
+//                        descriptionText.setVisibility(View.VISIBLE);
+//                        imageRecyclerView.setVisibility(View.GONE);
+//                        suggestionList.setVisibility(View.GONE);
+//                        return true; // 消费事件，阻止后续默认行为（如长按菜单）
+//                    }
+//                }
+//            }
+//            return false; // 其他情况让 EditText 正常处理
+//        });
 
-                // 检查点击位置是否在右侧drawable区域
-                if (rightDrawable != null && event.getRawX() >=
-                        (searchBox.getRight() - rightDrawable.getBounds().width() -
-                                searchBox.getPaddingRight())) {
-                    // 清空输入并更新UI
-                    searchBox.setText("");
-                    //defaultImage.setVisibility(View.VISIBLE);
-                    descriptionText.setVisibility(View.VISIBLE);
-                    imageRecyclerView.setVisibility(View.GONE);
-                    suggestionList.setVisibility(View.GONE);
-                    return true;
-                }
-            }
-            return false;
-        });
 
         // 修改原有TextWatcher，添加图标状态管理
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -161,6 +168,9 @@ public class SearchFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // 更新右侧清除按钮可见性
                 //updateClearButtonVisibility(s.length() > 0);
+
+                clearButton.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+                //控制清除按钮的显示与隐藏
 
 
                 if (s.length() == 0) {
@@ -182,6 +192,13 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {}
+        });
+
+        clearButton.setOnClickListener(v -> {
+            searchBox.setText("");
+            descriptionText.setVisibility(View.VISIBLE);
+            imageRecyclerView.setVisibility(View.GONE);
+            suggestionList.setVisibility(View.GONE);
         });
 
         // 设置推荐词点击事件
