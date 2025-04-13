@@ -222,7 +222,7 @@ public class SearchFragment extends Fragment {
             textView.setTextSize(18);
             textView.setPadding(16, 8, 16, 8);
             textView.setBackgroundResource(R.drawable.recommendation_bg);
-            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+            textView.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
 
             FlexboxLayout.LayoutParams params = new FlexboxLayout.LayoutParams(
                     // 宽高包裹内容
