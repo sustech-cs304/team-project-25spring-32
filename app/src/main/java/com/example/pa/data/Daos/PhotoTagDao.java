@@ -14,6 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoTagDao {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response and modify the logic of some method, add some
+     * methods we need but it did not generate, and add some logs.
+     */
     public static final String TABLE_NAME = "PhotoTag";
     public static final String COLUMN_PHOTO_ID = "photo_id";
     public static final String COLUMN_TAG_ID = "tag_id";
