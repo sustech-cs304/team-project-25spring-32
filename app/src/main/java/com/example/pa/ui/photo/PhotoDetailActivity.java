@@ -52,7 +52,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         btnEdit.setOnClickListener(v -> {
 
             // 获取当前图片URL
-            String imagePath = getIntent().getStringExtra("image_path");
+            //String imagePath = getIntent().getStringExtra("image_path");
 
 
             // 创建跳转意图
