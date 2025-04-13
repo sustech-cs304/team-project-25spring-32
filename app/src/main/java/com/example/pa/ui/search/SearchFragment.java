@@ -35,6 +35,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchFragment extends Fragment {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: 生成整体模板，改动了部分参数和变化逻辑.
+     *
+     */
 
     private FragmentSearchBinding binding;
     private SearchViewModel searchViewModel;
