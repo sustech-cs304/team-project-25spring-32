@@ -86,6 +86,7 @@ public class AlbumDao {
             int affected = db.delete(TABLE_NAME,
                     COLUMN_ID + " = ?",
                     new String[]{String.valueOf(albumId)});
+            Log.d("AlbumDao", "delete success");
             return affected > 0;
         } catch (SQLException e) {
             Log.e("AlbumDao", "删除相册失败", e);

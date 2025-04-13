@@ -58,10 +58,6 @@ public class MainActivity extends AppCompatActivity {
             // 获取 Application 中的 DAO 实例
             MyApplication app = (MyApplication) getApplication();
 
-            // 清空所有测试数据
-            clearAllTables(app);
-            Log.d("Database", "Cleared all test data");
-
             // ========== 用户测试 ==========
             testUserOperations(app.getUserDao());
 
