@@ -17,6 +17,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PhotoDao {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response and modify the logic of some method, add some
+     * methods we need but it did not generate, and add some logs.
+     */
     // ===================== 表结构常量 =====================
     public static final String TABLE_NAME = "Photo";
     public static final String COLUMN_ID = "id";
