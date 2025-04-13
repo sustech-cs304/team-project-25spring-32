@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
+
 import androidx.annotation.RequiresApi;
 
 /**
@@ -116,6 +118,7 @@ public class FileRepository {
      * directly copy the code from its response.
      */
     // 删除空文件夹（可选）
+    //TODO: test whether the methods can only delete files in the empty folder or doesn't work.
     private boolean deleteEmptyFolder(String albumName, ContentResolver resolver) {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/" + albumName);

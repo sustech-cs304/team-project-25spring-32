@@ -203,7 +203,6 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
 
     @Override
     public void onDeleteAlbum(Album album) {
-        Log.d("Fragment", "onDeleteAlbum: ");
         albumViewModel.deleteAlbum(album.id, album.name);  // 调用 ViewModel 删除相册
     }
 }
