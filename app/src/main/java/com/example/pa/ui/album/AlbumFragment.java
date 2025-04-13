@@ -84,19 +84,11 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         // 获取 ViewModel
         albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
 
-        // 初始化权限请求
-        requestPermissionLauncher = registerForActivityResult(
-                new ActivityResultContracts.RequestPermission(),
-                isGranted -> {
-                    if (isGranted) {
-                        if (checkPermissions()) {
-                            albumViewModel.addAlbum("所有照片",1,false,false,"private");
-                        }
-                    } else {
-                        Toast.makeText(getContext(), "需要权限才能创建相册", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
+        if (checkPermissions()) {
+            albumViewModel.addAlbum("所有照片",1,false,false,"private");
+        } else {
+            Toast.makeText(getContext(), "需要权限才能创建相册", Toast.LENGTH_SHORT).show();
+        }
 
         // 观察图片列表变化
         albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {
@@ -122,17 +114,20 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
      * usage: I asked how to create a local folder, and
      * directly copy the code from its response.
      */
+    // 直接检查权限是否已授予
     private boolean checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
+            return ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.READ_MEDIA_IMAGES
-            ) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
-                return false;
-            }
+            ) == PackageManager.PERMISSION_GRANTED;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED;
         }
-        return true;
+        return true; // Android 5.1 及以下默认授予权限
     }
 
     private void onSetClicked() {
