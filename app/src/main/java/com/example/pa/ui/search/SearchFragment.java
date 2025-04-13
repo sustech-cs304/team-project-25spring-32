@@ -62,7 +62,8 @@ public class SearchFragment extends Fragment {
         //updateClearButtonVisibility(false);
         final ListView suggestionList = binding.suggestionList;
         final RecyclerView imageRecyclerView = binding.imageRecyclerView;
-        final ImageView defaultImage = binding.defaultImage;
+        //final ImageView defaultImage = binding.defaultImage;
+        final TextView descriptionText = binding.descriptionText;
 
         // 初始化推荐词列表
         suggestions = new ArrayList<>();
@@ -100,12 +101,14 @@ public class SearchFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() == 0) {
                     // 如果输入框为空，显示默认图片并隐藏 RecyclerView
-                    defaultImage.setVisibility(View.VISIBLE);
+                    //defaultImage.setVisibility(View.VISIBLE);
+                    descriptionText.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
                     suggestionList.setVisibility(View.GONE); // 隐藏推荐框
                 } else {
                     // 如果输入框有内容，隐藏默认图片并显示 RecyclerView
-                    defaultImage.setVisibility(View.GONE);
+                    //defaultImage.setVisibility(View.GONE);
+                    descriptionText.setVisibility(View.GONE);
                     imageRecyclerView.setVisibility(View.VISIBLE);
                     suggestionList.setVisibility(View.VISIBLE); // 显示推荐框
                     //这里下个sprint实现
@@ -132,7 +135,8 @@ public class SearchFragment extends Fragment {
                                 searchBox.getPaddingRight())) {
                     // 清空输入并更新UI
                     searchBox.setText("");
-                    defaultImage.setVisibility(View.VISIBLE);
+                    //defaultImage.setVisibility(View.VISIBLE);
+                    descriptionText.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
                     suggestionList.setVisibility(View.GONE);
                     return true;
@@ -153,11 +157,13 @@ public class SearchFragment extends Fragment {
 
 
                 if (s.length() == 0) {
-                    defaultImage.setVisibility(View.VISIBLE);
+                    //defaultImage.setVisibility(View.VISIBLE);
+                    descriptionText.setVisibility(View.VISIBLE);
                     imageRecyclerView.setVisibility(View.GONE);
                     suggestionList.setVisibility(View.GONE);
                 } else {
-                    defaultImage.setVisibility(View.GONE);
+                    //defaultImage.setVisibility(View.GONE);
+                    descriptionText.setVisibility(View.GONE);
                     imageRecyclerView.setVisibility(View.VISIBLE);
                     suggestionList.setVisibility(View.VISIBLE);
                     searchViewModel.updateSuggestions(s.toString());
