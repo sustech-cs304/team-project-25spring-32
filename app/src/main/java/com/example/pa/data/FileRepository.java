@@ -9,6 +9,8 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -195,14 +197,28 @@ public class FileRepository {
         Log.d("FileRepository", "getAlbumCover from " + albumName + " : " + images);
         return images.isEmpty() ? null : images.get(0);
     }
-    public void triggerMediaScanForAlbum(String albumName) {
+    public interface MediaScanCallback {
+        void onScanCompleted(Uri uri);
+        void onScanFailed(String error);
+    }
+
+    // 修改扫描方法，增加回调参数
+    public void triggerMediaScanForAlbum(String albumName, MediaScanCallback callback) {
         File dcimDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         File albumDir = new File(dcimDir, albumName);
+
         MediaScannerConnection.scanFile(
                 context,
                 new String[]{albumDir.getAbsolutePath()},
-                new String[]{"image/*"}, // 扫描所有图片类型
-                (path, uri) -> Log.d("MediaScan", "扫描完成: " + uri)
+                new String[]{"image/*"},
+                (path, uri) -> {
+                    if (uri != null) {
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onScanCompleted(uri));
+                    } else {
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                callback.onScanFailed("Scan failed for: " + path));
+                    }
+                }
         );
     }
 
