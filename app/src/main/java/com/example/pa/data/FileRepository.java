@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -13,7 +14,9 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -189,8 +192,19 @@ public class FileRepository {
     // 获取封面（最新一张图片）
     public Uri getAlbumCover(String albumName) {
         List<Uri> images = getAlbumImages(albumName);
-        Log.d("FileRepository", "getAlbumCover: " + images);
+        Log.d("FileRepository", "getAlbumCover from " + albumName + " : " + images);
         return images.isEmpty() ? null : images.get(0);
     }
+    public void triggerMediaScanForAlbum(String albumName) {
+        File dcimDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File albumDir = new File(dcimDir, albumName);
+        MediaScannerConnection.scanFile(
+                context,
+                new String[]{albumDir.getAbsolutePath()},
+                new String[]{"image/*"}, // 扫描所有图片类型
+                (path, uri) -> Log.d("MediaScan", "扫描完成: " + uri)
+        );
+    }
+
 }
 

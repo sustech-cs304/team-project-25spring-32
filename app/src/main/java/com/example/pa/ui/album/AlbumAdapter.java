@@ -56,6 +56,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         Album album = albumList.get(position);
         holder.textView.setText(album.name);
         Log.d("AlbumAdapter", "onBindViewHolder: " + album.name);
+        fileRepository.triggerMediaScanForAlbum(album.name);
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
                 .load(fileRepository.getAlbumCover(album.name))
