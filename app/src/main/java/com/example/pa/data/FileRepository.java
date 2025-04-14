@@ -5,15 +5,20 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -138,6 +143,13 @@ public class FileRepository {
         return false;
     }
 
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to get files from folder, and
+     * directly copy the code from its response.
+     */
     public List<Uri> getAlbumImages(String albumName) {
         List<Uri> imageUris = new ArrayList<>();
         ContentResolver resolver = context.getContentResolver();
@@ -145,7 +157,12 @@ public class FileRepository {
 
         // 调整查询条件：使用 LIKE 和通配符
         String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+        String[] selectionArgs;
+        if (albumName.equals("所有照片")) {
+            selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/%"};
+        } else {
+            selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+        }
         String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
 
         // 扩展查询字段
@@ -189,8 +206,41 @@ public class FileRepository {
     // 获取封面（最新一张图片）
     public Uri getAlbumCover(String albumName) {
         List<Uri> images = getAlbumImages(albumName);
-        Log.d("FileRepository", "getAlbumCover: " + images);
+        Log.d("FileRepository", "getAlbumCover from " + albumName + " : " + images);
         return images.isEmpty() ? null : images.get(0);
     }
+
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to solve the problem of asynchronous scan, and
+     * directly copy the code from its response.
+     */
+    public interface MediaScanCallback {
+        void onScanCompleted(Uri uri);
+        void onScanFailed(String error);
+    }
+
+    // 修改扫描方法，增加回调参数
+    public void triggerMediaScanForAlbum(String albumName, MediaScanCallback callback) {
+        File dcimDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File albumDir = new File(dcimDir, albumName);
+
+        MediaScannerConnection.scanFile(
+                context,
+                new String[]{albumDir.getAbsolutePath()},
+                new String[]{"image/*"},
+                (path, uri) -> {
+                    if (uri != null) {
+                        new Handler(Looper.getMainLooper()).post(() -> callback.onScanCompleted(uri));
+                    } else {
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                callback.onScanFailed("Scan failed for: " + path));
+                    }
+                }
+        );
+    }
+
 }
 

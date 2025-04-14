@@ -1,7 +1,9 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.MyApplication;
 import com.example.pa.R;
 import com.example.pa.data.Daos.AlbumDao.Album;
@@ -30,6 +33,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     private List<Album> albumList;
     private OnAlbumClickListener listener;
     private final FileRepository fileRepository;
+    private final SparseArray<Long> positionTimestamps = new SparseArray<>();
     private boolean isManageMode = false;  // 控制删除图标显示
 
     public interface OnAlbumClickListener {
@@ -50,8 +54,18 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         return new AlbumViewHolder(view);
     }
 
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to solve the problem of asynchronous scan, and
+     * modify the code according to my existed code.
+     */
     @Override
-    public void onBindViewHolder(AlbumViewHolder holder, int position) {
+    public void onBindViewHolder(AlbumViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        final long timestamp = System.currentTimeMillis();
+        positionTimestamps.put(position, timestamp);
+
         // 在这里加载图片
         Album album = albumList.get(position);
         holder.textView.setText(album.name);
@@ -60,6 +74,28 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         Glide.with(holder.itemView.getContext())
                 .load(fileRepository.getAlbumCover(album.name))
                 .into(holder.imageView);
+
+        // 带回调的扫描
+        fileRepository.triggerMediaScanForAlbum(album.name, new FileRepository.MediaScanCallback() {
+            @Override
+            public void onScanCompleted(Uri uri) {
+                // 验证视图是否仍然有效
+                if (positionTimestamps.get(position, -1L) != timestamp) return;
+
+                Uri coverUri = fileRepository.getAlbumCover(album.name);
+                if (coverUri != null) {
+                    Glide.with(holder.itemView.getContext())
+                            .load(coverUri)
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .into(holder.imageView);
+                }
+            }
+
+            @Override
+            public void onScanFailed(String error) {
+                Log.e("AlbumAdapter", error);
+            }
+        });
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
