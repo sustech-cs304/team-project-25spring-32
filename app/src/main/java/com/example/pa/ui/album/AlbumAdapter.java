@@ -1,6 +1,7 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,10 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.pa.MyApplication;
 import com.example.pa.R;
 import com.example.pa.data.Daos.AlbumDao.Album;
+import com.example.pa.data.FileRepository;
 
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
     private List<Album> albumList;
     private OnAlbumClickListener listener;
+    private final FileRepository fileRepository;
     private boolean isManageMode = false;  // 控制删除图标显示
 
     public interface OnAlbumClickListener {
@@ -36,6 +40,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     public AlbumAdapter(List<Album> albumList, OnAlbumClickListener listener) {
         this.albumList = albumList;
         this.listener = listener;
+        this.fileRepository = new FileRepository(MyApplication.getInstance());
     }
 
     @Override
@@ -50,9 +55,10 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         // 在这里加载图片
         Album album = albumList.get(position);
         holder.textView.setText(album.name);
+        Log.d("AlbumAdapter", "onBindViewHolder: " + album.name);
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
-                .load(album) // 如果是本地图片，路径可以直接使用
+                .load(fileRepository.getAlbumCover(album.name))
                 .into(holder.imageView);
 
         holder.itemView.setOnClickListener(v -> {
