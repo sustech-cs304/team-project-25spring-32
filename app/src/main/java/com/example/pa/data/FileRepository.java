@@ -13,6 +13,9 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * AI-generated-content
  * tool: DeepSeek
@@ -133,6 +136,61 @@ public class FileRepository {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<Uri> getAlbumImages(String albumName) {
+        List<Uri> imageUris = new ArrayList<>();
+        ContentResolver resolver = context.getContentResolver();
+        Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+
+        // 调整查询条件：使用 LIKE 和通配符
+        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
+        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+        String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
+
+        // 扩展查询字段
+        String[] projection = new String[]{
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.RELATIVE_PATH
+        };
+
+        try (Cursor cursor = resolver.query(
+                collection,
+                projection,
+                selection,
+                selectionArgs,
+                sortOrder)
+        ) {
+            if (cursor != null) {
+                Log.d("MediaQuery", "找到文件数量: " + cursor.getCount());
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                    Uri uri = ContentUris.withAppendedId(collection, id);
+                    imageUris.add(uri);
+
+                    // 调试日志
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
+                    String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH));
+                    Log.d("MediaQuery", "文件: " + name + " | 路径: " + path);
+                }
+            } else {
+                Log.e("MediaQuery", "查询返回空 Cursor");
+            }
+        } catch (SecurityException e) {
+            Log.e("MediaQuery", "权限不足: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e("MediaQuery", "查询失败: " + e.getMessage());
+        }
+
+        return imageUris;
+    }
+
+    // 获取封面（最新一张图片）
+    public Uri getAlbumCover(String albumName) {
+        List<Uri> images = getAlbumImages(albumName);
+        Log.d("FileRepository", "getAlbumCover: " + images);
+        return images.isEmpty() ? null : images.get(0);
     }
 }
 
