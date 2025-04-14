@@ -17,6 +17,7 @@ import com.example.pa.data.MainRepository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class SearchViewModel extends ViewModel {
@@ -77,8 +78,7 @@ public class SearchViewModel extends ViewModel {
 
     public void searchImages(String query) {
         List<String> results = mainRepository.getPhotoPathByTagName(query);
-        if (results!=null)
-            mSearchResults.setValue(results);
+        mSearchResults.setValue(Objects.requireNonNullElseGet(results, ArrayList::new));
     }
     public void loadRecommendations() {
         // 模拟从数据库获取推荐词
