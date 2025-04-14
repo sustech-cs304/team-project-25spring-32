@@ -44,11 +44,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar); // 底部工具栏
         //TODO: 目前有工具栏有 edit share两个按钮，点击功能暂未实现
         // 获取编辑按钮并设置点击事件
-//        String imagePath = getIntent().getStringExtra("image_path");
-//        Glide.with(this)
-//                .load(imagePath)
-//                .into(ivDetail);
-        Uri imagePath = getIntent().getParcelableExtra("image_path");
+        String imagePath = getIntent().getStringExtra("image_path");
         Glide.with(this)
                 .load(imagePath)
                 .into(ivDetail);

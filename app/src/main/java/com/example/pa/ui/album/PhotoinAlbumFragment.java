@@ -95,8 +95,8 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            intent.putExtra("image_path", imageItem);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            String uriString = imageItem.toString();
+            intent.putExtra("image_path", uriString);
             startActivity(intent);
 
             // 添加Activity过渡动画
