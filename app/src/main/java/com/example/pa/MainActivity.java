@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         requestNecessaryPermissions();
         // 测试数据库操作 (仅用于开发环境)
 
-//        testDatabaseOperations();
+        testDatabaseOperations();
 
 
         // 设置底部导航
