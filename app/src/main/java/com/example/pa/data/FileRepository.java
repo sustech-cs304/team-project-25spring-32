@@ -143,6 +143,13 @@ public class FileRepository {
         return false;
     }
 
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to get files from folder, and
+     * directly copy the code from its response.
+     */
     public List<Uri> getAlbumImages(String albumName) {
         List<Uri> imageUris = new ArrayList<>();
         ContentResolver resolver = context.getContentResolver();
@@ -197,6 +204,14 @@ public class FileRepository {
         Log.d("FileRepository", "getAlbumCover from " + albumName + " : " + images);
         return images.isEmpty() ? null : images.get(0);
     }
+
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to solve the problem of asynchronous scan, and
+     * directly copy the code from its response.
+     */
     public interface MediaScanCallback {
         void onScanCompleted(Uri uri);
         void onScanFailed(String error);

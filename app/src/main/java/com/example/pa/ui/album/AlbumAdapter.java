@@ -54,6 +54,13 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         return new AlbumViewHolder(view);
     }
 
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to solve the problem of asynchronous scan, and
+     * modify the code according to my existed code.
+     */
     @Override
     public void onBindViewHolder(AlbumViewHolder holder, @SuppressLint("RecyclerView") int position) {
         final long timestamp = System.currentTimeMillis();
