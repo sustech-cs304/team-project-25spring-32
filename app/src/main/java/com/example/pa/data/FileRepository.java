@@ -157,7 +157,12 @@ public class FileRepository {
 
         // 调整查询条件：使用 LIKE 和通配符
         String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+        String[] selectionArgs;
+        if (albumName.equals("所有照片")) {
+            selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/%"};
+        } else {
+            selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+        }
         String sortOrder = MediaStore.Images.Media.DATE_ADDED + " DESC";
 
         // 扩展查询字段
