@@ -1,11 +1,17 @@
 package com.example.pa;
 
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -17,11 +23,16 @@ import com.example.pa.util.PasswordUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
+
+import android.Manifest;
 
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
+    private ActivityResultLauncher<String[]> requestPermissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +41,30 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // 初始化权限请求
+        requestPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                permissions -> {
+                    // 检查权限是否全部授予
+                    boolean allGranted = true;
+                    for (Boolean isGranted : permissions.values()) {
+                        if (!isGranted) {
+                            allGranted = false;
+                            break;
+                        }
+                    }
+
+                    if (allGranted) {
+                        Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "部分权限被拒绝", Toast.LENGTH_SHORT).show();
+                        // 可选：跳转到设置引导用户手动开启
+                    }
+                }
+        );
+
+        // 首次启动时请求权限
+        requestNecessaryPermissions();
         // 测试数据库操作 (仅用于开发环境)
 
         testDatabaseOperations();
@@ -37,6 +72,48 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置底部导航
         setupBottomNavigation();
+    }
+
+    /**
+     * AI-generated-content
+     * tool: DeepSeek
+     * version: R1
+     * usage: I asked how to get permissions, and
+     * directly copy the code from its response.
+     */
+    // 请求所需权限
+    private void requestNecessaryPermissions() {
+        Log.d("Permission", "开始检查权限...");
+        List<String> permissionsToRequest = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            boolean hasReadMediaImages = ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED;
+            Log.d("Permission", "READ_MEDIA_IMAGES 权限状态: " + hasReadMediaImages);
+
+            if (!hasReadMediaImages) {
+                permissionsToRequest.add(Manifest.permission.READ_MEDIA_IMAGES);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            boolean hasWriteStorage = ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED;
+            Log.d("Permission", "WRITE_EXTERNAL_STORAGE 权限状态: " + hasWriteStorage);
+
+            if (!hasWriteStorage) {
+                permissionsToRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+        }
+
+        if (!permissionsToRequest.isEmpty()) {
+            Log.d("Permission", "需要请求权限: " + permissionsToRequest);
+            requestPermissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
+        } else {
+            Log.d("Permission", "所有权限已授予");
+        }
     }
 
     private void setupBottomNavigation() {
@@ -57,10 +134,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             // 获取 Application 中的 DAO 实例
             MyApplication app = (MyApplication) getApplication();
-
-            // 清空所有测试数据
-            clearAllTables(app);
-            Log.d("Database", "Cleared all test data");
 
             // ========== 用户测试 ==========
             testUserOperations(app.getUserDao());

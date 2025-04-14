@@ -14,6 +14,12 @@ import com.example.pa.R;
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response
+     */
 
     private List<String> imagePaths;
     private OnImageClickListener listener;

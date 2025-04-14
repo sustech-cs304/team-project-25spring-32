@@ -11,6 +11,13 @@ import android.util.Log;
 import com.example.pa.data.DatabaseHelper;
 
 public class TagDao {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response and modify the logic of some method, add some
+     * methods we need but it did not generate, and add some logs.
+     */
     public static final String TABLE_NAME = "Tag";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_NAME = "name";

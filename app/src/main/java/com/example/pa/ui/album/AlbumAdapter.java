@@ -1,6 +1,7 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,23 +11,36 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.pa.MyApplication;
 import com.example.pa.R;
+import com.example.pa.data.Daos.AlbumDao.Album;
+import com.example.pa.data.FileRepository;
 
 import java.util.List;
+
+/**
+ * AI-generated-content
+ * tool: ChatGPT
+ * version: 4o
+ * usage: I described my UI design to it, and asked how to program.
+ * I use the generated code as template.
+ */
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHolder> {
 
-    private List<String> albumList;
+    private List<Album> albumList;
     private OnAlbumClickListener listener;
+    private final FileRepository fileRepository;
     private boolean isManageMode = false;  // 控制删除图标显示
 
     public interface OnAlbumClickListener {
         void onAlbumClick(String albumName);
-        void onDeleteAlbum(String albumName);
+        void onDeleteAlbum(Album album);
     }
 
-    public AlbumAdapter(List<String> albumList, OnAlbumClickListener listener) {
+    public AlbumAdapter(List<Album> albumList, OnAlbumClickListener listener) {
         this.albumList = albumList;
         this.listener = listener;
+        this.fileRepository = new FileRepository(MyApplication.getInstance());
     }
 
     @Override
@@ -39,16 +53,17 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     @Override
     public void onBindViewHolder(AlbumViewHolder holder, int position) {
         // 在这里加载图片
-        String albumName = albumList.get(position);
-        holder.textView.setText(albumName);
+        Album album = albumList.get(position);
+        holder.textView.setText(album.name);
+        Log.d("AlbumAdapter", "onBindViewHolder: " + album.name);
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
-                .load(albumName) // 如果是本地图片，路径可以直接使用
+                .load(fileRepository.getAlbumCover(album.name))
                 .into(holder.imageView);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onAlbumClick(albumName);
+                listener.onAlbumClick(album.name);
             }
         });
 
@@ -57,7 +72,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
             holder.deleteIcon.setVisibility(View.VISIBLE);
             holder.deleteIcon.setOnClickListener(v -> {
                 if (listener != null) {
-                    listener.onDeleteAlbum(albumName);  // 调用删除接口
+                    listener.onDeleteAlbum(album);  // 调用删除接口
                 }
             });
         } else {
