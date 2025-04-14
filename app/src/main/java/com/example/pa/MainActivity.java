@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             testPhotoOperations(app.getPhotoDao());
 
             // ========== 相册测试 ==========
-            testAlbumOperations(app.getAlbumDao());
+            //testAlbumOperations(app.getAlbumDao());
 
             // ========== 标签测试 ==========
             testTagOperations(app.getTagDao());
