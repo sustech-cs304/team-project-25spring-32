@@ -8,7 +8,7 @@
 
 Database ER diagram
 
-![AIMUQQ2H1BWV7]4S_P%MXGI.jpg](AIMUQQ2H1BWV74S_PMXGI.jpg)
+![pic1]](pic/p1.jpg)
 
 ## Natural language description:
 
@@ -67,18 +67,18 @@ Database ER diagram
 
 ### Tool: Figma
 
-![Smart Album (3).png](Smart_Album_(3).png)
+![Smart Album (3).png](pic/Smart_Album_(3).png)
 
-![Smart Album (4).png](Smart_Album_(4).png)
+![Smart Album (4).png](pic/Smart_Album_(4).png)
 
-![Smart Album (5).png](Smart_Album_(5).png)
+![Smart Album (5).png](pic/Smart_Album_(5).png)
 
-![Smart Album (7).png](Smart_Album_(7).png)
+![Smart Album (7).png](pic/Smart_Album_(7).png)
 
-![Smart Album (8).png](Smart_Album_(8).png)
+![Smart Album (8).png](pic/Smart_Album_(8).png)
 
-![Smart Album (9).png](Smart_Album_(9).png)
+![Smart Album (9).png](pic/Smart_Album_(9).png)
 
-![Smart Album (6).png](Smart_Album_(6).png)
+![Smart Album (6).png](pic/Smart_Album_(6).png)
 
-![Smart Album (10).png](Smart_Album_(10).png)
+![Smart Album (10).png](pic/Smart_Album_(10).png)
