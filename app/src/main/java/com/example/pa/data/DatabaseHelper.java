@@ -8,6 +8,13 @@ import android.util.Log;
 import com.example.pa.data.Daos.*;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response and modify the logic of some method, add some
+     * methods we need but it did not generate, and add some logs.
+     */
     private static final String DATABASE_NAME = "app.db";
     private static final int DATABASE_VERSION = 1;
 

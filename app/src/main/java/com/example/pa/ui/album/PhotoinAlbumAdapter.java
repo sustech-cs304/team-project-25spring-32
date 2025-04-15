@@ -1,5 +1,6 @@
 package com.example.pa.ui.album;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,23 +16,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.example.pa.data.Daos.PhotoDao.Photo;
+import com.example.pa.data.FileRepository;
 
 public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapter.PhotoViewHolder> {
 
     // 内部持有图片数据列表
-    private List<Photo> imageList;
+//    private List<Photo> imageList;
+    private List<Uri> imageList;
+
     // 定义点击回调接口
     private OnPhotoClickListener listener;
-
     // 回调接口：由外部（比如Fragment）实现点击后的操作
     public interface OnPhotoClickListener {
-        void onPhotoClick(Photo imageItem);
+//        void onPhotoClick(Photo imageItem);
+        void onPhotoClick(Uri imageItem);
     }
 
-    public PhotoinAlbumAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
+//    public PhotoinAlbumAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
+//        // 创建新集合以避免外部数据引用问题
+//        this.imageList = new ArrayList<>(imageList);
+//        this.listener = listener;
+//
+//    }
+
+    public PhotoinAlbumAdapter(List<Uri> imageList, OnPhotoClickListener listener) {
         // 创建新集合以避免外部数据引用问题
         this.imageList = new ArrayList<>(imageList);
         this.listener = listener;
+
     }
 
     @NonNull
@@ -42,12 +54,23 @@ public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapte
         return new PhotoViewHolder(view);
     }
 
-    @Override
+//    @Override
+//    public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
+//        Photo imageItem = imageList.get(position);
+//        // 使用 Glide 加载图片
+//        Glide.with(holder.itemView.getContext())
+//                .load(imageItem.fileUrl)
+//                .placeholder(R.drawable.placeholder_image)
+//                .error(R.drawable.error_image)
+//                .centerCrop()
+//                .into(holder.imageView);
+//    }
+
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo imageItem = imageList.get(position);
+        Uri imageItem = imageList.get(position);
         // 使用 Glide 加载图片
         Glide.with(holder.itemView.getContext())
-                .load(imageItem.fileUrl)
+                .load(imageItem)
                 .placeholder(R.drawable.placeholder_image)
                 .error(R.drawable.error_image)
                 .centerCrop()
@@ -60,7 +83,13 @@ public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapte
     }
 
     // 更新数据方法：外部可以调用此方法来刷新图片列表
-    public void updateData(List<Photo> newList) {
+//    public void updateData(List<Photo> newList) {
+//        this.imageList.clear();
+//        this.imageList.addAll(newList);
+//        notifyDataSetChanged(); // 确保在主线程调用
+//    }
+
+    public void updateData(List<Uri> newList) {
         this.imageList.clear();
         this.imageList.addAll(newList);
         notifyDataSetChanged(); // 确保在主线程调用

@@ -3,6 +3,7 @@ package com.example.pa.ui.album;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
+import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.example.pa.data.Daos.PhotoDao.Photo;
 
@@ -49,6 +51,8 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_photo_in_album, container, false);
 
+        String albumName = getArguments().getString(ARG_ALBUM_NAME);
+
         // 设置 RecyclerView 网格布局，每行3个
         recyclerView = root.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
@@ -69,12 +73,30 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     }
 
     // 实现点击事件回调，处理图片点击后跳转到大图展示页面
+//    @Override
+//    public void onPhotoClick(Photo imageItem) {
+//        Context context = getContext();
+//        if (context != null) {
+//            Intent intent = new Intent(context, PhotoDetailActivity.class);
+//            intent.putExtra("image_url", imageItem.fileUrl);
+//            startActivity(intent);
+//
+//            // 添加Activity过渡动画
+//            if (getActivity() != null) {
+//                getActivity().overridePendingTransition(
+//                        android.R.anim.fade_in,
+//                        android.R.anim.fade_out
+//                );
+//            }
+//        }
+//    }
     @Override
-    public void onPhotoClick(Photo imageItem) {
+    public void onPhotoClick(Uri imageItem) {
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            intent.putExtra("image_url", imageItem.fileUrl);
+            String uriString = imageItem.toString();
+            intent.putExtra("image_path", uriString);
             startActivity(intent);
 
             // 添加Activity过渡动画

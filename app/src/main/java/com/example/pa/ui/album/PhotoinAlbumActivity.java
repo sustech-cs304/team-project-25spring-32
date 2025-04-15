@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.widget.ImageButton;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pa.R;
@@ -17,7 +18,7 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_in_album);
 
-        // 获取传递的相册名称
+        // 获取传递的相册名称"
         String albumName = getIntent().getStringExtra("album_name");
 
         // 加载PhotoinAlbumFragment到容器
@@ -33,5 +34,12 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         // 用于处理返回按钮
         backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish());
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 }

@@ -10,6 +10,13 @@ import android.util.Log;
 import com.example.pa.data.DatabaseHelper;
 
 public class MemoryVideoPhotoDao {
+    /**
+     * AI-generated-content
+     * tool: Deepseek
+     * version: latest
+     * usage: I directly copy the code from its response and modify the logic of some method, add some
+     * methods we need but it did not generate, and add some logs.
+     */
     public static final String TABLE_NAME = "MemoryVideoPhoto";
     public static final String COLUMN_MEMORY_VIDEO_ID = "memory_video_id";
     public static final String COLUMN_PHOTO_ID = "photo_id";
