@@ -73,7 +73,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 //                .into(ivDetail);
 
 
-        // 点击图片切换工具栏可见性
+        // 点击图片切换工具栏可见性s
         ivDetail.setOnClickListener(v -> toggleToolbar());
 
         // 返回按钮点击事件
