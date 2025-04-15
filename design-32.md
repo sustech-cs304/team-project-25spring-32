@@ -8,7 +8,8 @@
 
 Database ER diagram
 
-![pic1]](pic/p1.jpg)
+![Smart Album (3).png](pic/Smart_Album_(3).png)
+![pic1](pic/p1)
 
 ## Natural language description:
 
