@@ -10,6 +10,7 @@ Database ER diagram
 
 ![pic1](pic/p1.jpg)
 
+![Architecture](pic/SmartAlbumArchitecture.png)
 ## Natural language description:
 
 ### 用户界面层（UI层）
