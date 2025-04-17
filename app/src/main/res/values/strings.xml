@@ -23,4 +23,5 @@
     <string name="set">Set</string>
     <string name="searchWord">Type keyword…</string>
     <string name="default_description">Enter a search term above to find relevant images. You can try one of the recommended keywords or type your own query. Results will appear here once you change the words.</string>
+    <string name="search_history">recent search</string>
 </resources>

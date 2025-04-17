@@ -37,30 +37,74 @@
             android:visibility="gone" />
     </RelativeLayout>
 
+    <!-- 搜索记录框 -->
+    <LinearLayout
+        android:id="@+id/searchHistoryBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="0dp">
+
+        <TextView
+            android:id="@+id/searchHistoryTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search_history"
+            android:textSize="28sp"
+            android:textColor="#333"
+            android:layout_marginBottom="8dp" />
+
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/searchHistoryList"
+            android:layout_marginHorizontal="0dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            app:flexWrap="wrap"
+            app:alignItems="flex_start"
+            app:justifyContent="flex_start"/>
+    </LinearLayout>
+
 
     <!-- 推荐词标签 -->
     <!--layout_marginHorizontal 这个要注意适配性-->
-    <TextView
-        android:id="@+id/tvRecommendTitle"
+    <LinearLayout
+        android:id="@+id/recommendationBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="12dp"
-        android:text="@string/recommended_keywords"
-        android:textSize="28sp"
-        android:textColor="#333"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="vertical"
+        android:padding="2dp"
 
-    <!-- 推荐词流式布局 -->
-    <com.google.android.flexbox.FlexboxLayout
-        android:id="@+id/flexboxRecommendations"
-        android:layout_marginHorizontal="12dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:flexWrap="wrap"
-        app:alignItems="flex_start"
-        app:justifyContent="flex_start"/>
+        android:visibility="gone"
+        android:layout_marginTop="0dp"
+        android:layout_marginHorizontal="0dp">
+        <TextView
+            android:id="@+id/tvRecommendTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:text="@string/recommended_keywords"
+            android:textSize="28sp"
+            android:textColor="#333"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- 推荐词流式布局 -->
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/flexboxRecommendations"
+            android:layout_marginHorizontal="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:flexWrap="wrap"
+            app:alignItems="flex_start"
+            app:justifyContent="flex_start"/>
+    </LinearLayout>
 
     <!-- 搜索建议列表 -->
     <ListView

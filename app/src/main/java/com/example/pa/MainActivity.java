@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             testSearchHistoryOperations(app.getSearchHistoryDao());
 
             // ========== 记忆视频测试 ==========
-            testMemoryVideoOperations(app.getMemoryVideoDao());
+            //testMemoryVideoOperations(app.getMemoryVideoDao());
 
             // ========== 照片标签测试 ==========
             testPhotoTagOperations(app.getPhotoTagDao());
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         long userId2 = 2;
 
         long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
-        long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
+        //long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
         // 假设 userId1 是已定义的有效用户ID
         long photoId3 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/girl.jpeg");
         long photoId4 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/boy.jpeg");

@@ -11,6 +11,7 @@ import com.example.pa.MainActivity;
 import com.example.pa.MyApplication;
 import com.example.pa.data.Daos.PhotoDao;
 import com.example.pa.data.Daos.PhotoTagDao;
+import com.example.pa.data.Daos.SearchHistoryDao;
 import com.example.pa.data.Daos.TagDao;
 import com.example.pa.data.MainRepository;
 
@@ -31,9 +32,12 @@ public class SearchViewModel extends ViewModel {
     private final MutableLiveData<List<String>> mSuggestions;
     private final MutableLiveData<List<String>> mSearchResults;
     private final MutableLiveData<List<String>> mRecommendations = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> hasSearchHistory = new MutableLiveData<>();
+    private final MutableLiveData<List<String>> searchHistory = new MutableLiveData<>();
     private PhotoTagDao photoTagDao;
     private PhotoDao photoDao;
     private TagDao tagDao;
+    private SearchHistoryDao searchHistoryDao;
     private MainRepository mainRepository;
 
 
@@ -43,6 +47,7 @@ public class SearchViewModel extends ViewModel {
         photoTagDao = MyApplication.getInstance().getPhotoTagDao();
         photoDao = MyApplication.getInstance().getPhotoDao();
         tagDao = MyApplication.getInstance().getTagDao();
+        searchHistoryDao=MyApplication.getInstance().getSearchHistoryDao();
         mainRepository= MyApplication.getInstance().getMainRepository();
 
         mSuggestions = new MutableLiveData<>();
@@ -64,6 +69,10 @@ public class SearchViewModel extends ViewModel {
         return mRecommendations;
     }
 
+    public LiveData<Boolean> getHasSearchHistory() {
+        return hasSearchHistory;
+    }
+
     public void updateSuggestions(String query) {
         List<String> newSuggestions = new ArrayList<>();
         if (query.length() > 0) {
@@ -74,6 +83,10 @@ public class SearchViewModel extends ViewModel {
         }
         //mSuggestions.setValue(newSuggestions);
         //这里下个sprint实现
+    }
+    public void checkSearchHistory(int userId) {
+        boolean exists = searchHistoryDao.hasSearchHistory(userId);
+        hasSearchHistory.setValue(exists);
     }
 
     public void searchImages(String query) {
@@ -96,5 +109,30 @@ public class SearchViewModel extends ViewModel {
         Collections.shuffle(recommendations);
         int count = 3 + new Random().nextInt(3); // 3-5个
         mRecommendations.setValue(recommendations.subList(0, Math.min(count, recommendations.size())));
+    }
+
+    public void saveSearchHistory(String query) {
+        // 添加搜索历史
+        searchHistoryDao.addSearchHistory(1,query);//TODO:这里暂时写id为1，后面要改
+
+    }
+    public LiveData<List<String>> getSearchHistory() {
+        return searchHistory;
+    }
+
+    public void loadSearchHistory(int userId) {
+        List<String> history;
+        Cursor cursor=searchHistoryDao.getSearchHistoryByUser(userId,5); // Fetch from DAO
+        if (cursor != null) {
+            history = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                @SuppressLint("Range") String query = cursor.getString(cursor.getColumnIndex("query"));
+                history.add(query);
+            }
+            cursor.close();
+        } else {
+            history = null;
+        }
+        searchHistory.setValue(history != null ? history : new ArrayList<>());
     }
 }
