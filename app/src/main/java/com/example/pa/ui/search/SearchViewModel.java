@@ -74,15 +74,16 @@ public class SearchViewModel extends ViewModel {
     }
 
     public void updateSuggestions(String query) {
-        List<String> newSuggestions = new ArrayList<>();
-        if (query.length() > 0) {
-            // 模拟一些推荐词
-            newSuggestions.add(query + "1");
-            newSuggestions.add(query + "2");
-            newSuggestions.add(query + "3");
+        List<String> suggestions = new ArrayList<>();
+        Cursor cursor=tagDao.getAllTags();
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                @SuppressLint("Range") String tagName = cursor.getString(cursor.getColumnIndex("name"));
+                if (tagName.contains(query)&& !tagName.equals(query)) suggestions.add(tagName);
+            }
+            cursor.close();
         }
-        //mSuggestions.setValue(newSuggestions);
-        //这里下个sprint实现
+        mSuggestions.setValue(suggestions);
     }
     public void checkSearchHistory(int userId) {
         boolean exists = searchHistoryDao.hasSearchHistory(userId);
