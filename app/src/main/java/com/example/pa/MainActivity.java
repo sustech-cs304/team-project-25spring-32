@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
             testPhotoOperations(app.getPhotoDao());
 
             // ========== 相册测试 ==========
-            testAlbumOperations(app.getAlbumDao());
+            //testAlbumOperations(app.getAlbumDao());
 
             // ========== 标签测试 ==========
             testTagOperations(app.getTagDao());
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             testSearchHistoryOperations(app.getSearchHistoryDao());
 
             // ========== 记忆视频测试 ==========
-            testMemoryVideoOperations(app.getMemoryVideoDao());
+            //testMemoryVideoOperations(app.getMemoryVideoDao());
 
             // ========== 照片标签测试 ==========
             testPhotoTagOperations(app.getPhotoTagDao());
@@ -199,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         long userId2 = 2;
 
         long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
-        long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
+        //long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
         // 假设 userId1 是已定义的有效用户ID
         long photoId3 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/girl.jpeg");
         long photoId4 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/boy.jpeg");
@@ -244,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
         long tagId3 = tagDao.addTag("建筑", false);
         long tagId4 = tagDao.addTag("天空", false);
         long tagId5 = tagDao.addTag("动物", false);
+        long tagId6 = tagDao.addTag("植物", false);
     }
 
     private void testPhotoTagOperations(PhotoTagDao photoTagDao) {

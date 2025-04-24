@@ -1,5 +1,6 @@
 package com.example.pa.ui.photo;
 
+import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -9,8 +10,14 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.WindowManager;
 import android.view.View;
 
@@ -24,6 +31,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pa.R;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class PhotoEditActivity extends AppCompatActivity {
     private ImageView editImageView;
@@ -85,7 +97,6 @@ public class PhotoEditActivity extends AppCompatActivity {
                 finish();
                 return;
             }
-
 
             currentBitmap = originalBitmap;
             editImageView.setImageBitmap(currentBitmap);
@@ -191,7 +202,59 @@ public class PhotoEditActivity extends AppCompatActivity {
 
 
     private void saveImage() {
-        Toast.makeText(this, "Saving edited image...", Toast.LENGTH_SHORT).show();
-        finish();
+        if (currentBitmap == null) {
+            Toast.makeText(this, "没有可保存的图像", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String imagePath = getIntent().getStringExtra("image_path");   // 原文件路径
+        String displayName = new File(imagePath).getName();            // 保留原文件名
+        String mimeType     = displayName.endsWith(".png") ? "image/png" : "image/jpeg";
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // === 29+ 统一走 MediaStore ===
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, displayName);
+                values.put(MediaStore.Images.Media.MIME_TYPE, mimeType);
+                values.put(MediaStore.Images.Media.IS_PENDING, 1);   // 先标记“写入中”
+                values.put(MediaStore.Images.Media.RELATIVE_PATH,
+                        Environment.DIRECTORY_DCIM + "/Edit"); // 存到 DCIM/Edit
+
+                Uri uri = getContentResolver()
+                        .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) throw new IOException("insert return null uri");
+
+                try (OutputStream os = getContentResolver().openOutputStream(uri, "w")) {
+                    Bitmap.CompressFormat fmt = mimeType.equals("image/png") ?
+                            Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
+                    if (!currentBitmap.compress(fmt, 95, os))
+                        throw new IOException("compress() return false");
+                }
+
+                values.clear();
+                values.put(MediaStore.Images.Media.IS_PENDING, 0);   // 写完，解除占用
+                getContentResolver().update(uri, values, null, null);
+            } else {
+                // === 28- 仍可直接写路径，但要确保权限 ===
+                try (FileOutputStream fos = new FileOutputStream(imagePath)) {
+                    Bitmap.CompressFormat fmt = mimeType.equals("image/png") ?
+                            Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
+                    currentBitmap.compress(fmt, 95, fos);
+                    fos.flush();
+                }
+                // 通知媒体库刷新
+                MediaScannerConnection.scanFile(this,
+                        new String[]{imagePath}, new String[]{mimeType}, null);
+            }
+
+            Toast.makeText(this, "已保存", Toast.LENGTH_SHORT).show();
+            setResult(RESULT_OK);
+            finish();
+        } catch (Exception e) {
+            Toast.makeText(this, "保存失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.e("PhotoEditActivity", "save error", e);
+        }
     }
+
 }

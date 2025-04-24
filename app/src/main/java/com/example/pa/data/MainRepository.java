@@ -41,15 +41,16 @@ public class MainRepository {
 
     public List<String> getPhotoPathByTagName(String tagName) {
         List<String> photoPaths = new ArrayList<>();
-        int id = tagDao.getTagIdByName(tagName);//先获取tag的id
-        if (id != -1) {
-            List<Integer> photoIds = photoTagDao.getPhotoIdsByTag(id);//获取tag对应的所有照片id
-            for (int photoId : photoIds) {
-                photoPaths.add(photoDao.getPhotoPathById(photoId));
+        List<Integer> ids = tagDao.getTagIdByName(tagName);//先获取tag的id
+        for (int id:ids){
+            if (id != -1) {
+                List<Integer> photoIds = photoTagDao.getPhotoIdsByTag(id);//获取tag对应的所有照片id
+                for (int photoId : photoIds) {
+                    photoPaths.add(photoDao.getPhotoPathById(photoId));
+                }
             }
-        }else
-            return null;
-
+        }
+        if (photoPaths.isEmpty())return null;
         return photoPaths;
     }
 
