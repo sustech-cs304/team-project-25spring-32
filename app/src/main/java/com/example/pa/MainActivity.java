@@ -244,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
         long tagId3 = tagDao.addTag("建筑", false);
         long tagId4 = tagDao.addTag("天空", false);
         long tagId5 = tagDao.addTag("动物", false);
+        long tagId6 = tagDao.addTag("植物", false);
     }
 
     private void testPhotoTagOperations(PhotoTagDao photoTagDao) {
