@@ -1,4 +1,4 @@
 package com.example.pa.ui.memory;
 
-public class PhotoinMemory {
+public class PhotoinMemoryActivity {
 }

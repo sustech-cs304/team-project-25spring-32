@@ -1,5 +1,6 @@
 package com.example.pa.ui.photo;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,18 +19,18 @@ import com.example.pa.data.Daos.PhotoDao.Photo;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
     // 内部持有图片数据列表
-    private List<Photo> imageList;
+    private List<Uri> UriList;
     // 定义点击回调接口
     private OnPhotoClickListener listener;
 
     // 回调接口：由外部（比如Fragment）实现点击后的操作
     public interface OnPhotoClickListener {
-        void onPhotoClick(Photo imageItem);
+        void onPhotoClick(Uri uri);
     }
 
-    public PhotoAdapter(List<Photo> imageList, OnPhotoClickListener listener) {
+    public PhotoAdapter(List<Uri> uriList, OnPhotoClickListener listener) {
         // 创建新集合以避免外部数据引用问题
-        this.imageList = new ArrayList<>(imageList);
+        this.UriList = new ArrayList<>(uriList);
         this.listener = listener;
     }
 
@@ -43,10 +44,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(@NonNull PhotoViewHolder holder, int position) {
-        Photo photo = imageList.get(position);
+        Uri uri = UriList.get(position);
         // 使用 Glide 加载图片
         Glide.with(holder.itemView.getContext())
-                .load(photo.filePath)
+                .load(uri)
                 .placeholder(R.drawable.placeholder_image)
                 .error(R.drawable.error_image)
                 .centerCrop()
@@ -55,13 +56,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public int getItemCount() {
-        return imageList.size();
+        return UriList.size();
     }
 
     // 更新数据方法：外部可以调用此方法来刷新图片列表
-    public void updateData(List<Photo> newList) {
-        this.imageList.clear();
-        this.imageList.addAll(newList);
+    public void updateData(List<Uri> uriList) {
+        this.UriList.clear();
+        this.UriList.addAll(uriList);
         notifyDataSetChanged(); // 确保在主线程调用
     }
 
@@ -75,7 +76,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onPhotoClick(imageList.get(position));
+                    listener.onPhotoClick(UriList.get(position));
                 }
             });
         }
