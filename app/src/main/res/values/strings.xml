@@ -24,4 +24,17 @@
     <string name="searchWord">Type keyword…</string>
     <string name="default_description">Enter a search term above to find relevant images. You can try one of the recommended keywords or type your own query. Results will appear here once you change the words.</string>
     <string name="search_history">recent search</string>
+
+    <string name="profile_image_desc">用户头像</string>
+    <string name="default_username">用户名</string>
+    <string name="default_email">user@example.com</string>
+
+    <string name="menu_home">首页</string>
+    <string name="menu_profile">个人资料</string>
+    <string name="menu_categories">分类</string>
+    <string name="menu_music">音乐</string>
+    <string name="menu_movies">电影</string>
+    <string name="menu_settings">设置</string>
+    <string name="menu_help">帮助中心</string>
+    <string name="menu_logout">退出登录</string>
 </resources>
