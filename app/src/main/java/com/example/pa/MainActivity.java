@@ -57,7 +57,8 @@ public class MainActivity extends AppCompatActivity {
                 R.id.navigation_search,
                 R.id.navigation_photo,
                 R.id.navigation_album,
-                R.id.navigation_memory)
+                R.id.navigation_memory,
+                R.id.navigation_social)
                 .setOpenableLayout(binding.drawerLayout)
                 .build();
 
@@ -75,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
             boolean isTopLevelDestination = destination.getId() == R.id.navigation_search ||
                     destination.getId() == R.id.navigation_photo ||
                     destination.getId() == R.id.navigation_album ||
-                    destination.getId() == R.id.navigation_memory;
+                    destination.getId() == R.id.navigation_memory ||
+                    destination.getId() == R.id.navigation_social;
             binding.navView.setVisibility(isTopLevelDestination ? View.VISIBLE : View.GONE);
         });
 
