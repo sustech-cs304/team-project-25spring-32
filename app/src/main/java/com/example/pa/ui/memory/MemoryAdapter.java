@@ -5,21 +5,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.pa.R;
 import com.example.pa.data.Daos.MemoryVideoDao.MemoryVideo;
-
 import java.util.List;
 
 public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryViewHolder> {
 
     private final List<MemoryVideo> memoryList;
+    private final OnMemoryClickListener listener;
 
-    public MemoryAdapter(List<MemoryVideo> memoryList) {
+    public interface OnMemoryClickListener {
+        void onMemoryClick(int memoryId); // 根据实际类型调整
+    }
+
+    public MemoryAdapter(List<MemoryVideo> memoryList, OnMemoryClickListener listener) {
         this.memoryList = memoryList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -37,8 +40,11 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
         holder.textAlbumName.setText(memory.name);
         holder.textAlbumDate.setText(memory.createdTime);
 
-        // TODO：可扩展加载图片封面，使用 Glide / Picasso 等库
-        // Glide.with(holder.imageCover.getContext()).load(memory.getCoverUrl()).into(holder.imageCover);
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onMemoryClick(memory.id);
+            }
+        });
     }
 
     @Override

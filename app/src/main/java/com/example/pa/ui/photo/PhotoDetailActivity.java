@@ -51,7 +51,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.photo_detail_activity);
+        setContentView(R.layout.activity_photo_detail);
 
         // 全屏设置
         getWindow().setFlags(

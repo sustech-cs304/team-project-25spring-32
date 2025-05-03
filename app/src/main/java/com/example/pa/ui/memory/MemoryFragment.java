@@ -44,8 +44,17 @@ public class MemoryFragment extends Fragment {
         memoryViewModel = new ViewModelProvider(this).get(MemoryViewModel.class);
 
         memoryViewModel.getMemoryVideos().observe(getViewLifecycleOwner(), memoryVideos -> {
-            memoryAdapter = new MemoryAdapter(memoryVideos);
+            memoryAdapter = new MemoryAdapter(memoryVideos, new MemoryAdapter.OnMemoryClickListener() {
+                @Override
+                public void onMemoryClick(int memoryId) { // 参数类型需一致
+                    // 处理点击逻辑
+                    Intent intent = new Intent(getContext(), MemoryDetailActivity.class);
+                    intent.putExtra("memory_id", memoryId);
+                    startActivity(intent);
+                }
+            });
             recyclerView.setAdapter(memoryAdapter);
         });
     }
+
 }
