@@ -55,9 +55,6 @@
         <activity
             android:name=".ui.album.PhotoinAlbumActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
-            android:name=".ui.memory.MemoryDetailActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>

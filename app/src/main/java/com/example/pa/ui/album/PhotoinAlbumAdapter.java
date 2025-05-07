@@ -28,6 +28,7 @@ public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapte
     private OnPhotoClickListener listener;
     // 回调接口：由外部（比如Fragment）实现点击后的操作
     public interface OnPhotoClickListener {
+//        void onPhotoClick(Photo imageItem);
         void onPhotoClick(Uri imageItem);
     }
 

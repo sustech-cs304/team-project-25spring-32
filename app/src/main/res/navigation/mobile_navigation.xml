@@ -28,10 +28,4 @@
         android:name="com.example.pa.ui.memory.MemoryFragment"
         android:label="@string/title_memory"
         tools:layout="@layout/fragment_memory" />
-
-    <fragment
-        android:id="@+id/navigation_social"
-        android:name="com.example.pa.ui.social.SocialFragment"
-        android:label="@string/title_social"
-        tools:layout="@layout/fragment_social" />
 </navigation>

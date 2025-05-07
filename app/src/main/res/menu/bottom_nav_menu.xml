@@ -21,11 +21,6 @@
         android:icon="@drawable/icon_memory"
         android:title="@string/title_memory" />
 
-    <item
-        android:id="@+id/navigation_social"
-        android:icon="@drawable/icon_social"
-        android:title="@string/title_social" />
-
 
 
 </menu>
