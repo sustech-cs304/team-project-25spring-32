@@ -27,6 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+
     <ImageView
         android:id="@+id/editImageView"
         android:layout_width="match_parent"
@@ -34,6 +35,35 @@
         android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/editToolsLayout"/>
+
+
+    <!-- 撤销按钮 - 屏幕左侧 -->
+    <Button
+        android:id="@+id/btnUndo"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="16dp"
+        android:drawableTop="@drawable/icon_undo"
+        android:drawableTint="@android:color/white"
+        android:textColor="#FFFFFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adjustmentLayout"/>
+
+    <!-- 重做按钮 - 屏幕右侧 -->
+    <Button
+        android:id="@+id/btnRedo"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:drawableTop="@drawable/icon_redo"
+        android:drawableTint="@android:color/white"
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/adjustmentLayout"/>
 
 
     <LinearLayout
