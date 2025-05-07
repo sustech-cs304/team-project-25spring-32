@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,7 +21,6 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.pa.data.Daos.*;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -33,13 +33,55 @@ import android.Manifest;
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
+    private AppBarConfiguration appBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // 1. 设置Toolbar前确保没有默认ActionBar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide(); // 或者使用 getSupportActionBar().setDisplayShowTitleEnabled(false);
+        }
+
+        // 2. 设置Toolbar
+        setSupportActionBar(binding.toolbar);
+
+        // 3. 初始化导航控制器
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+
+        // 4. 配置AppBarConfiguration
+        appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.navigation_search,
+                R.id.navigation_photo,
+                R.id.navigation_album,
+                R.id.navigation_memory,
+                R.id.navigation_social)
+                .setOpenableLayout(binding.drawerLayout)
+                .build();
+
+        // 5. 设置Toolbar与导航控制器
+        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+        // 6. 绑定底部导航
+        NavigationUI.setupWithNavController(binding.navView, navController);
+
+        // 7. 绑定抽屉导航
+        NavigationUI.setupWithNavController(binding.navigationDrawer, navController);
+
+        // 8. 动态显示/隐藏底部导航
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            boolean isTopLevelDestination = destination.getId() == R.id.navigation_search ||
+                    destination.getId() == R.id.navigation_photo ||
+                    destination.getId() == R.id.navigation_album ||
+                    destination.getId() == R.id.navigation_memory ||
+                    destination.getId() == R.id.navigation_social;
+            binding.navView.setVisibility(isTopLevelDestination ? View.VISIBLE : View.GONE);
+        });
+
+
 
         // 初始化权限请求
         requestPermissionLauncher = registerForActivityResult(
@@ -71,7 +113,12 @@ public class MainActivity extends AppCompatActivity {
 
 
         // 设置底部导航
-        setupBottomNavigation();
+        //setupBottomNavigation();
+    }
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+        return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
     }
 
     /**
@@ -116,18 +163,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setupBottomNavigation() {
-        BottomNavigationView navView = findViewById(R.id.nav_view);
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_search,
-                R.id.navigation_photo,
-                R.id.navigation_album,
-                R.id.navigation_memory)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
-    }
+
 
     @SuppressLint("Range")
     private void testDatabaseOperations() {
@@ -151,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
             testSearchHistoryOperations(app.getSearchHistoryDao());
 
             // ========== 记忆视频测试 ==========
-            testMemoryVideoOperations(app.getMemoryVideoDao());
+            //testMemoryVideoOperations(app.getMemoryVideoDao());
 
             // ========== 照片标签测试 ==========
             testPhotoTagOperations(app.getPhotoTagDao());
@@ -199,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
         long userId2 = 2;
 
         long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
-        long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
+        //long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
         // 假设 userId1 是已定义的有效用户ID
         long photoId3 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/girl.jpeg");
         long photoId4 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/boy.jpeg");
@@ -244,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
         long tagId3 = tagDao.addTag("建筑", false);
         long tagId4 = tagDao.addTag("天空", false);
         long tagId5 = tagDao.addTag("动物", false);
+        long tagId6 = tagDao.addTag("植物", false);
     }
 
     private void testPhotoTagOperations(PhotoTagDao photoTagDao) {

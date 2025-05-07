@@ -91,12 +91,11 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
 //        }
 //    }
     @Override
-    public void onPhotoClick(Uri imageItem) {
+    public void onPhotoClick(Uri imageUri) {
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            String uriString = imageItem.toString();
-            intent.putExtra("image_path", uriString);
+            intent.putExtra("Uri", imageUri);
             startActivity(intent);
 
             // 添加Activity过渡动画
