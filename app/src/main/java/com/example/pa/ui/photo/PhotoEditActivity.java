@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoEditActivity extends AppCompatActivity {
     private ImageView editImageView;
@@ -43,11 +45,31 @@ public class PhotoEditActivity extends AppCompatActivity {
     private TextView adjustmentLabel;
     private SeekBar adjustmentSeekBar;
     private Button btnRotate, btnBrightness, btnContrast, btnCancel, btnSave;
+    private Button btnUndo, btnRedo;
     private Bitmap currentBitmap;//current photo after edit
     private Bitmap originalBitmap;//origin photo
     private float brightness = 0f;
     private float contrast = 1f;
     private float currentRotation = 0f;
+
+    // 用于存储编辑历史的数据结构
+    private List<EditState> editHistory = new ArrayList<>();
+    private int currentIndex = -1;
+
+    // 内部类用于存储每个编辑状态
+    private static class EditState {
+        Bitmap bitmap;
+        float brightness;
+        float contrast;
+        float rotation;
+
+        EditState(Bitmap bitmap, float brightness, float contrast, float rotation) {
+            this.bitmap = bitmap.copy(bitmap.getConfig(), true);
+            this.brightness = brightness;
+            this.contrast = contrast;
+            this.rotation = rotation;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +94,12 @@ public class PhotoEditActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnSave = findViewById(R.id.btnSave);
 
+        btnUndo = findViewById(R.id.btnUndo);
+        btnRedo = findViewById(R.id.btnRedo);
+
         adjustmentLayout = findViewById(R.id.adjustmentLayout);
         adjustmentLabel = findViewById(R.id.adjustmentLabel);
         adjustmentSeekBar = findViewById(R.id.adjustmentSeekBar);
-        btnBrightness = findViewById(R.id.btnBrightness);
-        btnContrast = findViewById(R.id.btnContrast);
     }
 
     private void loadImage() {
@@ -98,8 +121,13 @@ public class PhotoEditActivity extends AppCompatActivity {
                 return;
             }
 
-            currentBitmap = originalBitmap;
+            currentBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);  // 使用copy而不是直接赋值
             editImageView.setImageBitmap(currentBitmap);
+
+            // 初始化编辑历史，保存初始状态
+            addNewState();
+            updateUndoRedoButtons();
+
         } catch (Exception e) {
             Toast.makeText(this, "Error loading image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             finish();
@@ -107,13 +135,22 @@ public class PhotoEditActivity extends AppCompatActivity {
     }
 //   /storage/emulated/0/DCIM/
     private void setupListeners() {
-        btnRotate.setOnClickListener(v -> rotateImage());
+        btnRotate.setOnClickListener(v -> {
+            rotateImage();
+            addNewState(); // 添加新状态到历史记录
+        });
 
         btnBrightness.setOnClickListener(v -> setupAdjustment("Brightness"));
         btnContrast.setOnClickListener(v -> setupAdjustment("Contrast"));
 
         btnCancel.setOnClickListener(v -> finish());
         btnSave.setOnClickListener(v -> saveImage());
+
+        // 撤销按钮监听器
+        btnUndo.setOnClickListener(v -> undo());
+
+        // 重做按钮监听器
+        btnRedo.setOnClickListener(v -> redo());
 
         adjustmentSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -131,7 +168,10 @@ public class PhotoEditActivity extends AppCompatActivity {
             public void onStartTrackingTouch(SeekBar seekBar) {}
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                addNewState();
+//                adjustmentLayout.setVisibility(View.GONE); // 隐藏调整布局
+            }
         });
     }
 
@@ -187,7 +227,6 @@ public class PhotoEditActivity extends AppCompatActivity {
         render();
     }
 
-
     private void setupAdjustment(String type) {
         adjustmentLabel.setText(type + " Adjustment");
         adjustmentLayout.setVisibility(View.VISIBLE);
@@ -199,6 +238,69 @@ public class PhotoEditActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * 将当前状态添加到历史记录中
+     */
+    private void addNewState() {
+        // 移除当前索引之后的所有历史记录
+        while (editHistory.size() > currentIndex + 1) {
+            editHistory.remove(editHistory.size() - 1);
+        }
+
+        // 添加新状态
+        EditState newState = new EditState(currentBitmap, brightness, contrast, currentRotation);
+        editHistory.add(newState);
+        currentIndex = editHistory.size() - 1;
+
+        // 更新撤销/重做按钮状态
+        updateUndoRedoButtons();
+    }
+
+    /**
+     * 撤销操作
+     */
+    private void undo() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            restoreState(editHistory.get(currentIndex));
+            updateUndoRedoButtons();
+        }
+    }
+
+    /**
+     * 重做操作
+     */
+    private void redo() {
+        if (currentIndex < editHistory.size() - 1) {
+            currentIndex++;
+            restoreState(editHistory.get(currentIndex));
+            updateUndoRedoButtons();
+        }
+    }
+
+    /**
+     * 恢复到指定的编辑状态
+     */
+    private void restoreState(EditState state) {
+        brightness = state.brightness;
+        contrast = state.contrast;
+        currentRotation = state.rotation;
+
+        // 直接使用保存的位图，不需要重新渲染
+        currentBitmap = state.bitmap.copy(state.bitmap.getConfig(), true);
+        editImageView.setImageBitmap(currentBitmap);
+    }
+
+    /**
+     * 更新撤销/重做按钮的可用状态，调整透明度
+     */
+    private void updateUndoRedoButtons() {
+        btnUndo.setEnabled(currentIndex > 0);
+        btnUndo.setAlpha(currentIndex > 0 ? 1.0f : 0.3f);
+
+        btnRedo.setEnabled(currentIndex < editHistory.size() - 1);
+        btnRedo.setAlpha(currentIndex < editHistory.size() - 1 ? 1.0f : 0.3f);
+    }
 
 
     private void saveImage() {
@@ -254,6 +356,31 @@ public class PhotoEditActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "保存失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
             Log.e("PhotoEditActivity", "save error", e);
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // 清理位图资源
+        clearBitmaps();
+    }
+    /**
+     * 释放所有位图资源
+     */
+    private void clearBitmaps() {
+        for (EditState state : editHistory) {
+            if (state.bitmap != null && !state.bitmap.isRecycled()) {
+                state.bitmap.recycle();
+            }
+        }
+        editHistory.clear();
+
+        if (originalBitmap != null && !originalBitmap.isRecycled()) {
+            originalBitmap.recycle();
+        }
+
+        if (currentBitmap != null && !currentBitmap.isRecycled()) {
+            currentBitmap.recycle();
         }
     }
 
