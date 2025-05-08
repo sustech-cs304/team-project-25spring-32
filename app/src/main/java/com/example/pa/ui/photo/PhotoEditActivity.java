@@ -9,13 +9,14 @@ import android.graphics.Paint;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
+import android.graphics.RectF;
 
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
 import android.os.Environment;
+
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.WindowManager;
@@ -27,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.FrameLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -46,6 +48,16 @@ public class PhotoEditActivity extends AppCompatActivity {
     private SeekBar adjustmentSeekBar;
     private Button btnRotate, btnBrightness, btnContrast, btnCancel, btnSave;
     private Button btnUndo, btnRedo;
+
+    //裁剪相关
+    private Button btnCrop;
+    private FrameLayout cropOverlay;
+    private CropView cropView;
+    private LinearLayout cropControlsLayout;
+    private Button btnCropFree, btnCrop11, btnCrop43, btnCrop169;
+    private Button btnCropCancel, btnCropApply;
+    //
+    //
     private Bitmap currentBitmap;//current photo after edit
     private Bitmap originalBitmap;//origin photo
     private float brightness = 0f;
@@ -100,6 +112,20 @@ public class PhotoEditActivity extends AppCompatActivity {
         adjustmentLayout = findViewById(R.id.adjustmentLayout);
         adjustmentLabel = findViewById(R.id.adjustmentLabel);
         adjustmentSeekBar = findViewById(R.id.adjustmentSeekBar);
+
+
+        btnCrop = findViewById(R.id.btnCrop); // 新增的裁剪按钮，需要在布局中添加
+        cropOverlay = findViewById(R.id.cropOverlay);
+        cropView = findViewById(R.id.cropView);
+        cropControlsLayout = findViewById(R.id.cropControlsLayout);
+
+        btnCropFree = findViewById(R.id.btnCropFree);
+        btnCrop11 = findViewById(R.id.btnCrop11);
+        btnCrop43 = findViewById(R.id.btnCrop43);
+        btnCrop169 = findViewById(R.id.btnCrop169);
+
+        btnCropCancel = findViewById(R.id.btnCropCancel);
+        btnCropApply = findViewById(R.id.btnCropApply);
     }
 
     private void loadImage() {
@@ -151,6 +177,23 @@ public class PhotoEditActivity extends AppCompatActivity {
 
         // 重做按钮监听器
         btnRedo.setOnClickListener(v -> redo());
+
+        // 裁剪按钮监听器
+        btnCrop.setOnClickListener(v -> showCropMode());
+
+        // 裁剪比例按钮 监听器
+        btnCropFree.setOnClickListener(v -> cropView.setAspectRatio(0)); // 自由比例
+        btnCrop11.setOnClickListener(v -> cropView.setAspectRatio(1.0f)); // 1:1
+        btnCrop43.setOnClickListener(v -> cropView.setAspectRatio(4.0f/3.0f)); // 4:3
+        btnCrop169.setOnClickListener(v -> cropView.setAspectRatio(16.0f/9.0f)); // 16:9
+
+        // 裁剪取消和应用按钮
+        btnCropCancel.setOnClickListener(v -> hideCropMode());
+        btnCropApply.setOnClickListener(v -> {
+            applyCrop();
+            hideCropMode();
+            addNewState(); // 将裁剪操作添加到历史记录
+        });
 
         adjustmentSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -238,9 +281,11 @@ public class PhotoEditActivity extends AppCompatActivity {
         }
     }
 
+
     /**
-     * 将当前状态添加到历史记录中
+     * 撤销与重做，状态管理
      */
+    //将当前状态添加到历史记录中
     private void addNewState() {
         // 移除当前索引之后的所有历史记录
         while (editHistory.size() > currentIndex + 1) {
@@ -256,9 +301,7 @@ public class PhotoEditActivity extends AppCompatActivity {
         updateUndoRedoButtons();
     }
 
-    /**
-     * 撤销操作
-     */
+    //撤销操作
     private void undo() {
         if (currentIndex > 0) {
             currentIndex--;
@@ -267,9 +310,7 @@ public class PhotoEditActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 重做操作
-     */
+    //重做操作
     private void redo() {
         if (currentIndex < editHistory.size() - 1) {
             currentIndex++;
@@ -278,9 +319,7 @@ public class PhotoEditActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 恢复到指定的编辑状态
-     */
+    //恢复到指定的编辑状态
     private void restoreState(EditState state) {
         brightness = state.brightness;
         contrast = state.contrast;
@@ -291,9 +330,7 @@ public class PhotoEditActivity extends AppCompatActivity {
         editImageView.setImageBitmap(currentBitmap);
     }
 
-    /**
-     * 更新撤销/重做按钮的可用状态，调整透明度
-     */
+    //  更新撤销/重做按钮的可用状态，调整透明度
     private void updateUndoRedoButtons() {
         btnUndo.setEnabled(currentIndex > 0);
         btnUndo.setAlpha(currentIndex > 0 ? 1.0f : 0.3f);
@@ -302,7 +339,87 @@ public class PhotoEditActivity extends AppCompatActivity {
         btnRedo.setAlpha(currentIndex < editHistory.size() - 1 ? 1.0f : 0.3f);
     }
 
+    /**
+     * 显示裁剪界面
+     */
+    // 显示裁剪模式
+    private void showCropMode() {
+        if (currentBitmap == null) {
+            Toast.makeText(this, "当前图像不可用", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (cropView == null) {
+            Toast.makeText(this, "裁剪控件未初始化", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 隐藏其他调整界面
+        adjustmentLayout.setVisibility(View.GONE);
 
+        // 设置裁剪视图尺寸
+        cropView.setImageDimensions(currentBitmap.getWidth(), currentBitmap.getHeight());
+
+        // 显示裁剪界面
+        cropOverlay.setVisibility(View.VISIBLE);
+        cropControlsLayout.setVisibility(View.VISIBLE);
+    }
+
+    // 隐藏裁剪模式
+    private void hideCropMode() {
+        cropOverlay.setVisibility(View.GONE);
+        cropControlsLayout.setVisibility(View.GONE);
+    }
+
+    // 应用裁剪
+    private void applyCrop() {
+        if (currentBitmap == null) return;
+
+        // 获取裁剪区域
+        RectF cropRect = cropView.getCropRect();
+
+        // 创建裁剪后的位图
+        int x = (int) cropRect.left;
+        int y = (int) cropRect.top;
+        int width = (int) cropRect.width();
+        int height = (int) cropRect.height();
+
+        // 检查裁剪区域是否有效
+        if (x < 0) x = 0;
+        if (y < 0) y = 0;
+        if (x + width > currentBitmap.getWidth()) width = currentBitmap.getWidth() - x;
+        if (y + height > currentBitmap.getHeight()) height = currentBitmap.getHeight() - y;
+
+        if (width <= 0 || height <= 0) {
+            Toast.makeText(this, "无效的裁剪区域", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            // 应用裁剪
+            Bitmap croppedBitmap = Bitmap.createBitmap(currentBitmap, x, y, width, height);
+
+            // 更新当前位图和视图
+            if (currentBitmap != originalBitmap) {
+                currentBitmap.recycle(); // 回收旧位图
+            }
+            currentBitmap = croppedBitmap;
+            editImageView.setImageBitmap(currentBitmap);
+
+            // 注意：裁剪会改变图像尺寸，需要更新原始位图以使其他效果基于新尺寸
+            originalBitmap = currentBitmap.copy(currentBitmap.getConfig(), true);
+
+            // 重置亮度、对比度等设置，因为这些效果将应用于裁剪后的图像
+            brightness = 0f;
+            contrast = 1f;
+            currentRotation = 0f;
+
+        } catch (Exception e) {
+            Toast.makeText(this, "裁剪失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 保存当前图像到本地
+     */
     private void saveImage() {
         if (currentBitmap == null) {
             Toast.makeText(this, "没有可保存的图像", Toast.LENGTH_SHORT).show();
