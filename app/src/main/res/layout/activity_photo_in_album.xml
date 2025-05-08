@@ -24,7 +24,7 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <ImageView
-        android:id="@+id/add_icon"
+        android:id="@+id/add_icon_in_album"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_add"
@@ -35,7 +35,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <ImageView
-        android:id="@+id/more_icon"
+        android:id="@+id/more_icon_in_album"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_more"

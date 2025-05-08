@@ -1,8 +1,11 @@
 package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,5 +44,12 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public void onAddClick(View view) {
+    }
+
+    public void onMoreClick(View view) {
+
     }
 }
