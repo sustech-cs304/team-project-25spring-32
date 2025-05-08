@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">PA</string>
+    <string name="title_search">搜索</string>
+    <string name="title_photo">照片</string>
+    <string name="title_album">相册</string>
+    <string name="title_memory">回忆</string>
+    <string name="title_social">社交</string>
+    <string name="download">下载</string>
+    <string name="share">分享</string>
+    <string name="preview">预览</string>
+    <string name="edit">编辑</string>
+
+    <string name="title_photo_edit">照片编辑</string>
+    <string name="rotate">旋转</string>
+    <string name="brightness">亮度</string>
+    <string name="contrast">对比度</string>
+    <string name="cancel">取消</string>
+    <string name="save">保存</string>
+    <string name="recommended_keywords">猜你想搜</string>
+
+    <string name="back">返回</string>
+    <string name="add">添加</string>
+    <string name="order">排序</string>
+    <string name="set">设置</string>
+    <string name="searchWord">输入关键词…</string>
+    <string name="default_description">在上方输入搜索词查找相关图片。您可以尝试推荐关键词或输入自己的查询词。更改词语后，结果将在此显示。</string>
+    <string name="search_history">最近搜索</string>
+
+    <string name="profile_image_desc">用户头像</string>
+    <string name="default_username">用户名</string>
+    <string name="default_email">user@example.com</string>
+
+    <string name="menu_home">首页</string>
+    <string name="menu_profile">个人资料</string>
+    <string name="menu_categories">分类</string>
+    <string name="menu_music">音乐</string>
+    <string name="menu_movies">电影</string>
+    <string name="menu_settings">设置</string>
+    <string name="menu_help">帮助中心</string>
+    <string name="menu_logout">退出登录</string>
+</resources>

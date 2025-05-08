@@ -4,6 +4,7 @@
     <string name="title_photo">Photo</string>
     <string name="title_album">Album</string>
     <string name="title_memory">Memory</string>
+    <string name="title_social">Social</string>
     <string name="download">download</string>
     <string name="share">share</string>
     <string name="preview">preview</string>
@@ -15,7 +16,7 @@
     <string name="contrast">Contrast</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
-    <string name="recommended_keywords">猜你想搜</string>
+    <string name="recommended_keywords">guess you want</string>
 
     <string name="back" >return</string>
     <string name="add">Add</string>
@@ -24,4 +25,17 @@
     <string name="searchWord">Type keyword…</string>
     <string name="default_description">Enter a search term above to find relevant images. You can try one of the recommended keywords or type your own query. Results will appear here once you change the words.</string>
     <string name="search_history">recent search</string>
+
+    <string name="profile_image_desc">Profile Picture</string>
+    <string name="default_username">Username</string>
+    <string name="default_email">user@example.com</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_profile">Profile</string>
+    <string name="menu_categories">Categories</string>
+    <string name="menu_music">Music</string>
+    <string name="menu_movies">Movies</string>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_help">Help Center</string>
+    <string name="menu_logout">Log Out</string>
 </resources>

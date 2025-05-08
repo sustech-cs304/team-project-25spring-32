@@ -2,9 +2,9 @@
 package com.example.pa.ui.photo;
 
 
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,33 +17,30 @@ import androidx.lifecycle.ViewModel;
 
 import com.bumptech.glide.Glide;
 import com.example.pa.data.Daos.PhotoDao;
-import com.example.pa.data.DatabaseHelper;
+import com.example.pa.data.FileRepository;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import com.example.pa.data.Daos.PhotoDao;
 
 import com.example.pa.data.Daos.PhotoDao.Photo;
 
 public class PhotoViewModel extends ViewModel {
 
     private PhotoDao photoDao; // 添加 PhotoDao 引用
+    private FileRepository fileRepository;
     private int currentUserId = 1; // 假设当前用户ID，根据实际逻辑获取
     // LiveData 用于持有图片列表，UI 层可以观察此数据的变化
-    private final MutableLiveData<List<Photo>> imageList = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<Uri>> URiList = new MutableLiveData<>(new ArrayList<>());
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    public LiveData<List<Photo>> getImageList() {
-        return imageList;
+    public LiveData<List<Uri>> getURiList() {
+        return URiList;
     }
-
 
 
     // 初始化时传入 Context 或 PhotoDao（需根据项目结构调整）
@@ -52,10 +49,22 @@ public class PhotoViewModel extends ViewModel {
     }
 
 
-    public void loadPhotosFromDatabase() {
-        if (photoDao == null) return;
-        List<Photo> photos = photoDao.getPhotosByUserAsList(currentUserId);
-        imageList.setValue(photos);
+//    public void loadPhotosFromDatabase() {
+//        if (photoDao == null) return;
+//        List<Photo> photos = photoDao.getPhotosByUserAsList(currentUserId);
+//        imageList.setValue(photos);
+//    }
+
+    // 初始化时传入 Context
+    public void initFileRepository(Context context) {
+        fileRepository = new FileRepository(context);
+    }
+
+    // 直接从文件系统里面读取 DCIM/Camera文件夹下的所有照片
+    public void loadURIFromRepository() {
+        List<Uri> uriList = fileRepository.getAlbumImages("Camera");
+        System.out.println(uriList);
+        URiList.setValue(uriList);
     }
 
     private void downloadAndSaveImage(Context context, Photo photo) {
@@ -114,9 +123,9 @@ public class PhotoViewModel extends ViewModel {
 
         // 通知 UI 更新（需要在主线程执行）
         new Handler(Looper.getMainLooper()).post(() -> {
-            List<Photo> currentList = imageList.getValue();
+            List<Uri> currentList = URiList.getValue();
             if (currentList != null) {
-                imageList.setValue(new ArrayList<>(currentList));
+                URiList.setValue(new ArrayList<>(currentList));
             }
         });
     }
@@ -128,7 +137,7 @@ public class PhotoViewModel extends ViewModel {
     }
 
     // 提供对外更新图片列表的方法
-    public void updateImageList(List<Photo> newImages) {
-        imageList.setValue(newImages);
+    public void updateUriList(List<Uri> newURiList) {
+        URiList.setValue(newURiList);
     }
 }
