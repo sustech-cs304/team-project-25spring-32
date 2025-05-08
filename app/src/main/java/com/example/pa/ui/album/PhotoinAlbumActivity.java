@@ -14,6 +14,10 @@ import com.example.pa.R;
 
 public class PhotoinAlbumActivity extends AppCompatActivity {
     private ImageButton backButton;
+    private ImageView addIcon;
+    private ImageView moreIcon;
+    private static final int REQUEST_SELECT_PHOTOS = 1001;
+    private String currentAlbumName;
 
     @SuppressLint({"WrongViewCast", "MissingInflatedId"})
     @Override
@@ -22,11 +26,11 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         setContentView(R.layout.activity_photo_in_album);
 
         // 获取传递的相册名称"
-        String albumName = getIntent().getStringExtra("album_name");
+        currentAlbumName = getIntent().getStringExtra("album_name");
 
         // 加载PhotoinAlbumFragment到容器
         if (savedInstanceState == null) {
-            PhotoinAlbumFragment fragment = PhotoinAlbumFragment.newInstance(albumName);
+            PhotoinAlbumFragment fragment = PhotoinAlbumFragment.newInstance(currentAlbumName);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.photo_fragment_container, fragment)
                     .addToBackStack(null)
@@ -38,6 +42,12 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(v -> finish());
 
+        addIcon = findViewById(R.id.add_icon_in_album);
+        addIcon.setOnClickListener(v -> onAddClick());
+
+        moreIcon = findViewById(R.id.more_icon_in_album);
+        moreIcon.setOnClickListener(v -> onMoreClick());
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -46,10 +56,12 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         });
     }
 
-    public void onAddClick(View view) {
+    public void onAddClick() {
+        Intent intent = new Intent(this, MultiSelectActivity.class);
+        startActivityForResult(intent, REQUEST_SELECT_PHOTOS);
     }
 
-    public void onMoreClick(View view) {
+    public void onMoreClick() {
 
     }
 }
