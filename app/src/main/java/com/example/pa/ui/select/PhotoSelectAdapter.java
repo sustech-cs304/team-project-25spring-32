@@ -1,4 +1,4 @@
-package com.example.pa.ui.album;
+package com.example.pa.ui.select;
 
 import android.net.Uri;
 import android.view.LayoutInflater;

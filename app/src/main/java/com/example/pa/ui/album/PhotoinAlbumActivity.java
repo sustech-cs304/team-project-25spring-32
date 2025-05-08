@@ -10,6 +10,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pa.R;
+import com.example.pa.ui.select.PhotoSelectActivity;
 
 public class PhotoinAlbumActivity extends AppCompatActivity {
     private ImageButton backButton;

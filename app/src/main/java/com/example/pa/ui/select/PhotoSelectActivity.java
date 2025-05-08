@@ -1,4 +1,4 @@
-package com.example.pa.ui.album;
+package com.example.pa.ui.select;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -59,7 +59,7 @@
             android:name=".ui.memory.MemoryDetailActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity
-            android:name=".ui.album.PhotoSelectActivity"
+            android:name=".ui.select.PhotoSelectActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
