@@ -39,4 +39,5 @@
     <string name="menu_help">Help Center</string>
     <string name="menu_logout">Log Out</string>
     <string name="finish">Finish</string>
+    <string name="ChooseRequest">Please choose photos</string>
 </resources>

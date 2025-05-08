@@ -3,7 +3,6 @@ package com.example.pa.ui.album;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -57,7 +56,7 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
     }
 
     public void onAddClick() {
-        Intent intent = new Intent(this, MultiSelectActivity.class);
+        Intent intent = new Intent(this, PhotoSelectActivity.class);
         startActivityForResult(intent, REQUEST_SELECT_PHOTOS);
     }
 

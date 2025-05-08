@@ -243,5 +243,10 @@ public class FileRepository {
         );
     }
 
+    public interface LoadCallback {
+        void onLoaded(List<Uri> uris);
+        void onError(Throwable t);
+    }
+
 }
 
