@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">PA</string>
+    <string name="title_search">検索</string>
+    <string name="title_photo">写真</string>
+    <string name="title_album">アルバム</string>
+    <string name="title_memory">思い出</string>
+    <string name="title_social">ソーシャル</string>
+    <string name="download">ダウンロード</string>
+    <string name="share">共有</string>
+    <string name="preview">プレビュー</string>
+    <string name="edit">編集</string>
+
+    <string name="title_photo_edit">写真編集</string>
+    <string name="rotate">回転</string>
+    <string name="brightness">明るさ</string>
+    <string name="contrast">コントラスト</string>
+    <string name="cancel">キャンセル</string>
+    <string name="save">セーブ</string>
+    <string name="recommended_keywords">おすすめキーワード</string>
+
+    <string name="back">戻る</string>
+    <string name="add">追加</string>
+    <string name="order">並び替え</string>
+    <string name="set">設定</string>
+    <string name="searchWord">キーワードを入力…</string>
+    <string name="default_description">上記に検索語を入力して関連画像を探します。おすすめのキーワードを試すか、自分でクエリを入力してください。言葉を変更すると、結果がここに表示されます。</string>
+    <string name="search_history">最近の検索</string>
+
+    <string name="profile_image_desc">プロフィール画像</string>
+    <string name="default_username">ユーザー名</string>
+    <string name="default_email">user@example.com</string>
+
+    <string name="menu_home">ホーム</string>
+    <string name="menu_profile">プロフィール</string>
+    <string name="menu_categories">カテゴリー</string>
+    <string name="menu_music">音楽</string>
+    <string name="menu_movies">映画</string>
+    <string name="menu_settings">設定</string>
+    <string name="menu_help">ヘルプセンター</string>
+    <string name="menu_logout">ログアウト</string>
+</resources>
