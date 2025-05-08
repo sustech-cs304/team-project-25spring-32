@@ -60,13 +60,14 @@ public class PhotoSelectActivity extends AppCompatActivity {
         // 观察照片列表
         viewModel.getPhotos().observe(this, photos -> {
             adapter.submitList(photos);
-            findViewById(R.id.tv_empty).setVisibility(photos.isEmpty() ? View.VISIBLE : View.GONE);
+            findViewById(R.id.text_no_photo).setVisibility(photos.isEmpty()? View.VISIBLE : View.GONE);
         });
 
         // 观察选中数量
         viewModel.getSelectedCount().observe(this, count -> {
             TextView tvCount = findViewById(R.id.tv_selected_count);
             tvCount.setText(String.valueOf(count));
+            findViewById(R.id.text_empty).setVisibility(count == 0 ? View.VISIBLE : View.GONE);
 
             btnDone.setEnabled(count > 0);
             btnDone.setAlpha(count > 0 ? 1f : 0.5f);

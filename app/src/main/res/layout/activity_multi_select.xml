@@ -25,18 +25,30 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_bar"
         android:padding="4dp"/>
 
-    <!--底部-->
-    <LinearLayout
+    <TextView
+        android:id="@+id/text_no_photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/NoPhoto"
+        android:textSize="16sp"
+        android:textColor="@color/gray_600"
+        android:gravity="center"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <!-- 底部操作栏 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp"
-        android:paddingHorizontal="16dp"
+        android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <!--计数-->
+        <!-- 左侧计数（始终显示） -->
         <TextView
             android:id="@+id/tv_selected_count"
             android:layout_width="wrap_content"
@@ -44,20 +56,11 @@
             android:text="0"
             android:textSize="24sp"
             android:textColor="@color/black"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/tv_empty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ChooseRequest"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
-
-        <!--完成按钮-->
+        <!-- 右侧完成按钮（始终显示） -->
         <TextView
             android:id="@+id/btn_done"
             android:layout_width="wrap_content"
@@ -65,10 +68,25 @@
             android:text="@string/finish"
             android:textSize="24sp"
             android:textColor="@color/colorPrimary"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:layout_gravity="end|center_vertical"/>
-    </LinearLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- 居中提示文本（仅在无选择时显示） -->
+        <TextView
+            android:id="@+id/text_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ChooseRequest"
+            android:textSize="16sp"
+            android:textColor="@color/gray_600"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
