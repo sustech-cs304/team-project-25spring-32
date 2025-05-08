@@ -62,7 +62,7 @@ public class PhotoViewModel extends ViewModel {
 
     // 直接从文件系统里面读取 DCIM/Camera文件夹下的所有照片
     public void loadURIFromRepository() {
-        List<Uri> uriList = fileRepository.getAlbumImages("Camera");
+        List<Uri> uriList = fileRepository.getAlbumImages("所有照片");
         System.out.println(uriList);
         URiList.setValue(uriList);
     }
