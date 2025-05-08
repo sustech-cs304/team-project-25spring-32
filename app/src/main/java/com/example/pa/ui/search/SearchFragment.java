@@ -91,7 +91,7 @@ public class SearchFragment extends Fragment {
         //搜索历史
         searchViewModel.checkSearchHistory(1); // Replace with actual user ID
         searchViewModel.getSearchHistory().observe(getViewLifecycleOwner(), history -> {
-            if (history != null && !history.isEmpty()) {
+            if (history != null && !history.isEmpty()&&binding.searchBox.getText().toString().isEmpty()) {
                 searchHistoryBox.setVisibility(View.VISIBLE);
                 binding.searchHistoryList.removeAllViews(); // Clear existing views
 
