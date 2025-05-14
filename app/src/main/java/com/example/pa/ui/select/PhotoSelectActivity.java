@@ -1,84 +1,113 @@
 package com.example.pa.ui.select;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
+import com.example.pa.databinding.ActivityMultiSelectBinding;
 
 import java.util.ArrayList;
 
 public class PhotoSelectActivity extends AppCompatActivity {
     private PhotoSelectViewModel viewModel;
     private PhotoSelectAdapter adapter;
-    private ImageButton backButton;
-    private TextView btnDone;
+    private ActivityMultiSelectBinding binding; // 使用 View Binding
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_multi_select);
+        binding = ActivityMultiSelectBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        // 初始化ViewModel
+        // 初始化 ViewModel
         viewModel = new ViewModelProvider(this).get(PhotoSelectViewModel.class);
 
-        btnDone = findViewById(R.id.btn_done);
-        backButton = findViewById(R.id.back_button);
-        backButton.setOnClickListener(v -> finish());
+        // 初始化点击监听
+        binding.backButton.setOnClickListener(v -> finish());
+        binding.btnDone.setOnClickListener(v -> returnResult());
 
-        // 获取参数
-        String albumName = getIntent().getStringExtra("album_name");
+        // 初始化 RecyclerView
+        setupRecyclerView();
 
-        // 初始化视图
-        setupViews();
+        // 设置数据观察
         setupObservers();
 
-        // 加载数据
-//        viewModel.loadPhotos(albumName);
+        // 加载数据（示例使用固定值，实际应从 Intent 获取）
         viewModel.loadPhotos("所有照片");
     }
 
-    private void setupViews() {
-        // 初始化RecyclerView
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
-        adapter = new PhotoSelectAdapter(uri -> viewModel.toggleSelection(uri));
-        recyclerView.setAdapter(adapter);
+    private void setupRecyclerView() {
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
+        binding.recyclerView.setLayoutManager(layoutManager);
 
-        // 设置完成按钮
-        findViewById(R.id.btn_done).setOnClickListener(v -> returnResult());
+        // 使用改进后的 Adapter
+        adapter = new PhotoSelectAdapter(new PhotoSelectAdapter.OnSelectionChangeListener() {
+            @Override
+            public void onSelectionChanged(int selectedCount) {
+                // 直接更新 ViewModel 状态
+                viewModel.updateSelectionCount(selectedCount);
+            }
+        });
+
+        binding.recyclerView.setAdapter(adapter);
+//        binding.recyclerView.addItemDecoration(new GridSpacingItemDecoration(3, 4, true));
     }
 
     private void setupObservers() {
-        // 观察照片列表
+        // 观察照片数据
         viewModel.getPhotos().observe(this, photos -> {
             adapter.submitList(photos);
-            findViewById(R.id.text_no_photo).setVisibility(photos.isEmpty()? View.VISIBLE : View.GONE);
+            binding.textNoPhoto.setVisibility(photos.isEmpty() ? View.VISIBLE : View.GONE);
         });
 
-        // 观察选中数量
+        // 观察选中状态
         viewModel.getSelectedCount().observe(this, count -> {
-            TextView tvCount = findViewById(R.id.tv_selected_count);
-            tvCount.setText(String.valueOf(count));
-            findViewById(R.id.text_empty).setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+            binding.tvSelectedCount.setText(String.valueOf(count));
+            binding.textEmpty.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
 
-            btnDone.setEnabled(count > 0);
-            btnDone.setAlpha(count > 0 ? 1f : 0.5f);
+            // 更新完成按钮状态
+            binding.btnDone.setEnabled(count > 0);
+            binding.btnDone.animate()
+                    .alpha(count > 0 ? 1f : 0.5f)
+                    .setDuration(200)
+                    .start();
         });
     }
 
     private void returnResult() {
         Intent result = new Intent();
-        result.putParcelableArrayListExtra("selected_photos",
-                new ArrayList<>(viewModel.getSelectedUris()));
+        if (viewModel.getSelectedCount().getValue() != null && viewModel.getSelectedCount().getValue() > 0) {
+            result.putParcelableArrayListExtra("selected_photos",
+                    new ArrayList<>(adapter.getSelectedUris()));
+        }
         setResult(RESULT_OK, result);
         finish();
     }
+
+//    // 处理配置变更（可选）
+//    @Override
+//    protected void onSaveInstanceState(@NonNull Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        outState.putParcelableArrayList("selected_uris",
+//                new ArrayList<>(adapter.getSelectedUris()));
+//    }
+//
+//    @Override
+//    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        ArrayList<Uri> savedUris = savedInstanceState.getParcelableArrayList("selected_uris");
+//        if (savedUris != null) {
+//            adapter.restoreSelections(savedUris);
+//        }
+//    }
 }

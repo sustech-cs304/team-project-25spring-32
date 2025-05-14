@@ -44,6 +44,10 @@ public class PhotoSelectViewModel extends AndroidViewModel {
         return photos;
     }
 
+    public void updateSelectionCount(int count) {
+        selectedCount.postValue(count);
+    }
+
     public LiveData<Integer> getSelectedCount() {
         return selectedCount;
     }
