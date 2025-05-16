@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentSender;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -269,6 +271,21 @@ public class FileRepository {
         List<Uri> images = getAlbumImages(albumName);
         Log.d("FileRepository", "getAlbumCover from " + albumName + " : " + images);
         return images.isEmpty() ? null : images.get(0);
+    }
+
+    public String saveBitmapToFile(Bitmap scaledBitmap, String image) {
+        String fileName = System.currentTimeMillis() + ".jpg";
+        File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        File file = new File(directory, fileName);
+
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            return file.getAbsolutePath();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
