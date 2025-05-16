@@ -242,5 +242,24 @@ public class FileRepository {
                 }
         );
     }
+
+    public void triggerMediaScanForDirectory(File directory, MediaScanCallback callback) {
+        MediaScannerConnection.scanFile(
+                this.context,
+                new String[]{directory.getAbsolutePath()},
+                new String[]{"image/*", "video/*"},
+                (path, uri) -> {
+                    if (uri != null) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (callback != null) callback.onScanCompleted(uri);
+                        });
+                    } else {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (callback != null) callback.onScanFailed("Scan failed: " + path);
+                        });
+                    }
+                }
+        );
+    }
 }
 

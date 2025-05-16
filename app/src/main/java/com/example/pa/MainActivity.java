@@ -3,8 +3,10 @@ package com.example.pa;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -18,10 +20,14 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
+import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
 
+import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
     private AppBarConfiguration appBarConfiguration;
+    private FileRepository fileRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (allGranted) {
+//                        performInitialMediaScan();
                         Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "部分权限被拒绝", Toast.LENGTH_SHORT).show();
@@ -114,6 +122,38 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置底部导航
         //setupBottomNavigation();
+    }
+
+    private void performInitialMediaScan() {
+        Log.d("MediaScan", "开始初始化扫描...");
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Log.d("MediaScan", "使用Android 10+适配方案");
+                // ... Q版本代码
+            } else {
+                File dcimDir = Environment.getExternalStoragePublicDirectory(
+                        Environment.DIRECTORY_DCIM
+                );
+                Log.d("MediaScan", "扫描路径: " + dcimDir.getAbsolutePath());
+                Log.d("MediaScan", "路径是否存在: " + dcimDir.exists());
+
+                fileRepository.triggerMediaScanForDirectory(dcimDir, new FileRepository.MediaScanCallback() {
+                    @Override
+                    public void onScanCompleted(Uri uri) {
+                        Log.i("MediaScan", "扫描完成: " + uri);
+                    }
+
+                    @Override
+                    public void onScanFailed(String error) {
+                        Log.e("MediaScan", "扫描失败: " + error);
+                    }
+                });
+            }
+        } catch (SecurityException e) {
+            Log.e("MediaScan", "权限异常: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e("MediaScan", "未知异常: " + e.toString());
+        }
     }
     @Override
     public boolean onSupportNavigateUp() {
@@ -160,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
             requestPermissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
         } else {
             Log.d("Permission", "所有权限已授予");
+            performInitialMediaScan();
         }
     }
 
