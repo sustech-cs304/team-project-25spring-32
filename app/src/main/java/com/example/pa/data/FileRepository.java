@@ -303,23 +303,56 @@ public class FileRepository {
         );
     }
 
+//    public void triggerMediaScanForDirectory(File directory, MediaScanCallback callback) {
+//        ContentResolver resolver = context.getContentResolver();
+//        Uri collection = MediaStore.Images.Media.getContentUri(
+//                MediaStore.VOLUME_EXTERNAL_PRIMARY);
+//
+//        ContentValues values = new ContentValues();
+//        values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/");
+//        values.put(MediaStore.Images.Media.IS_PENDING, 1);
+//
+//        try {
+//            Uri uri = resolver.insert(collection, values);
+//            if (uri != null) {
+//                values.clear();
+//                values.put(MediaStore.Images.Media.IS_PENDING, 0);
+//                resolver.update(uri, values, null, null);
+//                callback.onScanCompleted(uri);
+//            }
+//        } catch (Exception e) {
+//            callback.onScanFailed(e.getMessage());
+//        }
+//    }
     public void triggerMediaScanForDirectory(File directory, MediaScanCallback callback) {
+        // 扫描当前目录
+        scanSingleDirectory(directory, callback);
+
+        // 递归扫描子目录
+        scanSubdirectories(directory);
+    }
+
+    private void scanSingleDirectory(File dir, MediaScanCallback callback) {
         MediaScannerConnection.scanFile(
-                this.context,
-                new String[]{directory.getAbsolutePath()},
+                context,
+                new String[]{dir.getAbsolutePath()},
                 new String[]{"image/*", "video/*"},
                 (path, uri) -> {
                     if (uri != null) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            if (callback != null) callback.onScanCompleted(uri);
-                        });
-                    } else {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            if (callback != null) callback.onScanFailed("Scan failed: " + path);
-                        });
+                        Log.d("MediaScan", "Scanned: " + path);
                     }
                 }
         );
+    }
+
+    private void scanSubdirectories(File parentDir) {
+        File[] subDirs = parentDir.listFiles(File::isDirectory);
+        if (subDirs == null) return;
+
+        for (File dir : subDirs) {
+            scanSingleDirectory(dir, null); // 不需要回调
+            scanSubdirectories(dir); // 继续递归
+        }
     }
 }
 

@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.pa.MyApplication;
 import com.example.pa.data.FileRepository;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public class PhotoSelectViewModel extends AndroidViewModel {
 
     public PhotoSelectViewModel(@NonNull Application application) {
         super(application);
-        repository = new FileRepository(application);
+        repository = MyApplication.getInstance().getFileRepository();
     }
 
     public void loadPhotos(String albumName) {

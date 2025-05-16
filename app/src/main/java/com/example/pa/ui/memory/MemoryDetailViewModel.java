@@ -19,7 +19,7 @@ public class MemoryDetailViewModel extends ViewModel {
 
     public MemoryDetailViewModel() {
         // 初始化每个相册的默认图片
-        this.fileRepository = new FileRepository(MyApplication.getInstance());
+        this.fileRepository = MyApplication.getInstance().getFileRepository();
     }
 
     public LiveData<List<Uri>> getPhotoUris() {
