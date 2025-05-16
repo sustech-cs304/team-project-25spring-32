@@ -1,9 +1,12 @@
 package com.example.pa.data;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.IntentSender;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -17,8 +20,8 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,6 +32,7 @@ import java.util.List;
  * directly copy the code from its response.
  */
 public class FileRepository {
+    private static final int DELETE_REQUEST_CODE = 1002;
     private final Context context;
 
     public FileRepository(Context context) {
@@ -91,32 +95,32 @@ public class FileRepository {
      * directly copy the code from its response.
      */
     // Android 10+ 删除逻辑
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    private boolean deleteAlbumWithMediaStore(String albumName) {
-        ContentResolver resolver = context.getContentResolver();
-        Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
-
-        // 关键：修正查询条件，确保包含子文件夹
-        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ? ESCAPE '!'";
-        String escapedAlbumName = albumName.replace("_", "!_"); // 处理特殊字符
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + escapedAlbumName + "/%"};
-
-        try (Cursor cursor = resolver.query(collection, null, selection, selectionArgs, null)) {
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
-                    Uri uri = ContentUris.withAppendedId(collection, id);
-                    int deleted = resolver.delete(uri, null, null);
-                    Log.d("Delete", "删除文件: " + uri + " 结果: " + (deleted > 0));
-                }
-            }
-            // 删除空文件夹（部分系统支持）
-            return deleteEmptyFolder(albumName, resolver);
-        } catch (Exception e) {
-            Log.e("Delete", "删除失败", e);
-            return false;
-        }
-    }
+//    @RequiresApi(api = Build.VERSION_CODES.Q)
+//    private boolean deleteAlbumWithMediaStore(String albumName) {
+//        ContentResolver resolver = context.getContentResolver();
+//        Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+//
+//        // 关键：修正查询条件，确保包含子文件夹
+//        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ? ESCAPE '!'";
+//        String escapedAlbumName = albumName.replace("_", "!_"); // 处理特殊字符
+//        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + escapedAlbumName + "/%"};
+//
+//        try (Cursor cursor = resolver.query(collection, null, selection, selectionArgs, null)) {
+//            if (cursor != null) {
+//                while (cursor.moveToNext()) {
+//                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+//                    Uri uri = ContentUris.withAppendedId(collection, id);
+//                    int deleted = resolver.delete(uri, null, null);
+//                    Log.d("Delete", "删除文件: " + uri + " 结果: " + (deleted > 0));
+//                }
+//            }
+//            // 删除空文件夹（部分系统支持）
+//            return deleteEmptyFolder(albumName, resolver);
+//        } catch (Exception e) {
+//            Log.e("Delete", "删除失败", e);
+//            return false;
+//        }
+//    }
 
 
     /**
@@ -143,6 +147,62 @@ public class FileRepository {
         }
         return false;
     }
+    @RequiresApi(api = Build.VERSION_CODES.Q) // minSdk 29
+    private boolean deleteAlbumWithMediaStore(String albumName) {
+        ContentResolver resolver = context.getContentResolver();
+        Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
+
+        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
+        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+
+        List<Uri> toDelete = new ArrayList<>();
+
+        try (Cursor cursor = resolver.query(collection, null, selection, selectionArgs, null)) {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
+                    Uri uri = ContentUris.withAppendedId(collection, id);
+                    toDelete.add(uri);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("Delete", "查询失败", e);
+            return false;
+        }
+
+        if (toDelete.isEmpty()) {
+            Log.d("Delete", "没有找到要删除的文件");
+            return true;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
+            try {
+                // 反射调用 MediaStore.createDeleteRequest()
+                Method method = MediaStore.class.getMethod("createDeleteRequest", ContentResolver.class, List.class);
+                PendingIntent deleteRequest = (PendingIntent) method.invoke(null, resolver, toDelete);
+
+                if (context instanceof Activity) {
+                    ((Activity) context).startIntentSenderForResult(
+                            deleteRequest.getIntentSender(),
+                            DELETE_REQUEST_CODE,
+                            null, 0, 0, 0
+                    );
+                    return true;
+                } else {
+                    Log.e("Delete", "Context 不是 Activity，无法请求删除权限");
+                    return false;
+                }
+            } catch (Exception e) {
+                Log.e("Delete", "反射调用 createDeleteRequest 失败", e);
+                return false;
+            }
+        } else {
+            Log.e("Delete", "系统版本过低，不支持 createDeleteRequest");
+            return false;
+        }
+    }
+
+
 
     /**
      * AI-generated-content
