@@ -38,4 +38,7 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_help">Help Center</string>
     <string name="menu_logout">Log Out</string>
+    <string name="finish">Finish</string>
+    <string name="ChooseRequest">Please choose photos</string>
+    <string name="NoPhoto">There is no photo in the album</string>
 </resources>

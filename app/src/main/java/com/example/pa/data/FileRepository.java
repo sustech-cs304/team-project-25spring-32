@@ -96,23 +96,24 @@ public class FileRepository {
         ContentResolver resolver = context.getContentResolver();
         Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL);
 
-        // 1. 查询相册内的所有文件
-        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
-        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
+        // 关键：修正查询条件，确保包含子文件夹
+        String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ? ESCAPE '!'";
+        String escapedAlbumName = albumName.replace("_", "!_"); // 处理特殊字符
+        String[] selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + escapedAlbumName + "/%"};
 
         try (Cursor cursor = resolver.query(collection, null, selection, selectionArgs, null)) {
             if (cursor != null) {
                 while (cursor.moveToNext()) {
-                    // 2. 逐个删除文件
                     long id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID));
                     Uri uri = ContentUris.withAppendedId(collection, id);
-                    resolver.delete(uri, null, null);
+                    int deleted = resolver.delete(uri, null, null);
+                    Log.d("Delete", "删除文件: " + uri + " 结果: " + (deleted > 0));
                 }
             }
-            // 3. 尝试删除空文件夹（部分系统可能不支持）
+            // 删除空文件夹（部分系统支持）
             return deleteEmptyFolder(albumName, resolver);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("Delete", "删除失败", e);
             return false;
         }
     }
@@ -242,5 +243,23 @@ public class FileRepository {
         );
     }
 
+    public void triggerMediaScanForDirectory(File directory, MediaScanCallback callback) {
+        MediaScannerConnection.scanFile(
+                this.context,
+                new String[]{directory.getAbsolutePath()},
+                new String[]{"image/*", "video/*"},
+                (path, uri) -> {
+                    if (uri != null) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (callback != null) callback.onScanCompleted(uri);
+                        });
+                    } else {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (callback != null) callback.onScanFailed("Scan failed: " + path);
+                        });
+                    }
+                }
+        );
+    }
 }
 
