@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
     private void classifyImage() {
         String TAG = "ImageClassifier";
         assert fileRepository!=null;
-        Uri IMAGE_URI=fileRepository.getAlbumImages("NewFolder").get(2);
+        Uri IMAGE_URI=fileRepository.getAlbumImages("NewAlbum").get(0);
         new Thread(() -> {
             try {
                 // 1. 从URI加载原始图片（确保使用ARGB_8888配置）

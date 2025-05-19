@@ -30,7 +30,7 @@ public class ImageClassifier {
 
     public ImageClassifier(Context context) throws IOException {
         // 加载模型
-        tflite = new Interpreter(FileUtil.loadMappedFile(context, "mobileNet.tflite"));
+        tflite = new Interpreter(FileUtil.loadMappedFile(context, "mobilenet_v1_1.0_224_quant.tflite"));
 
         // 读取标签
         labels = FileUtil.loadLabels(context, "labels_mobilenet_quant_v1_224.txt");
