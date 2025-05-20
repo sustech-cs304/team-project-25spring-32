@@ -10,9 +10,6 @@ import android.util.Log;
 
 import com.example.pa.data.DatabaseHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class TagDao {
     /**
      * AI-generated-content
@@ -80,23 +77,18 @@ public class TagDao {
                 new String[]{String.valueOf(tagId)},
                 null, null, null);
     }
-    public List<Integer> getTagIdByName(String tagName) {//已改为模糊查找，即查找所有包含tagName部分内容的标签
-        //例如tagName为"物"，则会查找所有包含"植物""动物"的标签
+    public int getTagIdByName(String tagName) {
         Cursor cursor = db.query(TABLE_NAME,
                 new String[]{COLUMN_ID},
-                COLUMN_NAME + " LIKE ?",
-                new String[]{"%" + tagName + "%"},
+                COLUMN_NAME + " = ?",
+                new String[]{tagName},
                 null, null, null);
-        if (cursor != null) {
-            List<Integer> tagIds = new ArrayList<>();
-            while (cursor.moveToNext()) {
-                @SuppressLint("Range") int tagId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
-                tagIds.add(tagId);
-            }
+        if (cursor != null && cursor.moveToFirst()) {
+            @SuppressLint("Range") int tagId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
             cursor.close();
-            return tagIds;
+            return tagId;
         }
-        return new ArrayList<>(); // 如果没有找到，返回空列表
+        return -1; // 如果没有找到，返回-1
     }
     public String getPhotoPathByTagId(int tagId) {
         Cursor cursor = db.query(TABLE_NAME,

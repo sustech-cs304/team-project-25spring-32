@@ -15,7 +15,7 @@ import com.example.pa.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.pa.data.Daos.PhotoDao.Photo;
+import com.example.pa.data.model.Photo;
 import com.example.pa.data.FileRepository;
 
 public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapter.PhotoViewHolder> {
@@ -28,6 +28,7 @@ public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapte
     private OnPhotoClickListener listener;
     // 回调接口：由外部（比如Fragment）实现点击后的操作
     public interface OnPhotoClickListener {
+//        void onPhotoClick(Photo imageItem);
         void onPhotoClick(Uri imageItem);
     }
 

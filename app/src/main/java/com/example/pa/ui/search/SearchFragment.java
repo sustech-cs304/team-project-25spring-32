@@ -134,11 +134,6 @@ public class SearchFragment extends Fragment {
         // 点击展示大图
         imageAdapter.setOnImageClickListener(imagePath -> {
             Context context = getContext();
-            // ***如果点了图片，就说明是一次有效搜索，就把它加进历史记录***
-            String searchQuery = binding.searchBox.getText().toString();
-            if (!searchQuery.isEmpty()) {
-                searchViewModel.saveSearchHistory(searchQuery);
-            }
             if (context != null) {
                 Intent intent = new Intent(context, PhotoDetailActivity.class);
                 intent.putExtra("image_path", imagePath);

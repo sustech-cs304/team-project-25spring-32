@@ -55,32 +55,15 @@ public class SearchHistoryDao {
             return -1;
         }
     }
-    public boolean hasSearchHistory(int userId) {
-        Cursor cursor = db.query(
-                TABLE_NAME,
-                new String[]{COLUMN_ID},
-                COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(userId)},
-                null,
-                null,
-                null
-        );
-        boolean hasHistory = cursor != null && cursor.getCount() > 0;
-        if (cursor != null) {
-            cursor.close();
-        }
-        return hasHistory;
-    }
 
     public Cursor getSearchHistoryByUser(int userId, int limit) {
-        return db.rawQuery(
-                "SELECT * FROM " + TABLE_NAME +
-                        " WHERE " + COLUMN_USER_ID + " = ? " +
-                        " GROUP BY " + COLUMN_QUERY +
-                        " ORDER BY MAX(" + COLUMN_CREATED_TIME + ") DESC " +
-                        " LIMIT ?",
-                new String[]{String.valueOf(userId), String.valueOf(limit)}
-        );
+        return db.query(TABLE_NAME,
+                null,
+                COLUMN_USER_ID + " = ?",
+                new String[]{String.valueOf(userId)},
+                null, null,
+                COLUMN_CREATED_TIME + " DESC",
+                String.valueOf(limit));
     }
 
     public boolean clearUserHistory(int userId) {
