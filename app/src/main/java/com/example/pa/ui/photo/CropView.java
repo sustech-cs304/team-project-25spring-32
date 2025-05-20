@@ -27,6 +27,10 @@ public class CropView extends View {
     // 比例控制
     private float aspectRatio = 0; // 0表示自由比例
 
+    // 添加视图尺寸和偏移量属性
+    private float viewScale = 1.0f;
+    private float offsetX = 0, offsetY = 0;
+
     public CropView(Context context) {
         super(context);
         init();
@@ -56,20 +60,45 @@ public class CropView extends View {
         this.imageWidth = width;
         this.imageHeight = height;
 
-        // 初始化裁剪框为图像的80%
-        float initialWidth = width * 0.8f;
-        float initialHeight = height * 0.8f;
+        // 计算图片在视图中的实际显示比例和位置
+        calculateImageLayout();
 
-        if (aspectRatio > 0) {
-            // 如果设置了比例约束，调整高度
-            initialHeight = initialWidth / aspectRatio;
-        }
+//        // 初始化裁剪框为图像的80%
+//        float initialWidth = width * 1.0f;
+//        float initialHeight = height * 1.0f;
 
-        float left = (width - initialWidth) / 2;
-        float top = (height - initialHeight) / 2;
+//        if (aspectRatio > 0) {
+//            // 如果设置了比例约束，调整高度
+//            initialHeight = initialWidth / aspectRatio;
+//        }
+//        float left = (width - initialWidth) / 2;
+//        float top = (height - initialHeight) / 2;
+//        cropRect.set(left, top, left + initialWidth, top + initialHeight);
 
-        cropRect.set(left, top, left + initialWidth, top + initialHeight);
+        cropRect.set(offsetX, offsetY, offsetX + width * viewScale, offsetY + height * viewScale);
         invalidate();
+    }
+
+    // 计算图片在视图中的实际布局
+    private void calculateImageLayout() {
+        // 计算图片缩放以适应视图
+        float scaleX = (float) getWidth() / imageWidth;
+        float scaleY = (float) getHeight() / imageHeight;
+        viewScale = Math.min(scaleX, scaleY);  // 保持宽高比
+
+        // 计算居中显示的偏移量
+        offsetX = (getWidth() - imageWidth * viewScale) / 2;
+        offsetY = (getHeight() - imageHeight * viewScale) / 2;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        if (imageWidth > 0 && imageHeight > 0) {
+            // 视图大小变化时重新计算裁剪框
+            calculateImageLayout();
+            cropRect.set(offsetX, offsetY, offsetX + imageWidth * viewScale, offsetY + imageHeight * viewScale);
+        }
     }
 
     public void setAspectRatio(float ratio) {
@@ -209,73 +238,81 @@ public class CropView extends View {
             case 0: // 左上角
                 left += dx;
                 top += dy;
+                if (aspectRatio > 0) {
+                    // 固定右下角
+                    float width = right - left;
+                    float height = width / aspectRatio;
+                    top = bottom - height;
+                }
                 break;
             case 1: // 右上角
                 right += dx;
                 top += dy;
+                if (aspectRatio > 0) {
+                    // 固定左下角
+                    float width = right - left;
+                    float height = width / aspectRatio;
+                    top = bottom - height;
+                }
                 break;
             case 2: // 右下角
                 right += dx;
                 bottom += dy;
+                if (aspectRatio > 0) {
+                    // 固定左上角
+                    float width = right - left;
+                    float height = width / aspectRatio;
+                    bottom = top + height;
+                }
                 break;
             case 3: // 左下角
                 left += dx;
                 bottom += dy;
+                if (aspectRatio > 0) {
+                    // 固定右上角
+                    float width = right - left;
+                    float height = width / aspectRatio;
+                    bottom = top + height;
+                }
                 break;
             case 4: // 上中
                 top += dy;
+                if (aspectRatio > 0) {
+                    float width = right - left;
+                    float height = width / aspectRatio;
+                    top = bottom - height;
+                }
                 break;
             case 5: // 右中
                 right += dx;
+                if (aspectRatio > 0) {
+                    float height = bottom - top;
+                    float width = height * aspectRatio;
+                    right = left + width;
+                }
                 break;
             case 6: // 下中
                 bottom += dy;
+                if (aspectRatio > 0) {
+                    float width = right - left;
+                    float height = width / aspectRatio;
+                    bottom = top + height;
+                }
                 break;
             case 7: // 左中
                 left += dx;
+                if (aspectRatio > 0) {
+                    float height = bottom - top;
+                    float width = height * aspectRatio;
+                    left = right - width;
+                }
                 break;
         }
-
-        // 确保宽高至少为最小值
-        float minSize = 50;
-        if (right - left < minSize) {
-            if (handle == 0 || handle == 3 || handle == 7) {
-                left = right - minSize;
-            } else {
-                right = left + minSize;
-            }
-        }
-
-        if (bottom - top < minSize) {
-            if (handle == 0 || handle == 1 || handle == 4) {
-                top = bottom - minSize;
-            } else {
-                bottom = top + minSize;
-            }
-        }
-
-        // 应用比例约束
-        if (aspectRatio > 0) {
-            float width = right - left;
-            float height = bottom - top;
-
-            // 根据被修改的边调整对应的边
-            if (handle == 0 || handle == 1 || handle == 4) { // 上边被修改
-                height = width / aspectRatio;
-                bottom = top + height;
-            } else if (handle == 2 || handle == 3 || handle == 6) { // 下边被修改
-                height = width / aspectRatio;
-                top = bottom - height;
-            } else if (handle == 7) { // 左边被修改
-                width = height * aspectRatio;
-                right = left + width;
-            } else if (handle == 5) { // 右边被修改
-                width = height * aspectRatio;
-                left = right - width;
-            }
-        }
-
+        // 设置新的裁剪矩形
         cropRect.set(left, top, right, bottom);
+
+        // 调用约束函数确保不超出边界且符合最小尺寸
+        constrainRect();
     }
 
     private void constrainRect() {
@@ -284,5 +321,23 @@ public class CropView extends View {
         if (cropRect.top < 0) cropRect.offset(0, -cropRect.top);
         if (cropRect.right > imageWidth) cropRect.offset(imageWidth - cropRect.right, 0);
         if (cropRect.bottom > imageHeight) cropRect.offset(0, imageHeight - cropRect.bottom);
+
+        // 最小尺寸限制
+        float minSize = 50;
+        if (cropRect.width() < minSize) {
+            if (cropRect.right == imageWidth) {
+                cropRect.left = imageWidth - minSize;
+            } else {
+                cropRect.right = cropRect.left + minSize;
+            }
+        }
+
+        if (cropRect.height() < minSize) {
+            if (cropRect.bottom == imageHeight) {
+                cropRect.top = imageHeight - minSize;
+            } else {
+                cropRect.bottom = cropRect.top + minSize;
+            }
+        }
     }
 }
