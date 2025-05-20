@@ -17,6 +17,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.pa.data.model.Photo;
 import com.example.pa.data.Daos.*;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         long photoId22 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
         long photoId23 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
 
-        PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
+        Photo fullPhoto = new Photo(
                 0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
                 "https://gd-hbimg.huaban.com/758e7de9f82dc52f2c8840915a5acfa9458fa15c50d3e-Bv5Tcc_fw480webp",
                 new Date().toString(), "2023-01-01 12:00:00",
