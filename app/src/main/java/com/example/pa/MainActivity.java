@@ -32,6 +32,7 @@ import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.pa.util.ai.ImageClassifier;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         // 设置底部导航
-        setupBottomNavigation();
         //setupBottomNavigation();
     }
     private void classifyImage() {
@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+        setupBottomNavigation();
     }
 
     /**
