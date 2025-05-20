@@ -8,6 +8,8 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.example.pa.data.model.Photo;
+
 import com.example.pa.data.DatabaseHelper;
 import com.google.gson.Gson;
 
@@ -311,41 +313,6 @@ public class PhotoDao {
                 photo.filePath != null;
     }
 
-    // ===================== 数据模型 =====================
-
-    public static class Photo {
-        public final int id;
-        public final int userId;
-        public final String type;
-        public String filePath;
-        public final String fileUrl;
-        public final String uploadedTime;
-        public final String takenTime;
-        public final double longitude;
-        public final double latitude;
-        public final String location;
-        public final String description;
-        public final List<String> aiObjects;
-
-        public Photo(int id, int userId, String type, String filePath, String fileUrl,
-                     String uploadedTime, String takenTime,
-                     double longitude, double latitude,
-                     String location, String description,
-                     List<String> aiObjects) {
-            this.id = id;
-            this.userId = userId;
-            this.type = type;
-            this.filePath = filePath;
-            this.fileUrl = fileUrl; // 未来删除
-            this.uploadedTime = uploadedTime;
-            this.takenTime = takenTime;
-            this.longitude = longitude;
-            this.latitude = latitude;
-            this.location = location;
-            this.description = description;
-            this.aiObjects = aiObjects;
-        }
-    }
 
     // ===================== 测试辅助 =====================
 

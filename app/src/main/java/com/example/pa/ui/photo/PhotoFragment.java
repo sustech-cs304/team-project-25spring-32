@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -14,7 +15,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
-import com.example.pa.data.Daos.PhotoDao.Photo;
+import com.example.pa.data.model.Photo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +45,6 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
             // 当数据更新时，刷新适配器的数据
             photoAdapter.updateData(images);
         });
-
-
 
         // 从数据库加载数据
         photoViewModel.loadPhotosFromDatabase();
