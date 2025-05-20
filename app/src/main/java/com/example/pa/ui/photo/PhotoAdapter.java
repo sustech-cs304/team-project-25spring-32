@@ -3,6 +3,7 @@ package com.example.pa.ui.photo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,7 @@ import com.example.pa.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.example.pa.data.Daos.PhotoDao.Photo;
+import com.example.pa.data.model.Photo;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
@@ -68,16 +69,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     // 内部的 ViewHolder 实现点击事件，通过接口回调通知外部
     class PhotoViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        Button buttonDelete;   // 新增
 
         public PhotoViewHolder(View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.image_view);
+            buttonDelete = itemView.findViewById(R.id.btn_delete);  // 绑定删除按钮
+
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && listener != null) {
                     listener.onPhotoClick(imageList.get(position));
                 }
             });
+
         }
     }
 }

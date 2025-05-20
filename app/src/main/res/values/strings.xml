@@ -6,6 +6,8 @@
     <string name="title_memory">Memory</string>
     <string name="download">download</string>
     <string name="share">share</string>
+    <string name="delete">delete</string>
+    <string name="deleted">deleted</string>
     <string name="preview">preview</string>
     <string name="edit">Edit</string>
     <string name="crop">Crop</string>

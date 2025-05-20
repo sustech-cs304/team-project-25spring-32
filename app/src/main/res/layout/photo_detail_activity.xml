@@ -62,6 +62,20 @@
                 android:gravity="center"
                 android:textColor="@android:color/white"
                 android:text="@string/share"/>
+
+            <Button
+                android:id="@+id/btn_delete"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:text="@string/delete"/>
+<!--                android:drawableTop="@drawable/ic_delete"-->
+<!--                android:drawablePadding="8dp"-->
+<!--                android:drawableTint="@android:color/white"-->
+
         </LinearLayout>
 
     </FrameLayout>
