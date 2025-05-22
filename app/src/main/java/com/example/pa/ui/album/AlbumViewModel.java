@@ -33,7 +33,7 @@ public class AlbumViewModel extends ViewModel {
 
     public AlbumViewModel() {
         this.albumDao = MyApplication.getInstance().getAlbumDao();
-        this.fileRepository = new FileRepository(MyApplication.getInstance());
+        this.fileRepository = MyApplication.getInstance().getFileRepository();
 //        initialAlbums();  //仅用作展示
         loadAlbums();
     }

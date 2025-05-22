@@ -44,7 +44,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     public AlbumAdapter(List<Album> albumList, OnAlbumClickListener listener) {
         this.albumList = albumList;
         this.listener = listener;
-        this.fileRepository = new FileRepository(MyApplication.getInstance());
+        this.fileRepository = MyApplication.getInstance().getFileRepository();
     }
 
     @Override

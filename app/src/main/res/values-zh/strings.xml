@@ -40,4 +40,7 @@
     <string name="menu_logout">退出登录</string>
 
     <string name="playback_speed">播放</string>
+    <string name="finish">完成</string>
+    <string name="ChooseRequest">请选择图片</string>
+    <string name="NoPhoto">无</string>
 </resources>

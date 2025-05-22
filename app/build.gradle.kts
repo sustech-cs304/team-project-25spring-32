@@ -56,7 +56,9 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation (libs.gson)
-    implementation(fileTree("libs") { include("SparkChain.aar") })
+    implementation (libs.tensorflow.lite)
+    implementation (libs.tensorflow.lite.gpu)  // 可选（GPU加速）
+    implementation (libs.tensorflow.lite.support)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
