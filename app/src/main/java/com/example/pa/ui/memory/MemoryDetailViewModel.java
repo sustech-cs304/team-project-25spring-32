@@ -56,7 +56,7 @@ public class MemoryDetailViewModel extends ViewModel {
 
     public void loadPhotos(String memoryId) {
         List<Uri> sampleUris = fileRepository.getAlbumImages("所有照片");
-        int numImagesToTest = 3;
+        int numImagesToTest = 5;
         if (sampleUris != null && sampleUris.size() > numImagesToTest) {
             sampleUris = sampleUris.subList(0, numImagesToTest);
         }
@@ -98,9 +98,9 @@ public class MemoryDetailViewModel extends ViewModel {
 
         VideoCreationOptions options = new VideoCreationOptions.Builder(imageUris, tempOutputFilePath)
                 .setVideoResolution(targetWidth + "x" + targetHeight)
-                .setImageDisplayDurationMs(2000)
+                .setImageDisplayDurationMs(3000)
                 .setTransitionDurationMs(500)
-                .setTransitionType(VideoCreationOptions.TransitionType.FADE)
+                .setTransitionType(TransitionType.FADE)
                 .setFrameRate(30)
                 .setVideoBitrate(2000000)
                 .setAudioBitrate(128000)

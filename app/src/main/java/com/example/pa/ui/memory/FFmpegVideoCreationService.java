@@ -245,14 +245,15 @@ public class FFmpegVideoCreationService implements VideoCreationService {
         // 1. 计算调整后的时长 (确保图片显示时间足够进行过渡)
         double imageDurationSec = options.getImageDisplayDurationMs() / 1000.0;
         double transitionDurationSec = options.getTransitionDurationMs() / 1000.0;
-        // Ensure image duration is reasonable relative to transition for chaining
+
+        // 确保图片显示时间合理地长于过渡时间，以避免FFmpeg内部问题
         if (numImages > 1) {
             if (imageDurationSec <= transitionDurationSec) {
-                imageDurationSec = transitionDurationSec + 0.1; // Must be > transition duration for offset calculation
+                imageDurationSec = transitionDurationSec + 0.1; // 必须比过渡时间长一点
                 Log.w(TAG, "Image display duration was too short for transition. Adjusted to " + String.format(Locale.US, "%.3f", imageDurationSec) + "s");
             }
         }
-        // Ensure durations are positive
+        // 确保时长为正
         if (imageDurationSec <= 0) {
             imageDurationSec = 1.0;
             Log.w(TAG, "Image duration was <= 0. Defaulting to 1.0s.");
@@ -261,7 +262,6 @@ public class FFmpegVideoCreationService implements VideoCreationService {
             transitionDurationSec = 0;
             Log.w(TAG, "Transition duration was negative. Defaulting to 0s.");
         }
-
 
         String[] resolutionParts;
         String targetWidth;
@@ -280,47 +280,33 @@ public class FFmpegVideoCreationService implements VideoCreationService {
 
 
         // --- 1. 输入图片和音频 ---
-
-        // 输入图片，使用 loop 和 -t 指定每张图片的显示时长
         for (String imagePath : imagePaths) {
-            // 检查图片路径是否存在 (尽管 UriToPathHelper 应该处理了，但这是 FFmpeg 的输入，再检查一次更安全)
             if (imagePath == null || !new File(imagePath).exists()) {
                 Log.e(TAG, "Input image file not found or invalid path: " + imagePath);
-                // 注意：这里直接抛异常会中断任务，并被外层 catch 捕获
                 throw new IllegalArgumentException("Input image file not found: " + imagePath);
             }
             command.append("-loop 1 -t ").append(String.format(Locale.US, "%.3f", imageDurationSec))
-                    .append(" -i \"").append(imagePath).append("\" "); // 路径加双引号，防止空格等特殊字符
+                    .append(" -i \"").append(imagePath).append("\" ");
         }
 
-        // 输入音乐 (如果提供)
         boolean hasMusicInput = (musicPath != null && new File(musicPath).exists());
         if (hasMusicInput) {
-            command.append("-stream_loop -1 -i \"").append(musicPath).append("\" "); // -stream_loop -1: 无限循环音频
+            command.append("-stream_loop -1 -i \"").append(musicPath).append("\" ");
         } else {
-            // 如果没有背景音乐，添加静音音轨，避免某些播放器出现问题
             Log.d(TAG, "No valid music path provided or file not found. Adding silent audio track.");
-            command.append("-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 "); // 添加静音音轨 input
+            command.append("-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100 ");
         }
 
 
         // --- 2. 构建 filter_complex (视频滤镜图) ---
-
         command.append("-filter_complex \"");
 
         // 2a. 处理每张图片：缩放并填充到目标分辨率
         for (int i = 0; i < numImages; i++) {
-            // [i:v] 选择输入i的视频流
-            // setpts=PTS-STARTPTS: 重置每个输入的时间戳
-            // scale=w:h:force_original_aspect_ratio=decrease: 按比例缩放图片，使其适应wxh内
-            // eval=frame: 对每一帧评估缩放表达式（force_original_aspect_ratio需要）
             command.append(String.format(Locale.US, "[%d:v]setpts=PTS-STARTPTS,scale=%s:%s:force_original_aspect_ratio=decrease:eval=frame,",
                     i, targetWidth, targetHeight));
-            // pad=w:h:-1:-1:color=black: 将缩放后的图片填充到目标wxh，居中并添加黑色边框
-            command.append(String.format(Locale.US, "pad=%s:%s:-1:-1:color=black[v%d]", // 直接输出到 [vX]
+            command.append(String.format(Locale.US, "pad=%s:%s:-1:-1:color=black[v%d]",
                     targetWidth, targetHeight, i));
-
-            // 在图片处理链之间添加分号
             if (i < numImages - 1) {
                 command.append(";");
             }
@@ -328,89 +314,84 @@ public class FFmpegVideoCreationService implements VideoCreationService {
 
         // 2b. 应用过渡效果 (xfade) 或处理单张图片情况
         if (numImages > 1) {
-            // This semicolon separates the last image processing filter chain (e.g., ...[vN-1])
-            // from the beginning of the xfade filter chain. This is correct.
-            command.append(";");
+            command.append(";"); // 分隔图片处理链和 xfade 链
 
             String prevStream = "v0";
-
-            // *** CORRECTED: Calculate the actual xfade filter offset ONCE ***
-            // This offset is relative to the start of 'prevStream' for EACH xfade operation.
-            double actualXfadeFilterParameterOffset = imageDurationSec - transitionDurationSec;
-            if (actualXfadeFilterParameterOffset < 0) {
-                // This case should ideally be prevented by the earlier adjustment where
-                // imageDurationSec is made transitionDurationSec + 0.1 if it was too short.
-                // So, actualXfadeFilterParameterOffset should be at least 0.1 or positive.
-                actualXfadeFilterParameterOffset = 0;
-                Log.w(TAG, "Calculated xfade filter offset was negative, set to 0. Check image/transition duration logic.");
-            }
+            // 累积偏移量
+            double accumulatedOffset = 0.0;
 
             for (int i = 0; i < numImages - 1; i++) {
                 String currentStream = "v" + (i + 1);
                 String outputStreamLabel = (i == numImages - 2) ? "final_video" : "vf" + i;
 
-                // Now use the 'actualXfadeFilterParameterOffset' for all xfades
+                // 计算当前 xfade 的偏移量
+                // 对于第一个 xfade (v0到v1)，偏移量是第一张图片的显示时间减去过渡时间
+                // 对于后续的 xfade，偏移量是之前所有图片的有效显示时间之和，再减去过渡时间
+                if (i == 0) {
+                    // 第一个过渡开始在第一张图片结束前 transitionDurationSec 的位置
+                    accumulatedOffset = imageDurationSec - transitionDurationSec;
+                } else {
+                    // 每个后续过渡开始于前一个过渡结束后的 imageDurationSec - transitionDurationSec
+                    // 这是基于 prevStream 的时间轴累积的
+                    accumulatedOffset += (imageDurationSec - transitionDurationSec);
+                }
+
+                // 确保偏移量不为负
+                if (accumulatedOffset < 0) {
+                    accumulatedOffset = 0;
+                }
+
                 command.append(String.format(Locale.US, "[%s][%s]xfade=transition=%s:duration=%.3f:offset=%.3f[%s]",
                         prevStream,
                         currentStream,
-                        options.getTransitionType().getFfmpegFilterName(), // Assuming this correctly returns "fade", "dissolve", etc.
+                        options.getTransitionType().getFfmpegFilterName(),
                         transitionDurationSec,
-                        actualXfadeFilterParameterOffset, // <<< USE THE CORRECTED, CONSTANT OFFSET
+                        accumulatedOffset, // <<< 使用累积的动态偏移量
                         outputStreamLabel
                 ));
 
                 if (i < numImages - 2) {
-                    command.append(";"); // Semicolon between chained xfade operations
+                    command.append(";"); // 链式 xfade 操作之间的分号
                 }
                 prevStream = outputStreamLabel;
             }
         } else { // Only one image (numImages == 1)
-            // Your existing logic: command.append(";[v0]format=yuv420p[final_video]"); is correct.
             command.append(";[v0]format=yuv420p[final_video]");
         }
 
-        command.append("\" "); // Close the filter_complex string
+        command.append("\" "); // 关闭 filter_complex 字符串
 
 
         // --- 3. 映射流 ---
-
-        // 映射最终视频流，它在 filter_complex 中被命名为 [final_video]
         command.append("-map \"[final_video]\" ");
-
-        // 映射音频流
-        // 音频输入的索引是 numImages (因为图片输入占用了从 0 到 numImages-1 的索引)
-        command.append("-map ").append(numImages).append(":a ");
+        command.append("-map ").append(numImages).append(":a "); // 音频输入的索引是 numImages
 
 
         // --- 4. 输出设置 ---
-
-        // 计算最终视频总时长 (与 calculateTotalVideoDurationMillis 保持一致)
         double finalVideoDurationSec = calculateTotalVideoDurationMillis(numImages, options) / 1000.0;
-        // Ensure duration is positive and not zero
         if (finalVideoDurationSec <= 0 && numImages > 0) {
-            finalVideoDurationSec = imageDurationSec > 0 ? imageDurationSec : 1.0; // Fallback
+            finalVideoDurationSec = imageDurationSec > 0 ? imageDurationSec : 1.0;
             Log.w(TAG, "Calculated final video duration was <= 0. Adjusting to " + String.format(Locale.US, "%.3f", finalVideoDurationSec) + "s.");
-        } else if (finalVideoDurationSec <= 0) { // No images case, fallback to a small duration
+        } else if (finalVideoDurationSec <= 0) {
             finalVideoDurationSec = 0.1;
         }
 
-        command.append("-c:v libx264 -preset ultrafast ") // 视频编码器和预设 (ultrafast 速度快，但文件大质量低，可按需调整)
-                .append("-profile:v baseline -level 3.0 ") // H.264 配置文件和级别，增强兼容性
-                .append("-r ").append(options.getFrameRate()).append(" ") // 帧率
-                .append("-b:v ").append(options.getVideoBitrate()).append(" ") // 视频码率 (bytes per second)
-                .append("-c:a aac "); // 音频编码器 (AAC 是标准选择)
+        command.append("-c:v libx264 -preset ultrafast ")
+                .append("-profile:v baseline -level 3.0 ")
+                .append("-r ").append(options.getFrameRate()).append(" ")
+                .append("-b:v ").append(options.getVideoBitrate()).append(" ")
+                .append("-c:a aac ");
 
         if (hasMusicInput) {
-            command.append("-b:a ").append(options.getAudioBitrate()).append(" "); // 使用指定的音频码率 (bytes per second)
+            command.append("-b:a ").append(options.getAudioBitrate()).append(" ");
         } else {
-            command.append("-b:a 128000 "); // 默认音频码率 (bytes per second) for silent track
+            command.append("-b:a 128000 ");
         }
 
-        command.append("-pix_fmt yuv420p ") // 像素格式 (yuv420p 是 H.264 广泛支持的格式)
-                .append("-t ").append(String.format(Locale.US, "%.3f", finalVideoDurationSec)).append(" "); // 使用 -t 指定总时长 (seconds)
+        command.append("-pix_fmt yuv420p ")
+                .append("-t ").append(String.format(Locale.US, "%.3f", finalVideoDurationSec)).append(" ");
 
-
-        command.append("-y \"").append(options.getOutputFilePath()).append("\""); // 输出文件路径加双引号，-y 覆盖现有文件
+        command.append("-y \"").append(options.getOutputFilePath()).append("\"");
 
         return command.toString();
     }
