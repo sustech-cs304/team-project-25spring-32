@@ -308,26 +308,21 @@ public class FFmpegVideoCreationService implements VideoCreationService {
 
         command.append("-filter_complex \"");
 
-        // 2a. 处理每张图片：缩放、填充、添加 Alpha 通道 (即使原图没有，为 xfade 准备)
+        // 2a. 处理每张图片：缩放并填充到目标分辨率
         for (int i = 0; i < numImages; i++) {
-            // [i:v] selects video stream from input i
-            // setpts=PTS-STARTPTS: reset timestamps for each input
-            // scale=w:h:force_original_aspect_ratio=decrease: scale image while maintaining aspect ratio, fit within wxh
-            // eval=frame: evaluate scale expression for each frame (needed with force_original_aspect_ratio)
-            // split: create copies for pad and alpha processing
-            command.append(String.format(Locale.US, "[%d:v]setpts=PTS-STARTPTS,scale=%s:%s:force_original_aspect_ratio=decrease:eval=frame,split[base%d][alpha%d];",
-                    i, targetWidth, targetHeight, i, i));
-            // [base%d]pad=w:h:-1:-1:color=black: pad the scaled image to target wxh, centering it with black borders
-            command.append(String.format(Locale.US, "[base%d]pad=%s:%s:-1:-1:color=black[scaled%d];",
-                    i, targetWidth, targetHeight, i));
-            // [alpha%d]alphaextract: extract the alpha channel (produces a grayscale representation of alpha)
-            command.append(String.format(Locale.US, "[alpha%d]alphaextract[a%d];", i, i));
-            // [scaled%d][a%d]alphamerge: merge the video stream with the extracted alpha channel (creates a stream with alpha)
-            command.append(String.format(Locale.US, "[scaled%d][a%d]alphamerge[v%d]", i, i, i)); // Output stream [vX] after processing
+            // [i:v] 选择输入i的视频流
+            // setpts=PTS-STARTPTS: 重置每个输入的时间戳
+            // scale=w:h:force_original_aspect_ratio=decrease: 按比例缩放图片，使其适应wxh内
+            // eval=frame: 对每一帧评估缩放表达式（force_original_aspect_ratio需要）
+            command.append(String.format(Locale.US, "[%d:v]setpts=PTS-STARTPTS,scale=%s:%s:force_original_aspect_ratio=decrease:eval=frame,",
+                    i, targetWidth, targetHeight));
+            // pad=w:h:-1:-1:color=black: 将缩放后的图片填充到目标wxh，居中并添加黑色边框
+            command.append(String.format(Locale.US, "pad=%s:%s:-1:-1:color=black[v%d]", // 直接输出到 [vX]
+                    targetWidth, targetHeight, i));
 
-            // *** BUG FIX 1: Add semicolon BETWEEN image processing chains ***
+            // 在图片处理链之间添加分号
             if (i < numImages - 1) {
-                command.append(";"); // Add semicolon if this is NOT the last image processing chain
+                command.append(";");
             }
         }
 

@@ -160,11 +160,23 @@ public class VideoCreationOptions {
     // TransitionType 枚举 (保持不变，或者根据你的实际定义)
     // 确保这个枚举类是 public 或者嵌套在 VideoCreationOptions 内部，并且有 getFfmpegFilterName() 方法
     public enum TransitionType {
-        FADE("fade"), // 溶解
-        CROSSFADE("xfade=transition=fade"), // 交叉溶解 (更标准，xfade是滤镜名)
-        PUSH_LEFT("xfade=transition=slideleft"), // 向左推入
-        // 根据你的 FFmpegKit 支持添加其他过渡类型
-        ;
+        FADE("fade"), // 淡入淡出
+        SLIDE_LEFT("slideleft"), // 向左滑动
+        SLIDE_RIGHT("slideright"), // 向右滑动
+        SLIDE_UP("slideup"), // 向上滑动
+        SLIDE_DOWN("slidedown"), // 向下滑动
+        WIPE_LEFT("wipeleft"), // 向左擦除
+        WIPE_RIGHT("wiperight"), // 向右擦除
+        ZOOM_IN_FADE("zoompan"), // 放大并淡入（简化为xfade的某种变体或特定FFmpeg滤镜）
+        // 可以根据 FFmpeg xfade 支持添加更多：https://ffmpeg.org/ffmpeg-filters.html#xfade
+        // 例如: distance, dissolve, pixelize, radial, rectcrop, slidedown, slideleft, slideright, slideup,
+        // wipedown, wipeleft, wiperight, wipeup, circlecrop, circletop, circleclose, horzclose,
+        // horzopen, vertclose, vertopen, diagbl, diagbr, diagtl, diagtr, hlslice, hrslice,vuslice, vdslice
+        Distance("distance"),//渐渐远去
+        DISSOLVE("dissolve"),
+        PIXELIZE("pixelize"),
+        RANDOM("random"); // TODO:希望能支持多种不同的切换模式
+
 
         private final String ffmpegFilterName;
 
