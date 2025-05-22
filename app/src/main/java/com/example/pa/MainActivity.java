@@ -3,8 +3,13 @@ package com.example.pa;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -18,10 +23,18 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
+import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
+import com.example.pa.util.ai.ImageClassifier;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
     private AppBarConfiguration appBarConfiguration;
+    private FileRepository fileRepository;
+    private ImageClassifier classifier;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if (allGranted) {
+                        performInitialMediaScan();
                         Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "部分权限被拒绝", Toast.LENGTH_SHORT).show();
@@ -105,20 +121,122 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        fileRepository=MyApplication.getInstance().getFileRepository();
+
         // 首次启动时请求权限
         requestNecessaryPermissions();
         // 测试数据库操作 (仅用于开发环境)
 
-//        testDatabaseOperations();
+
+        testDatabaseOperations();
+//        fileRepository=MyApplication.getInstance().getFileRepository();
+        try {
+            // 初始化分类器
+            classifier = new ImageClassifier(this);
+
+            // 直接加载固定路径图片并分类
+            classifyImage();
+        } catch (IOException e) {
+            Log.e("ImageClassifier", "初始化失败", e);
+        }
+
 
 
         // 设置底部导航
         //setupBottomNavigation();
     }
+    private void classifyImage() {
+        String TAG = "ImageClassifier";
+        assert fileRepository!=null;
+        Uri IMAGE_URI=fileRepository.getAlbumImages("NewAlbum").get(0);
+        new Thread(() -> {
+            try {
+                // 1. 从URI加载原始图片（确保使用ARGB_8888配置）
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888; // 关键设置
+
+                InputStream inputStream = getContentResolver().openInputStream(IMAGE_URI);
+                Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream, null, options);
+                if (inputStream != null) inputStream.close();
+
+                if (originalBitmap == null) {
+                    throw new IOException("Failed to decode bitmap");
+                }
+
+                // 2. 转换为模型需要的尺寸（保持ARGB_8888格式）
+                int modelInputSize = 224; // MobileNet通常需要224x224
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                        originalBitmap,
+                        modelInputSize,
+                        modelInputSize,
+                        true
+                );
+
+                // 3. 确保Alpha通道存在（虽然模型只用RGB，但TensorImage要求ARGB格式）
+                if (scaledBitmap.getConfig() != Bitmap.Config.ARGB_8888) {
+                    Bitmap argbBitmap = scaledBitmap.copy(Bitmap.Config.ARGB_8888, false);
+                    scaledBitmap.recycle(); // 回收临时bitmap
+                    scaledBitmap = argbBitmap;
+                }
+                // 确保 scaledBitmap 是 RGB_565 或使用 copy 去掉 alpha
+                //保存bitmap为图片并存储
+                String path = fileRepository.saveBitmapToFile(scaledBitmap, "test_image.jpg");
+                Log.d(TAG, "保存图片路径: " + path);
+
+
+
+                // 4. 进行分类
+                Log.d("scan",scaledBitmap.toString());
+                String result = classifier.classify(scaledBitmap);
+
+                // 5. 输出结果
+                Log.d(TAG, "分类结果: " + result);
+
+                // 6. 更新UI（显示原始图片）
+
+                // 7. 回收不再需要的bitmap
+                scaledBitmap.recycle();
+
+            } catch (Exception e) {
+                Log.e(TAG, "分类出错", e);
+                runOnUiThread(() ->
+                        Toast.makeText(this, "分类出错: " + e.getMessage(), Toast.LENGTH_LONG).show()
+                );
+            }
+        }).start();
+    }
+
+    private void performInitialMediaScan() {
+        Log.d("MediaScan", "开始初始化扫描...");
+        try {
+            File dcimDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DCIM
+            );
+            Log.d("MediaScan", "扫描路径: " + dcimDir.getAbsolutePath());
+            Log.d("MediaScan", "路径是否存在: " + dcimDir.exists());
+
+            fileRepository.triggerMediaScanForDirectory(dcimDir, new FileRepository.MediaScanCallback() {
+                @Override
+                public void onScanCompleted(Uri uri) {
+                    Log.i("MediaScan", "扫描完成: " + uri);
+                }
+
+                @Override
+                public void onScanFailed(String error) {
+                    Log.e("MediaScan", "扫描失败: " + error);
+                }
+            });
+        } catch (SecurityException e) {
+            Log.e("MediaScan", "权限异常: " + e.getMessage());
+        } catch (Exception e) {
+            Log.e("MediaScan", "未知异常: " + e.toString());
+        }
+    }
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+        setupBottomNavigation();
     }
 
     /**
@@ -160,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
             requestPermissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
         } else {
             Log.d("Permission", "所有权限已授予");
+            performInitialMediaScan();
         }
     }
 

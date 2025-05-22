@@ -14,6 +14,7 @@ import com.example.pa.data.Daos.SearchHistoryDao;
 import com.example.pa.data.Daos.TagDao;
 import com.example.pa.data.Daos.UserDao;
 import com.example.pa.data.DatabaseHelper;
+import com.example.pa.data.FileRepository;
 import com.example.pa.data.MainRepository;
 
 public class MyApplication extends Application {
@@ -21,6 +22,7 @@ public class MyApplication extends Application {
     private DatabaseHelper databaseHelper;//这里是数据库帮助类的实例，有个警告，
     // 但是getInstance方法之后是直接执行了onCreate
     private MainRepository mainRepository;
+    private FileRepository fileRepository;
     private UserDao userDao;
     private PhotoDao photoDao;
     private AlbumDao albumDao;
@@ -58,6 +60,8 @@ public class MyApplication extends Application {
                 memoryVideoDao,
                 memoryVideoPhotoDao
         );
+
+        fileRepository = new FileRepository(this);
 
         Log.d("MyApplication", "Application and DAOs initialized");
     }
@@ -118,4 +122,6 @@ public class MyApplication extends Application {
     public MainRepository getMainRepository() {
         return mainRepository;
     }
+
+    public FileRepository getFileRepository() {return fileRepository;}
 }

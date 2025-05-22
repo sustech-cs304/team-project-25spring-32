@@ -25,7 +25,7 @@ public class PhotoinAlbumViewModel extends ViewModel {
 
     public PhotoinAlbumViewModel() {
         // 初始化每个相册的默认图片
-        this.fileRepository = new FileRepository(MyApplication.getInstance());
+        this.fileRepository = MyApplication.getInstance().getFileRepository();
     }
 
     // 暴露给Fragment的LiveData
