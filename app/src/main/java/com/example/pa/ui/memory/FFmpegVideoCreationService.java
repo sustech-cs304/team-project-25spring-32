@@ -12,7 +12,7 @@ import com.arthenica.ffmpegkit.ReturnCode;
 import com.arthenica.ffmpegkit.SessionState;
 import com.arthenica.ffmpegkit.Statistics;
 import com.arthenica.ffmpegkit.StatisticsCallback;
-import com.example.pa.util.UriToPathHelper; // 确保导入 UriToPathHelper
+import com.example.pa.util.UriToPathHelper;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,11 +22,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * AI-generated-content
+ * tool: Gemini
+ * version: 2.5 Pro
+ * usage: I want Gemini to give me the structure about how to use the library Ffmpeg to generate video from pictures
+ * I slightly adapt the generated code by modifying the implement details
+ */
+
 public class FFmpegVideoCreationService implements VideoCreationService {
 
     private static final String TAG = "FFmpegVideoService";
     private final Context context;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(); // 在后台线程执行 FFmpeg
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(); // 在后台线程执行 Ffmpeg
     private FFmpegSession currentSession;
     // 用于跟踪临时文件以便清理。主要跟踪由 UriToPathHelper 创建的临时输入文件。
     private final List<String> tempFilePaths = new ArrayList<>();
@@ -38,19 +46,12 @@ public class FFmpegVideoCreationService implements VideoCreationService {
 
     @Override
     public void createVideo(@NonNull VideoCreationOptions options, @NonNull VideoCreationCallback callback) {
-        // === 增加对 Options 参数的检查 ===
-        if (options == null) {
-            Log.e(TAG, "Video creation options are null.");
-            callback.onFailure("视频创建选项为空。");
-            return;
-        }
+        // Options 参数检查
         if (options.getImageUris() == null || options.getImageUris().isEmpty()) {
             Log.e(TAG, "Image URIs list is null or empty in options.");
             callback.onFailure("没有提供图片，无法创建视频。");
             return;
         }
-        // === 检查结束 ===
-
 
         // 确保上一个任务（如果有）已取消或完成
         if (currentSession != null) {
@@ -61,29 +62,26 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                 callback.onFailure("另一个视频创建任务正在进行中。");
                 return;
             }
-            // 如果会话已完成、失败或取消，则可以安全地认为它已结束，可以开始新任务
         }
 
         // 清理之前的临时输入文件 (上次任务遗留的)
         clearTemporaryFiles();
         tempFilePaths.clear(); // 清空列表，准备添加本次任务的临时输入文件
 
+        // 在后台线程执行 Ffmpeg,避免阻塞
         executorService.submit(() -> {
+            // 使用 Ffmpeg生成视频需要使用路径
+            // === 遍历 Uri转化为路径 ===
             try {
                 List<String> imageFilePaths = new ArrayList<>();
-                // === 遍历并处理图片 URI ===
                 for (int i = 0; i < options.getImageUris().size(); i++) {
                     Uri uri = options.getImageUris().get(i);
                     String path = UriToPathHelper.getPathFromUri(context, uri); // UriToPathHelper 负责将 URI 转为路径，并可能创建临时文件
 
                     if (path != null) {
                         imageFilePaths.add(path);
-                        // 假设 UriToPathHelper 创建了临时文件并返回其路径，则添加到清理列表
-                        // UriToPathHelper 应返回一个明确的标记或在特定目录下创建临时文件
-                        // 这里的逻辑依赖于 clearTemporaryFiles 中的判断 (目录和前缀) 来安全清理
                         Log.d(TAG, "Resolved image path for input " + i + ": " + path);
                         tempFilePaths.add(path);
-
                     } else {
                         Log.e(TAG, "Failed to get path for image URI at index " + i + ": " + uri);
                         callback.onFailure("无法处理其中一张图片 (索引 " + i + "): " + uri.toString());
@@ -92,7 +90,6 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                     }
                 }
 
-                // 理论上这里的 imageFilePaths 不会是空的，因为前面已经检查 options.getImageUris() 不为空
                 if (imageFilePaths.isEmpty()) {
                     // Redundant check, but harmless
                     Log.e(TAG, "Image file paths list is unexpectedly empty after processing URIs.");
@@ -100,29 +97,24 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                     clearTemporaryFiles();
                     return;
                 }
-                // === 图片 URI 处理结束 ===
-
 
                 // === 处理音乐 URI ===
                 String musicFilePath = null;
                 if (options.getMusicUri() != null) {
                     musicFilePath = UriToPathHelper.getPathFromUri(context, options.getMusicUri());
                     if (musicFilePath == null) {
-                        Log.w(TAG, "无法获取音乐文件路径: " + options.getMusicUri() + ". 将继续 بدون 背景音乐。");
-                        // 设计选择：无法获取音乐路径时继续 without 音乐
+                        // 没有音乐则静音
+                        Log.w(TAG, "无法获取音乐文件路径: " + options.getMusicUri() + ". 无背景音乐。");
                     } else {
                         Log.d(TAG, "Resolved music path: " + musicFilePath);
                         // 假设 UriToPathHelper 创建了临时文件并返回其路径，则添加到清理列表
                         tempFilePaths.add(musicFilePath);
                     }
                 }
-                // === 音乐 URI 处理结束 ===
 
                 // === 构建 FFmpeg 命令 ===
                 String ffmpegCommand = buildFFmpegCommand(imageFilePaths, musicFilePath, options);
                 Log.d(TAG, "Executing FFmpeg command: " + ffmpegCommand);
-                // === FFmpeg 命令构建结束 ===
-
 
                 final AtomicLong totalDuration = new AtomicLong(calculateTotalVideoDurationMillis(imageFilePaths.size(), options));
 
@@ -130,7 +122,7 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                 currentSession = FFmpegKit.executeAsync(ffmpegCommand, session -> {
                     ReturnCode returnCode = session.getReturnCode();
 
-                    // === 无论成功或失败，先打印 FFmpeg 自身的详细输出和状态，这是最重要的调试信息 ===
+                    // === Debug: 打印 FFmpeg 自身的详细输出和状态 ===
                     Log.d(TAG, "--- FFmpeg process finished ---");
                     Log.d(TAG, "Session ID: " + session.getSessionId());
                     Log.d(TAG, "State: " + session.getState());
@@ -141,7 +133,7 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                     Log.d(TAG, "FFmpeg Output Log:\n" + session.getOutput());
                     Log.d(TAG, "-----------------------------");
 
-
+                    // 返回值
                     if (ReturnCode.isSuccess(returnCode)) {
                         Log.i(TAG, "FFmpeg command execution successful. Output: " + options.getOutputFilePath());
                         // 任务成功，调用外部回调
@@ -153,23 +145,17 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                         if (session.getFailStackTrace() != null && !session.getFailStackTrace().isEmpty()) {
                             failureMessage += "\nDetail: " + session.getFailStackTrace().trim(); // 添加精简的失败堆栈
                         }
-                        // FFmpeg 自身的输出日志已经在上面打印了，这里不再重复添加到 message String 中，避免过长
 
                         Log.e(TAG, "Video creation failed. " + failureMessage);
                         // 调用外部回调
                         callback.onFailure(failureMessage);
                     }
-                    // === FFmpeg 执行结束处理 ===
 
                     // 清理本次任务创建的临时输入文件 (Service 负责清理输入，Fragment 负责清理输出)
                     clearTemporaryFiles();
                     currentSession = null; // 重置会话状态
                 }, log -> {
-                    // === 实时日志回调 ===
-                    // FFmpeg 的实时日志输出，非常详细。可以用于更新更精细的进度或显示详细过程。
-                    // 使用 VERBOSE 级别，调试时方便开启，发布时自动忽略大部分日志。
-                    // Log.v(TAG, "FFmpeg log: " + log.getMessage());
-                    // === 实时日志回调结束 ===
+                    Log.v(TAG, "FFmpeg log: " + log.getMessage());
                 }, statistics -> {
                     // === 进度统计回调 ===
                     // FFmpeg 进度统计，用于更新进度条等 UI。
@@ -177,10 +163,8 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                         float progress = (float) statistics.getTime() / totalDuration.get();
                         callback.onProgress(Math.min(1.0f, progress)); // 确保不超过1.0
                     }
-                    // Log.v(TAG, "FFmpeg statistics: time=" + statistics.getTime() + ", speed=" + statistics.getSpeed());
-                    // === 进度统计回调结束 ===
+                    Log.v(TAG, "FFmpeg statistics: time=" + statistics.getTime() + ", speed=" + statistics.getSpeed());
                 });
-                // === FFmpeg 命令执行结束 ===
 
             } catch (Exception e) {
                 // === 捕获 FFmpegKit.executeAsync 调用之前或其本身抛出的异常 ===
@@ -197,41 +181,36 @@ public class FFmpegVideoCreationService implements VideoCreationService {
         long imageDisplayMs = options.getImageDisplayDurationMs();
         long transitionMs = options.getTransitionDurationMs();
 
-        // 与 buildFFmpegCommand 中调整 imageDurationSec 的逻辑保持一致
-        // 如果图片显示时间太短，确保它至少比过渡长一点点，避免FFmpeg问题
-        if (imageDisplayMs <= transitionMs && numImages > 1) {
-            imageDisplayMs = transitionMs + 100; // 至少多0.1秒
+        // 如果图片显示时间太短
+        if (imageDisplayMs <= 2 * transitionMs && numImages > 1) {
+            imageDisplayMs = 2 * transitionMs + 100; // 前后切换的时间 + 0.1秒
             Log.w(TAG, "Image display duration (" + options.getImageDisplayDurationMs() + "ms) <= transition duration (" + options.getTransitionDurationMs() + "ms). Adjusted image display for calculation to " + imageDisplayMs + "ms.");
-        } else if (imageDisplayMs <= 0) { // Ensure image display is positive
-            imageDisplayMs = 1000; // Default to 1 second if <= 0
+        } else if (imageDisplayMs <= 0) {
+            imageDisplayMs = 3000; // 默认3秒
             Log.w(TAG, "Image display duration was <= 0. Defaulting to " + imageDisplayMs + "ms.");
         }
-        if (transitionMs < 0) { // Ensure transition is not negative
-            transitionMs = 0; // Default to 0 transition
+        if (transitionMs < 0) {
+            transitionMs = 0;
             Log.w(TAG, "Transition duration was negative. Defaulting to " + transitionMs + "ms.");
         }
 
 
         long totalDurationMs;
-        if (numImages > 1) {
-            // 总时长 = 第一张图片的完整显示时长 + (图片数量 - 1) * (后续每张图片的有效贡献时长)
-            // 后续每张图片的有效贡献时长 = 图片显示时长 - 过渡时长
+        if (numImages == 1) {
+            // 只有一张图片
+            totalDurationMs = imageDisplayMs;
+        } else {
             long effectiveSubsequentDuration = imageDisplayMs - transitionMs;
             // Ensure effective subsequent duration is not negative (already handled by imageDisplayMs adjustment above, but double check)
             if (effectiveSubsequentDuration <= 0)
                 effectiveSubsequentDuration = 1; // Ensure at least 1ms contribution
-
             totalDurationMs = imageDisplayMs + (numImages - 1) * effectiveSubsequentDuration;
-        } else { // 只有一张图片
-            totalDurationMs = imageDisplayMs;
         }
 
         // 最终检查，确保总时长为正且不为 0
-        if (totalDurationMs <= 0 && numImages > 0) {
+        if (totalDurationMs <= 0) {
             totalDurationMs = imageDisplayMs > 0 ? imageDisplayMs : 1000; // Fallback
             Log.w(TAG, "Calculated total duration was <= 0. Adjusting to " + totalDurationMs + "ms.");
-        } else if (totalDurationMs <= 0) { // No images case already handled, but safeguard
-            totalDurationMs = 100; // At least 0.1 second for empty case
         }
 
         return totalDurationMs;
@@ -242,7 +221,7 @@ public class FFmpegVideoCreationService implements VideoCreationService {
         StringBuilder command = new StringBuilder();
         int numImages = imagePaths.size();
 
-        // 1. 计算调整后的时长 (确保图片显示时间足够进行过渡)
+        // 计算调整后的时长 (确保图片显示时间足够进行过渡)
         double imageDurationSec = options.getImageDisplayDurationMs() / 1000.0;
         double transitionDurationSec = options.getTransitionDurationMs() / 1000.0;
 
@@ -325,14 +304,9 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                 String outputStreamLabel = (i == numImages - 2) ? "final_video" : "vf" + i;
 
                 // 计算当前 xfade 的偏移量
-                // 对于第一个 xfade (v0到v1)，偏移量是第一张图片的显示时间减去过渡时间
-                // 对于后续的 xfade，偏移量是之前所有图片的有效显示时间之和，再减去过渡时间
                 if (i == 0) {
-                    // 第一个过渡开始在第一张图片结束前 transitionDurationSec 的位置
                     accumulatedOffset = imageDurationSec - transitionDurationSec;
                 } else {
-                    // 每个后续过渡开始于前一个过渡结束后的 imageDurationSec - transitionDurationSec
-                    // 这是基于 prevStream 的时间轴累积的
                     accumulatedOffset += (imageDurationSec - transitionDurationSec);
                 }
 
@@ -346,7 +320,7 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                         currentStream,
                         options.getTransitionType().getFfmpegFilterName(),
                         transitionDurationSec,
-                        accumulatedOffset, // <<< 使用累积的动态偏移量
+                        accumulatedOffset, // 使用累积的动态偏移量
                         outputStreamLabel
                 ));
 
@@ -434,9 +408,9 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                 }
             } else {
                 // 如果文件不存在，或者不在缓存目录/不是temp_开头，则不删除，可能是原始文件或不应清理
-                // Log.d(TAG, "Skipping cleanup for file (not temp or not in cache): " + path);
+                 Log.d(TAG, "Skipping cleanup for file (not temp or not in cache): " + path);
             }
         }
-        // tempFilePaths.clear(); // List is cleared at the beginning of createVideo
+         tempFilePaths.clear(); // List is cleared at the beginning of createVideo
     }
 }
