@@ -32,7 +32,12 @@ public class MemoryDetailViewModel extends ViewModel {
 //        sampleUris.add(Uri.parse("content://media/external/images/media/1"));
 //        sampleUris.add(Uri.parse("content://media/external/images/media/2"));
 //        sampleUris.add(Uri.parse("content://media/external/images/media/3"));
+
         List<Uri> sampleUris = fileRepository.getAlbumImages("所有照片");
+        int numImagesToTest = 3; // 或者更少，比如 2
+        if (sampleUris != null && sampleUris.size() > numImagesToTest) {
+            sampleUris = sampleUris.subList(0, numImagesToTest);
+        }
         photoUris.setValue(sampleUris);
     }
 

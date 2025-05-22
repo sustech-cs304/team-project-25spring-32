@@ -38,4 +38,6 @@
     <string name="menu_settings">设置</string>
     <string name="menu_help">帮助中心</string>
     <string name="menu_logout">退出登录</string>
+
+    <string name="playback_speed">播放</string>
 </resources>

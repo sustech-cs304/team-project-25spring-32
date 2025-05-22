@@ -2,6 +2,7 @@ package com.example.pa;
 
 import android.app.Application;
 import android.util.Log;
+import android.content.Context;
 
 import com.example.pa.data.Daos.AlbumDao;
 import com.example.pa.data.Daos.AlbumPhotoDao;
@@ -30,9 +31,17 @@ public class MyApplication extends Application {
     private MemoryVideoDao memoryVideoDao;
     private MemoryVideoPhotoDao memoryVideoPhotoDao;
 
+    private static Context appContext;
+
+
+    public static Context getAppContext() {
+        return appContext;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
+        appContext = getApplicationContext();
         instance = this;
 
         // 初始化数据库帮助类
@@ -40,12 +49,12 @@ public class MyApplication extends Application {
 
         // 初始化所有DAO
         initializeDaos();
-        mainRepository= new MainRepository(
+        mainRepository = new MainRepository(
                 userDao,
                 albumDao,
                 albumPhotoDao,
-                photoDao,photoTagDao,
-                tagDao,searchHistoryDao,
+                photoDao, photoTagDao,
+                tagDao, searchHistoryDao,
                 memoryVideoDao,
                 memoryVideoPhotoDao
         );

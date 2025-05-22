@@ -38,4 +38,6 @@
     <string name="menu_settings">設定</string>
     <string name="menu_help">ヘルプセンター</string>
     <string name="menu_logout">ログアウト</string>
+
+    <string name="playback_speed">再生</string>
 </resources>
