@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.pa.MyApplication;
-import com.example.pa.data.model.Photo;
+import com.example.pa.data.Daos.PhotoDao.Photo;
 import com.example.pa.data.FileRepository;
 
 import java.util.ArrayList;

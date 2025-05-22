@@ -4,33 +4,29 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.pa.data.Daos.MemoryVideoDao.MemoryVideo;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MemoryViewModel extends ViewModel {
-    private final MutableLiveData<MemoryData> memoryData = new MutableLiveData<>();
+    private final MutableLiveData<List<MemoryVideo>> memoryVideos = new MutableLiveData<>();
 
     public MemoryViewModel() {
-        // Initialize with sample data
-        MemoryData data = new MemoryData(
-                "Memory Tracker",
-                "Track and optimize your device memory usage",
-                75 // percentage used
-        );
-        memoryData.setValue(data);
+        List<MemoryVideo> sampleList = new ArrayList<>();
+        sampleList.add(new MemoryVideo(
+                1, 1001, "毕业纪念册", "回忆", "2023/06/20", "", "" // 可加入封面URL字段
+        ));
+        sampleList.add(new MemoryVideo(
+                2, 1001, "旅行日记", "自然", "2024/02/15", "", ""
+        ));
+        sampleList.add(new MemoryVideo(
+                3, 1001, "家庭聚会", "温馨", "2024/12/01", "", ""
+        ));
+        memoryVideos.setValue(sampleList);
     }
 
-    public LiveData<MemoryData> getMemoryData() {
-        return memoryData;
-    }
-
-    // Data holder class
-    public static class MemoryData {
-        public final String title;
-        public final String description;
-        public final int usagePercentage;
-
-        public MemoryData(String title, String description, int usagePercentage) {
-            this.title = title;
-            this.description = description;
-            this.usagePercentage = usagePercentage;
-        }
+    public LiveData<List<MemoryVideo>> getMemoryVideos() {
+        return memoryVideos;
     }
 }

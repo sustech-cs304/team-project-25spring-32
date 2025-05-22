@@ -121,6 +121,7 @@
                     android:textColor="@android:color/white"
                     android:text="@string/rotate"/>
 
+
                 <Button
                     android:id="@+id/btnBrightness"
                     style="?android:attr/buttonBarButtonStyle"
@@ -144,106 +145,7 @@
                     android:gravity="center"
                     android:textColor="@android:color/white"
                     android:text="@string/contrast"/>
-
-                <Button
-                    android:id="@+id/btnCrop"
-                    style="?android:attr/buttonBarButtonStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/crop"
-                    android:textColor="#FFFFFF"/>
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
-
-    <!-- 在原布局末尾添加裁剪覆盖层及相关按钮 -->
-    <FrameLayout
-        android:id="@+id/cropOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/btnSave"
-        app:layout_constraintBottom_toTopOf="@id/editToolsLayout">
-
-        <com.example.pa.ui.photo.CropView
-            android:id="@+id/cropView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </FrameLayout>
-
-    <!-- 裁剪控制面板 -->
-    <LinearLayout
-        android:id="@+id/cropControlsLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="#80000000"
-        android:padding="16dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/editToolsLayout">
-
-        <!-- 比例选择按钮 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btnCropFree"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/free"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btnCrop11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratio_1_1"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btnCrop43"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratio_4_3"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btnCrop169"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratio_16_9"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
-
-        <!-- 确认/取消按钮 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
-
-            <Button
-                android:id="@+id/btnCropCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/cancel"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="16dp"/>
-
-            <Button
-                android:id="@+id/btnCropApply"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/apply"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
-    </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

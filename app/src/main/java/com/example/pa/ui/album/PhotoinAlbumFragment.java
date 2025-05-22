@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pa.R;
 import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
-import com.example.pa.data.model.Photo;
+import com.example.pa.data.Daos.PhotoDao.Photo;
 
 import java.util.ArrayList;
 
@@ -91,12 +91,11 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
 //        }
 //    }
     @Override
-    public void onPhotoClick(Uri imageItem) {
+    public void onPhotoClick(Uri imageUri) {
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            String uriString = imageItem.toString();
-            intent.putExtra("image_path", uriString);
+            intent.putExtra("Uri", imageUri);
             startActivity(intent);
 
             // 添加Activity过渡动画

@@ -3,11 +3,11 @@ package com.example.pa.ui.photo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,10 +15,9 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
-import com.example.pa.data.model.Photo;
+import com.example.pa.data.Daos.PhotoDao.Photo;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClickListener {
 
@@ -40,26 +39,30 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
 
         // 获取 ViewModel 实例，并观察图片列表的 LiveData
         photoViewModel = new ViewModelProvider(this).get(PhotoViewModel.class);
-        photoViewModel.initPhotoDao(requireContext());
-        photoViewModel.getImageList().observe(getViewLifecycleOwner(), images -> {
+//        photoViewModel.initPhotoDao(requireContext());
+        photoViewModel.initFileRepository(requireContext());
+        photoViewModel.getURiList().observe(getViewLifecycleOwner(), images -> {
             // 当数据更新时，刷新适配器的数据
             photoAdapter.updateData(images);
         });
 
-        // 从数据库加载数据
-        photoViewModel.loadPhotosFromDatabase();
 
+        // 从数据库加载数据
+//        photoViewModel.loadPhotosFromDatabase();
+
+        // 直接从文件系统里面读取 DCIM/Camera文件夹下的所有照片
+        photoViewModel.loadURIFromRepository();
 
         return root;
     }
 
     // 实现点击事件回调，处理图片点击后跳转到大图展示页面
     @Override
-    public void onPhotoClick(Photo photo) {
+    public void onPhotoClick(Uri uri) {
         Context context = getContext();
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
-            intent.putExtra("image_path", photo.filePath);
+            intent.putExtra("Uri", uri);
 
             startActivity(intent);
 

@@ -7,18 +7,8 @@
     <string name="title_social">Social</string>
     <string name="download">download</string>
     <string name="share">share</string>
-    <string name="delete">delete</string>
-    <string name="deleted">deleted</string>
     <string name="preview">preview</string>
     <string name="edit">Edit</string>
-    <string name="crop">Crop</string>
-    <string name="free">Free</string>
-    <string name="apply">Aplly</string>
-
-    <string name="ratio_1_1">1:1</string>
-    <string name="ratio_4_3">4:3</string>
-    <string name="ratio_16_9">16:9</string>
-
 
     <string name="title_photo_edit">Photo Edit</string>
     <string name="rotate">Rotate</string>
