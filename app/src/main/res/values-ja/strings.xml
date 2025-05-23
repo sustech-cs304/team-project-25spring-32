@@ -38,6 +38,8 @@
     <string name="menu_settings">設定</string>
     <string name="menu_help">ヘルプセンター</string>
     <string name="menu_logout">ログアウト</string>
+
+    <string name="playback_speed">再生</string>
     <string name="finish">終える</string>
     <string name="ChooseRequest">画像を選択してください</string>
     <string name="NoPhoto">このアルバムには写真がありません</string>

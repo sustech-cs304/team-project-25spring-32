@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         requestNecessaryPermissions();
         // 测试数据库操作 (仅用于开发环境)
 
+
         testDatabaseOperations();
 //        fileRepository=MyApplication.getInstance().getFileRepository();
         try {
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             Log.e("ImageClassifier", "初始化失败", e);
         }
+
 
 
         // 设置底部导航
@@ -234,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
-        setupBottomNavigation();
+        //setupBottomNavigation();
     }
 
     /**

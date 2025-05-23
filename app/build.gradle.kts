@@ -36,6 +36,14 @@ android {
 }
 
 dependencies {
+    //noinspection UseTomlInstead
+    implementation("com.arthenica:ffmpeg-kit-full-gpl:6.0-2.LTS")
+    implementation ("com.google.android.exoplayer:exoplayer-core:2.19.1")
+    implementation ("com.google.android.exoplayer:exoplayer-ui:2.19.1")
+    // 如果需要 dash, hls 等格式，添加对应的模块
+    implementation ("com.google.android.exoplayer:exoplayer-dash:2.19.1")
+    implementation ("com.google.android.exoplayer:exoplayer-hls:2.19.1")
+    implementation ("androidx.annotation:annotation:1.9.1")
     implementation(libs.glide)
     implementation (libs.flexbox)
     implementation(libs.room.common)
