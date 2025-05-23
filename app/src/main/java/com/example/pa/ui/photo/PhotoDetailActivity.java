@@ -71,6 +71,12 @@ public class PhotoDetailActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back); // 左上角返回键
         toolbar = findViewById(R.id.toolbar); // 底部工具栏
 
+        String imagePath = getIntent().getStringExtra("image_path");
+        Glide.with(this)
+                .load(imagePath)
+                .into(ivDetail);
+
+
         // 正确获取 Uri 对象
         Uri imageUri = getIntent().getParcelableExtra("Uri");
 
@@ -111,7 +117,6 @@ public class PhotoDetailActivity extends AppCompatActivity {
             if (imagePath != null) {
                 // 将文件路径转换为 Uri
                 File imageFile = new File(imagePath);
-                Uri imageUri = Uri.fromFile(imageFile);
 
                 // 调用 ViewModel 的上传方法
                 photoViewModel.uploadPhoto(imageUri, this);
