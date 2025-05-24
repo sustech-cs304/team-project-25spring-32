@@ -28,6 +28,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.example.pa.data.model.Photo;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
@@ -283,7 +285,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
-//        setupBottomNavigation();
+        //setupBottomNavigation();
     }
 
     /**
@@ -425,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         long photoId22 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
         long photoId23 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
 
-        PhotoDao.Photo fullPhoto = new PhotoDao.Photo(
+        Photo fullPhoto = new Photo(
                 0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
                 "https://gd-hbimg.huaban.com/758e7de9f82dc52f2c8840915a5acfa9458fa15c50d3e-Bv5Tcc_fw480webp",
                 new Date().toString(), "2023-01-01 12:00:00",
