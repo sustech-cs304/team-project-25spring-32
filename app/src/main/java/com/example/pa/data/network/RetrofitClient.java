@@ -21,7 +21,9 @@ public class RetrofitClient {
     private static final String BASE_URL = "http://172.18.36.66:8081/"; // 替换为您服务器的实际IP和端口
     private static RetrofitClient instance;
     private final Retrofit retrofit;
-    private final PhotoApiService photoApiService;
+
+    private PhotoApiService photoApiService;
+    private UserApiService userApiService;
 
     private RetrofitClient() {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -41,7 +43,7 @@ public class RetrofitClient {
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create()) // 添加RxJava支持
                 .build();
 
-        photoApiService = retrofit.create(PhotoApiService.class);
+        //photoApiService = retrofit.create(PhotoApiService.class);
     }
 
     public static synchronized RetrofitClient getInstance() {
@@ -51,8 +53,20 @@ public class RetrofitClient {
         return instance;
     }
 
+    // 获取PhotoApiService实例
     public PhotoApiService getPhotoApiService() {
+        if (photoApiService == null) {
+            photoApiService = retrofit.create(PhotoApiService.class);
+        }
         return photoApiService;
+    }
+
+    // 新增获取UserApiService实例的方法
+    public UserApiService getUserApiService() {
+        if (userApiService == null) {
+            userApiService = retrofit.create(UserApiService.class);
+        }
+        return userApiService;
     }
 
     public static String getBaseUrl() {
