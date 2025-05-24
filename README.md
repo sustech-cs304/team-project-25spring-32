@@ -23,8 +23,16 @@ Smart Album is a Python package that allows you to create and manage smart album
 5. **Sharing & Social**
 
    Users can share photos or albums with friends and family  within the app. Albums can be set to private or public, and collaborative albums can allow multiple users to contribute and view shared photos.
-## Technical requirements:
+## Requirements:
 
 **Operating Environment：Android**: 8.0+ (API 26+)
 
-**Development Language：Java+Kotlin**
+## Installation
+To install the Smart Album package, you can use gradle we provide: build.gradle.kts
+
+after building the project, you can find the Smart Album package in the `build/outputs/apk/debug` directory.
+
+we recommend you use Android Studio to open the project, which will help you manage dependencies and build configurations more easily.
+
+## Other Information
+For more details, you can see Quick Start Guide in the project.
