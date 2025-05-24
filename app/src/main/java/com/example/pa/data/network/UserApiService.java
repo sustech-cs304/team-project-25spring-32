@@ -64,5 +64,13 @@ public interface UserApiService {
             @Query("size") int size
     );
 
+    // 退出群组
+    @POST("groups/{groupId}/leave")
+    Call<GroupOperationResponse> leaveGroup(@Path("groupId") String groupId);
+
+    @POST("groups/{groupId}/leave")
+    Observable<GroupOperationResponse> leaveGroupRx(@Path("groupId") String groupId);
+
+
 
 }
