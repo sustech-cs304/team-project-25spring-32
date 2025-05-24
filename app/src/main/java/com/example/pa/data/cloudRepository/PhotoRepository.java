@@ -1,4 +1,4 @@
-package com.example.pa.data.repository;
+package com.example.pa.data.cloudRepository;
 
 import android.content.Context;
 import android.database.Cursor;
