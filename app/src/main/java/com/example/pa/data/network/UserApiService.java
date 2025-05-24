@@ -14,23 +14,44 @@ import retrofit2.Call;
 import retrofit2.http.*;
 
 public interface UserApiService {
+    /***
+     * 用户注册
+     * <p>
+     * 注册一个新用户
+     */
     @POST("user/register")
     Call<RegisterResponse> register(@Body RegisterRequest request);
 
     @POST("user/register")
     Observable<RegisterResponse> registerRx(@Body RegisterRequest request);
 
+    /***
+     * 获取用户信息
+     * <p>
+     * 登录并获取用户信息和token
+     */
     @GET("user/info")
     Call<UserInfoResponse> getUserInfo();
 
     @GET("user/info")
     Observable<UserInfoResponse> getUserInfoRx();
 
+    /***
+     * 用户信息更新
+     * <p>
+     *
+     */
     @PUT("user/info")
     Call<UpdateUserResponse> updateUserInfo(@Body UpdateUserRequest request);
 
     @PUT("user/info")
     Observable<UpdateUserResponse> updateUserInfoRx(@Body UpdateUserRequest request);
+
+    /***
+     * 加入群组
+     * <p>
+     *
+     */
 
     @POST("groups/{groupId}/join")
     Call<GroupOperationResponse> joinGroup(
