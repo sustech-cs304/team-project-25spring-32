@@ -53,7 +53,7 @@
     <string name="finish">Finish</string>
     <string name="ChooseRequest">Please choose photos</string>
     <string name="NoPhoto">There is no photo in the album</string>
-    <string name="menu_login">login</string>
+    <string name="menu_login">Login</string>
     <string name="menu_groups">groups</string>
     <string name="menu_my_group">My group</string>
     <string name="menu_join_group">Join group</string>
