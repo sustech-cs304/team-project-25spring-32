@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
     private FileRepository fileRepository;
     private ImageClassifier classifier;
+    //检查是否处于登录状态
+    private boolean isLoggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
