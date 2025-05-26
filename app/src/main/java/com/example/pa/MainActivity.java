@@ -1,6 +1,8 @@
 package com.example.pa;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -9,7 +11,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -18,21 +19,20 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+//import com.example.pa.auth.LoginActivity;
 import com.example.pa.data.model.Photo;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.util.PasswordUtil;
 import com.example.pa.util.ai.ImageClassifier;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,13 +52,16 @@ public class MainActivity extends AppCompatActivity {
     private FileRepository fileRepository;
     private ImageClassifier classifier;
     //检查是否处于登录状态
-    private boolean isLoggedIn = false;
+    private boolean isLoggedIn = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        checkLoginStatus();
+        // 设置导航菜单
+        setupNavigationDrawerMenu();
 
         // 1. 设置Toolbar前确保没有默认ActionBar
         if (getSupportActionBar() != null) {
@@ -87,8 +90,8 @@ public class MainActivity extends AppCompatActivity {
         // 6. 绑定底部导航
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-        // 7. 绑定抽屉导航
-        NavigationUI.setupWithNavController(binding.navigationDrawer, navController);
+        // 7. 绑定抽屉导航 使用检查登录的形式，取消这种固定形式
+        //NavigationUI.setupWithNavController(binding.navigationDrawer, navController);
 
         // 8. 动态显示/隐藏底部导航
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -148,6 +151,65 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置底部导航
         //setupBottomNavigation();
+    }
+    private void checkLoginStatus() {
+        // 这里替换为实际的登录状态检查逻辑
+//        SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+//        isLoggedIn = prefs.getBoolean("is_logged_in", false);
+    }
+    private void setupNavigationDrawerMenu() {
+        // 根据登录状态加载不同的菜单
+        binding.navigationDrawer.getMenu().clear();
+        binding.navigationDrawer.inflateMenu(isLoggedIn ? R.menu.menu_nav_logged_in : R.menu.menu_nav_logged_out);
+
+        // 设置导航项点击监听器
+        binding.navigationDrawer.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_login) {
+                // 处理登录/注册
+                //startActivity(new Intent(this, LoginActivity.class));
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+
+            if (id == R.id.nav_logout) {
+                // 处理退出登录
+                performLogout();
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+
+            // 其他菜单项处理...
+            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
+
+            if (id == R.id.nav_settings) {
+                navController.navigate(R.id.navigation_memory);
+            }
+
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
+    }
+    private void performLogout() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.logout_title))
+                .setMessage(getString(R.string.logout_message))
+                .setPositiveButton(getString(R.string.positive_button), (dialog, which) -> {
+                    // 清除登录状态
+                    SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+                    prefs.edit().putBoolean("is_logged_in", false).apply();
+
+                    // 更新登录状态并刷新菜单
+                    isLoggedIn = false;
+                    setupNavigationDrawerMenu();
+
+                    // 可选：跳转到登录页面
+                    //startActivity(new Intent(this, LoginActivity.class));
+                    finish();
+                })
+                .setNegativeButton(getString(R.string.negative_button), null)
+                .show();
     }
     private void classifyImage() {
         String TAG = "ImageClassifier";
@@ -319,7 +381,8 @@ public class MainActivity extends AppCompatActivity {
             Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
             if (cursor.moveToFirst()) {
                 do {
-                    Log.d("testSEARCH", "Album name: " + cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
+                    Log.d("testSEARCH", "Album name: " +
+                            cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
                 } while (cursor.moveToNext());
                 cursor.close();
             }
@@ -328,7 +391,8 @@ public class MainActivity extends AppCompatActivity {
             Cursor cursor2 = app.getTagDao().getRandomTags(3);
             if (cursor2.moveToFirst()) {
                 do {
-                    Log.d("testTAG", "Tag name: " + cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
+                    Log.d("testTAG", "Tag name: " +
+                            cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
                 } while (cursor2.moveToNext());
                 cursor2.close();
             }
@@ -454,7 +518,8 @@ public class MainActivity extends AppCompatActivity {
         photoTagDao.addTagToPhoto((int) photoId8, (int) tagId1);
 
         // 可添加日志验证结果
-        Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", " + success4 + ", " + success5 + ", " + success6 + ", " + success7);
+        Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", "
+                + success4 + ", " + success5 + ", " + success6 + ", " + success7);
 
 // 遍历为每个 photoId 添加 tag1
         for (long photoId = 9; photoId <= 23; photoId++) {

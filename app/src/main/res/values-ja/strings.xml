@@ -89,4 +89,8 @@
     <string name="error_select_transition">トランジションを選択してください</string>
     <string name="error_select_framerate">フレームレートを選択してください</string>
     <string name="error_select_music">音楽を選択してください</string>
+    <string name="logout_title">ログアウト</string>
+    <string name="logout_message">ログアウトしますか?</string>
+    <string name="positive_button">はい</string>
+    <string name="negative_button">いいえ</string>
 </resources>
