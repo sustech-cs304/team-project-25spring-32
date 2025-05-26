@@ -52,9 +52,9 @@
 
     <string name="title_activity_customize_video">定制记忆视频</string>
 
-    <string name="label_video_resolution">视频分辨率</string>
-    <string name="hint_video_width">宽度 (360-1280)</string>
-    <string name="hint_video_height">高度 (360-1280)</string>
+    <string name="label_video_resolution">视频分辨率 (360-1280)</string>
+    <string name="hint_video_width">宽度</string>
+    <string name="hint_video_height">高度</string>
 
     <string name="label_image_duration">图片显示时长 (秒)</string>
     <string name="hint_image_duration">时长 (2-10 秒)</string>
@@ -62,7 +62,7 @@
     <string name="label_transition_type">转场效果</string>
     <string name="label_frame_rate">视频帧率</string>
     <string name="label_music_selection">选择背景音乐</string>
-    <string name="button_generate_video">生成视频</string>
+    <string name="button_generate_video">生成</string>
 
     <string name="transition_fade">淡入淡出</string>
     <string name="transition_slide_left">向左滑动</string>
@@ -89,6 +89,9 @@
     <string name="error_select_transition">请选择转场效果</string>
     <string name="error_select_framerate">请选择帧率</string>
     <string name="error_select_music">请选择音乐</string>
+    <string name="button_cancel">取消</string>
+    <string name="label_music_volume">背景音乐音量 (%)</string>
+    <string name="text_volume_percentage">%1$d%%</string>
 
     <string name="yandai_xiejie">烟袋斜街</string>
     <string name="beyond">Beyond</string>

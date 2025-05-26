@@ -77,9 +77,10 @@ public class MemoryDetailViewModel extends ViewModel {
      * @param transitionType 转场类型
      * @param frameRate      帧率
      * @param musicUri       音乐 Uri (可选)
+     * @param musicVolume    音乐音量 (0.0 - 1.0)
      */
     public void exportVideo(int targetWidth, int targetHeight, int durationMs,
-                            TransitionType transitionType, int frameRate, @Nullable Uri musicUri) {
+                            TransitionType transitionType, int frameRate, @Nullable Uri musicUri, float musicVolume) { // 添加 musicVolume
 
         if (Boolean.TRUE.equals(_isCreatingVideo.getValue())) {
             _toastMessage.setValue("视频正在生成中，请稍候...");
@@ -108,6 +109,7 @@ public class MemoryDetailViewModel extends ViewModel {
                 .setImageDisplayDurationMs(durationMs)
                 .setTransitionType(transitionType)
                 .setFrameRate(frameRate)
+                .setMusicVolume(musicVolume) // 设置音量
                 // 你可以根据需要，让用户也定制转场时长和比特率，或者使用默认值
                 .setTransitionDurationMs(500) // 示例: 使用默认值或从定制页获取
                 .setVideoBitrate(2000000)      // 示例: 使用默认值或从定制页获取

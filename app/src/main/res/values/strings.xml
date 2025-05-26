@@ -59,17 +59,17 @@
 
     <string name="title_activity_customize_video">Customize Memory Video</string>
 
-    <string name="label_video_resolution">Video Resolution</string>
-    <string name="hint_video_width">Width (360-1280)</string>
-    <string name="hint_video_height">Height (360-1280)</string>
+    <string name="label_video_resolution">Video Resolution (360-1280)</string>
+    <string name="hint_video_width">Width </string>
+    <string name="hint_video_height">Height</string>
 
-    <string name="label_image_duration">Image Display Duration (s)</string>
+    <string name="label_image_duration">Image Display Duration (2-10s)</string>
     <string name="hint_image_duration">Duration (2-10 s)</string>
 
     <string name="label_transition_type">Transition Effect</string>
     <string name="label_frame_rate">Video Frame Rate</string>
     <string name="label_music_selection">Select Background Music</string>
-    <string name="button_generate_video">Generate Video</string>
+    <string name="button_generate_video">Generate</string>
 
     <string name="transition_fade">Fade</string>
     <string name="transition_slide_left">Slide Left</string>
@@ -96,6 +96,9 @@
     <string name="error_select_transition">Please select a transition</string>
     <string name="error_select_framerate">Please select a frame rate</string>
     <string name="error_select_music">Please select music</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="label_music_volume">Background Music Volume (%)</string>
+    <string name="text_volume_percentage">%1$d%%</string>
 
     <string name="yandai_xiejie">Skewed Tobacco Pouch Street</string>
     <string name="beyond">Beyond</string>

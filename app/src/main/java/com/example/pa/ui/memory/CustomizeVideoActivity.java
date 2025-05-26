@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,13 +36,17 @@ public class CustomizeVideoActivity extends AppCompatActivity {
     public static final String EXTRA_TRANSITION_TYPE = "EXTRA_TRANSITION_TYPE";
     public static final String EXTRA_FRAME_RATE = "EXTRA_FRAME_RATE";
     public static final String EXTRA_MUSIC_URI = "EXTRA_MUSIC_URI";
+    public static final String EXTRA_MUSIC_VOLUME = "EXTRA_MUSIC_VOLUME"; // 新增 Key
 
     private TextInputLayout layoutWidth, layoutHeight, layoutDuration;
     private TextInputEditText editWidth, editHeight, editDuration;
     private AutoCompleteTextView dropdownTransition, dropdownFramerate, dropdownMusic;
     private Button btnGenerate;
+    private Button btnCancel;
 
     private List<MusicItem> musicItems;
+    private SeekBar seekbarVolume;
+    private TextView textVolumeValue;
     private Map<String, TransitionType> transitionMap; // 用于从显示名称映射回枚举
 
     @Override
@@ -66,6 +72,10 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         dropdownFramerate = findViewById(R.id.dropdown_framerate);
         dropdownMusic = findViewById(R.id.dropdown_music);
         btnGenerate = findViewById(R.id.btn_generate);
+        seekbarVolume = findViewById(R.id.seekbar_volume);
+        textVolumeValue = findViewById(R.id.text_volume_value);
+        btnGenerate = findViewById(R.id.btn_generate);
+        btnCancel = findViewById(R.id.btn_cancel);
     }
 
     private int getStringIdForTransition(TransitionType type) {
@@ -147,6 +157,24 @@ public class CustomizeVideoActivity extends AppCompatActivity {
 
     private void setupListeners() {
         btnGenerate.setOnClickListener(v -> generateVideo());
+        btnCancel.setOnClickListener(v -> {
+            setResult(RESULT_CANCELED); // 设置结果为取消
+            finish(); // 关闭 Activity
+        });
+
+        seekbarVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // 更新 TextView 显示百分比
+                textVolumeValue.setText(getString(R.string.text_volume_percentage, progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
     }
 
     private boolean validateInput() {
@@ -247,6 +275,7 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         TransitionType transitionType = transitionMap.get(selectedTransitionName);
         transitionType = transitionType != null ? transitionType : TransitionType.FADE;
         int frameRate = Integer.parseInt(dropdownFramerate.getText().toString());
+        float musicVolume = seekbarVolume.getProgress() / 100.0f; // 转换为 0.0 - 1.0
 
         // 获取选择的音乐 Uri
         String selectedMusicName = dropdownMusic.getText().toString();
@@ -267,6 +296,7 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         resultIntent.putExtra(EXTRA_DURATION_MS, durationMs);
         resultIntent.putExtra(EXTRA_TRANSITION_TYPE, transitionType); // 传递枚举名称
         resultIntent.putExtra(EXTRA_FRAME_RATE, frameRate);
+        resultIntent.putExtra(EXTRA_MUSIC_VOLUME, musicVolume);
         if (musicUri != null) {
             resultIntent.putExtra(EXTRA_MUSIC_URI, musicUri.toString());
         }

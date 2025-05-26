@@ -171,6 +171,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
             int frameRate = data.getIntExtra(CustomizeVideoActivity.EXTRA_FRAME_RATE, 30);
             String musicUriString = data.getStringExtra(CustomizeVideoActivity.EXTRA_MUSIC_URI);
             Uri musicUri = musicUriString != null ? Uri.parse(musicUriString) : null;
+            float musicVolume = data.getFloatExtra(CustomizeVideoActivity.EXTRA_MUSIC_VOLUME, 1.0f); // 默认 0.8
 
             Log.d(TAG, "Received custom options: " + width + "x" + height +
                     ", Duration=" + durationMs + "ms" +
@@ -179,7 +180,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
                     ", Music=" + (musicUri != null ? musicUri.toString() : "None"));
 
             // 调用 ViewModel 的导出方法，并传递参数
-            viewModel.exportVideo(width, height, durationMs, transitionType, frameRate, musicUri);
+            viewModel.exportVideo(width, height, durationMs, transitionType, frameRate, musicUri, musicVolume);
 
         } catch (Exception e) {
             Log.e(TAG, "Error processing customization result", e);

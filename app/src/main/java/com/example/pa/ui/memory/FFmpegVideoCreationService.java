@@ -358,6 +358,10 @@ public class FFmpegVideoCreationService implements VideoCreationService {
 
         if (hasMusicInput) {
             command.append("-b:a ").append(options.getAudioBitrate()).append(" ");
+            float musicVolume = options.getMusicVolume(); // 获取音量
+            if (musicVolume > 0.0f && musicVolume < 1.0f) {
+                command.append("-af \"volume=").append(String.format(Locale.US, "%.2f", musicVolume)).append("\" ");
+            }
         } else {
             command.append("-b:a 128000 ");
         }
@@ -408,9 +412,9 @@ public class FFmpegVideoCreationService implements VideoCreationService {
                 }
             } else {
                 // 如果文件不存在，或者不在缓存目录/不是temp_开头，则不删除，可能是原始文件或不应清理
-                 Log.d(TAG, "Skipping cleanup for file (not temp or not in cache): " + path);
+                Log.d(TAG, "Skipping cleanup for file (not temp or not in cache): " + path);
             }
         }
-         tempFilePaths.clear(); // List is cleared at the beginning of createVideo
+        tempFilePaths.clear(); // List is cleared at the beginning of createVideo
     }
 }

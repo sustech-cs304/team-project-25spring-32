@@ -52,9 +52,9 @@
 
     <string name="title_activity_customize_video">思い出ビデオをカスタマイズ</string>
 
-    <string name="label_video_resolution">ビデオ解像度</string>
-    <string name="hint_video_width">幅 (360-1280)</string>
-    <string name="hint_video_height">高さ (360-1280)</string>
+    <string name="label_video_resolution">ビデオ解像度 (360-1280)</string>
+    <string name="hint_video_width">幅</string>
+    <string name="hint_video_height">高さ</string>
 
     <string name="label_image_duration">画像表示時間 (秒)</string>
     <string name="hint_image_duration">時間 (2-10 秒)</string>
@@ -62,7 +62,7 @@
     <string name="label_transition_type">トランジション効果</string>
     <string name="label_frame_rate">ビデオフレームレート</string>
     <string name="label_music_selection">BGMを選択</string>
-    <string name="button_generate_video">ビデオを生成</string>
+    <string name="button_generate_video">生成</string>
 
     <string name="transition_fade">フェード</string>
     <string name="transition_slide_left">左へスライド</string>
@@ -89,6 +89,9 @@
     <string name="error_select_transition">トランジションを選択してください</string>
     <string name="error_select_framerate">フレームレートを選択してください</string>
     <string name="error_select_music">音楽を選択してください</string>
+    <string name="button_cancel">キャンセル</string>
+    <string name="label_music_volume">BGM音量 (%)</string>
+    <string name="text_volume_percentage">%1$d%%</string>
 
     <string name="yandai_xiejie">煙袋斜街</string>
     <string name="beyond">ビヨンド</string>

@@ -7,6 +7,7 @@ import java.util.List;
 public class VideoCreationOptions {
     private final List<Uri> imageUris;
     private final Uri musicUri;
+    private float musicVolume; // 音乐音量 (0.0f - 1.0f)
     private final String outputFilePath; // 生成视频的完整输出路径
 
     private TransitionType transitionType;
@@ -21,6 +22,7 @@ public class VideoCreationOptions {
     private VideoCreationOptions(Builder builder) {
         this.imageUris = builder.imageUris;
         this.musicUri = builder.musicUri;
+        this.musicVolume = builder.musicVolume;
         this.outputFilePath = builder.outputFilePath;
 
         // 从 Builder 中获取值，如果 Builder 中没有设置，使用默认值
@@ -40,6 +42,10 @@ public class VideoCreationOptions {
 
     public Uri getMusicUri() {
         return musicUri;
+    }
+
+    public float getMusicVolume() {
+        return musicVolume;
     }
 
     public String getOutputFilePath() {
@@ -81,6 +87,7 @@ public class VideoCreationOptions {
         private final List<Uri> imageUris; // 必选
         private final String outputFilePath; // 必选
         private Uri musicUri; // 可选
+        private float musicVolume = 1.0f; // 默认 100% 音量
 
         // 可选属性的默认值 (与原构造函数中的默认值一致)
         private TransitionType transitionType = TransitionType.FADE;
@@ -107,6 +114,13 @@ public class VideoCreationOptions {
         // Setter 方法，返回 Builder 自身，实现链式调用
         public Builder setMusicUri(Uri musicUri) {
             this.musicUri = musicUri;
+            return this;
+        }
+        public Builder setMusicVolume(float musicVolume) {
+            if (musicVolume < 0.0f || musicVolume > 1.0f) {
+                throw new IllegalArgumentException("Music volume must be between 0.0 and 1.0");
+            }
+            this.musicVolume = musicVolume;
             return this;
         }
 
