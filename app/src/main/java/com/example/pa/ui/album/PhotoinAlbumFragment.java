@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pa.R;
 import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
-import com.example.pa.data.Daos.PhotoDao.Photo;
+import com.example.pa.data.model.Photo;
 
 import java.util.ArrayList;
 

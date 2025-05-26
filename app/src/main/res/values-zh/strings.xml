@@ -7,6 +7,7 @@
     <string name="title_social">社交</string>
     <string name="download">下载</string>
     <string name="share">分享</string>
+    <string name="deleted">已删除</string>
     <string name="preview">预览</string>
     <string name="edit">编辑</string>
 
@@ -32,15 +33,20 @@
 
     <string name="menu_home">首页</string>
     <string name="menu_profile">个人资料</string>
-    <string name="menu_categories">分类</string>
+    <string name="menu_circle">圈子</string>
     <string name="menu_music">音乐</string>
     <string name="menu_movies">电影</string>
     <string name="menu_settings">设置</string>
-    <string name="menu_help">帮助中心</string>
+    <string name="menu_help">快速入门</string>
     <string name="menu_logout">退出登录</string>
 
     <string name="playback_speed">播放</string>
     <string name="finish">完成</string>
     <string name="ChooseRequest">请选择图片</string>
     <string name="NoPhoto">无</string>
+    <string name="delete">删除</string>
+    <string name="menu_login">登录</string>
+    <string name="menu_groups">群组</string>
+    <string name="menu_my_group">我的群组</string>
+    <string name="menu_join_group">加入群组</string>
 </resources>

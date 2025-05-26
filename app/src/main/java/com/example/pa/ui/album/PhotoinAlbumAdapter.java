@@ -15,7 +15,7 @@ import com.example.pa.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.pa.data.Daos.PhotoDao.Photo;
+import com.example.pa.data.model.Photo;
 import com.example.pa.data.FileRepository;
 
 public class PhotoinAlbumAdapter extends RecyclerView.Adapter<PhotoinAlbumAdapter.PhotoViewHolder> {

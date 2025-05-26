@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 齿轮主体 -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M12,15.5A3.5,3.5 0,1 1,15.5 12,3.5 3.5,0 0,1 12,15.5ZM19,13V11H17.7C17.4,10.2 17,9.5 16.5,8.9L17.4,7.6L16,6.2L15.1,7.5C14.5,7 13.8,6.6 13,6.3V5H11V6.3C10.2,6.6 9.5,7 8.9,7.5L8,6.2L6.6,7.6L7.5,8.9C7,9.5 6.6,10.2 6.3,11H5V13H6.3C6.6,13.8 7,14.5 7.5,15.1L6.6,16.4L8,17.8L8.9,16.5C9.5,17 10.2,17.4 11,17.7V19H13V17.7C13.8,17.4 14.5,17 15.1,16.5L16,17.8L17.4,16.4L16.5,15.1C17,14.5 17.4,13.8 17.7,13H19Z"/>
+
+</vector>

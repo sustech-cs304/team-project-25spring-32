@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 门框 -->
+    <path
+        android:fillColor="#FFBDBDBD"
+        android:pathData="M14,3H6C5.4,3 5,3.4 5,4V20C5,20.6 5.4,21 6,21H14V3Z" />
+
+    <!-- 敞开的门（留白表示打开） -->
+    <path
+        android:fillColor="#FFF5F5F5"
+        android:pathData="M13,4H7V20H13V4Z" />
+
+
+    <!-- 向右箭头 -->
+    <path
+        android:fillColor="#FFE53935"
+        android:pathData="M16,11H20V13H16V16L12,12L16,8V11Z" />
+
+</vector>
