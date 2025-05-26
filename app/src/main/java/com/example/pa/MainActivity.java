@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
     private void classifyImage() {
         String TAG = "ImageClassifier";
         assert fileRepository!=null;
-        Uri IMAGE_URI=fileRepository.getAlbumImages("NewAlbum").get(0);
+        Uri IMAGE_URI=fileRepository.getAlbumImages("所有照片").get(0);
         new Thread(() -> {
             try {
                 // 1. 从URI加载原始图片（确保使用ARGB_8888配置）
@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
-        setupBottomNavigation();
+//        setupBottomNavigation();
     }
 
     /**
