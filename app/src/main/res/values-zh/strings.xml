@@ -89,4 +89,10 @@
     <string name="error_select_transition">请选择转场效果</string>
     <string name="error_select_framerate">请选择帧率</string>
     <string name="error_select_music">请选择音乐</string>
+
+    <string name="yandai_xiejie">烟袋斜街</string>
+    <string name="beyond">Beyond</string>
+    <string name="solstice">至日</string>
+    <string name="deep_sea_fish">深海鱼</string>
+    <string name="star_at_sea">海上星</string>
 </resources>

@@ -96,4 +96,10 @@
     <string name="error_select_transition">Please select a transition</string>
     <string name="error_select_framerate">Please select a frame rate</string>
     <string name="error_select_music">Please select music</string>
+
+    <string name="yandai_xiejie">Skewed Tobacco Pouch Street</string>
+    <string name="beyond">Beyond</string>
+    <string name="solstice">Solstice</string>
+    <string name="deep_sea_fish">Deep Sea Fish</string>
+    <string name="star_at_sea">Star at Sea</string>
 </resources>
