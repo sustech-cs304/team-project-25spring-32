@@ -93,4 +93,6 @@
     <string name="logout_message">你确定要退出登录吗？</string>
     <string name="positive_button">确定</string>
     <string name="negative_button">取消</string>
+    <string name="help_content">帮助文本</string>
+    <string name="return_">返回</string>
 </resources>

@@ -93,4 +93,5 @@
     <string name="logout_message">ログアウトしますか?</string>
     <string name="positive_button">はい</string>
     <string name="negative_button">いいえ</string>
+    <string name="return_">戻る</string>
 </resources>

@@ -2,6 +2,7 @@ package com.example.pa;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -31,6 +32,7 @@ import com.example.pa.data.model.Photo;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
+import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.util.PasswordUtil;
 import com.example.pa.util.ai.ImageClassifier;
 
@@ -181,13 +183,17 @@ public class MainActivity extends AppCompatActivity {
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             }
-
-            // 其他菜单项处理...
-            NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-
-            if (id == R.id.nav_settings) {
-                navController.navigate(R.id.navigation_memory);
+            if (id==R.id.nav_help){
+                // 处理帮助
+                Intent intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+                return true;
             }
+
+
+//            if (id == R.id.nav_settings) {
+//                navController.navigate(R.id.navigation_settings);
+//            }
 
             binding.drawerLayout.closeDrawer(GravityCompat.START);
             return true;
