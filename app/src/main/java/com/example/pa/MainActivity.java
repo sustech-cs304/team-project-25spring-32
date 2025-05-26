@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,6 +29,8 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 //import com.example.pa.auth.LoginActivity;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.pa.data.model.Photo;
 
 import com.example.pa.data.Daos.*;
@@ -54,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private FileRepository fileRepository;
     private ImageClassifier classifier;
     //检查是否处于登录状态
-    private boolean isLoggedIn = true;
+    private boolean isLoggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         checkLoginStatus();
         // 设置导航菜单
         setupNavigationDrawerMenu();
+        setupNavHeader();
 
         // 1. 设置Toolbar前确保没有默认ActionBar
         if (getSupportActionBar() != null) {
@@ -160,6 +165,28 @@ public class MainActivity extends AppCompatActivity {
         // 假设登录状态存储在SharedPreferences中,真实情况请注释掉下面这行
         prefs.edit().putBoolean("is_logged_in", true).apply();
         isLoggedIn = prefs.getBoolean("is_logged_in", false);
+    }
+    private void setupNavHeader() {
+        if (!isLoggedIn) return; // 如果未登录，不设置头部信息
+
+        View headerView = binding.navigationDrawer.getHeaderView(0);
+        ImageView imageView = headerView.findViewById(R.id.imageView);
+        TextView usernameTextView = headerView.findViewById(R.id.username);
+        TextView emailTextView = headerView.findViewById(R.id.email);
+
+        // 使用Glide加载头像
+//        Glide.with(this)
+//                .load(getProfileImageUrl())
+//                .placeholder(R.drawable.ic_default_profile)
+//                .error(R.drawable.ic_default_profile)
+//                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+//                .into(imageView);
+
+        // 设置用户名和邮箱
+//        usernameTextView.setText(getUsername());
+//        emailTextView.setText(getEmail());
+          usernameTextView.setText("getUsername()");
+          emailTextView.setText("getEmail()");
     }
     private void setupNavigationDrawerMenu() {
         // 根据登录状态加载不同的菜单
