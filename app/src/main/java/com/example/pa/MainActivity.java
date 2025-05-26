@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         TextView usernameTextView = headerView.findViewById(R.id.username);
         TextView emailTextView = headerView.findViewById(R.id.email);
 
-        // 使用Glide加载头像
+        // 使用Glide加载头像,由于Url未实现，头像部分注释
 //        Glide.with(this)
 //                .load(getProfileImageUrl())
 //                .placeholder(R.drawable.ic_default_profile)
