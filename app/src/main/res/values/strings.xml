@@ -102,4 +102,13 @@
     <string name="solstice">Solstice</string>
     <string name="deep_sea_fish">Deep Sea Fish</string>
     <string name="star_at_sea">Star at Sea</string>
+    <string name="logout_title">Logout</string>
+    <string name="logout_message">Are you sure you want to log out?</string>
+
+    --String resources for buttons --
+    <string name="positive_button">yes</string>
+    <string name="negative_button">no</string>
+
+    <string name="help_content">This is a sample help text. You can replace it with your own content.</string>
+    <string name="return_">return</string>
 </resources>

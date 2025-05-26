@@ -71,6 +71,9 @@
         <activity
             android:name=".ui.select.PhotoSelectActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity
+            android:name=".ui.help.HelpActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>
