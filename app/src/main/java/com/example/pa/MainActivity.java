@@ -154,8 +154,10 @@ public class MainActivity extends AppCompatActivity {
     }
     private void checkLoginStatus() {
         // 这里替换为实际的登录状态检查逻辑
-//        SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-//        isLoggedIn = prefs.getBoolean("is_logged_in", false);
+        SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+        // 假设登录状态存储在SharedPreferences中,真实情况请注释掉下面这行
+        prefs.edit().putBoolean("is_logged_in", true).apply();
+        isLoggedIn = prefs.getBoolean("is_logged_in", false);
     }
     private void setupNavigationDrawerMenu() {
         // 根据登录状态加载不同的菜单
