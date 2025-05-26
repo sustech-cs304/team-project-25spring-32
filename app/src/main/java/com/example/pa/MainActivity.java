@@ -1,5 +1,7 @@
 package com.example.pa;
 
+import static com.example.pa.util.checkLogin.checkLoginStatus;
+
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -29,8 +31,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 //import com.example.pa.auth.LoginActivity;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.pa.data.model.Photo;
 
 import com.example.pa.data.Daos.*;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        checkLoginStatus();
+        isLoggedIn=checkLoginStatus(this);
         // 设置导航菜单
         setupNavigationDrawerMenu();
         setupNavHeader();
@@ -159,13 +159,7 @@ public class MainActivity extends AppCompatActivity {
         // 设置底部导航
         //setupBottomNavigation();
     }
-    private void checkLoginStatus() {
-        // 这里替换为实际的登录状态检查逻辑
-        SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-        // 假设登录状态存储在SharedPreferences中,真实情况请注释掉下面这行
-        prefs.edit().putBoolean("is_logged_in", true).apply();
-        isLoggedIn = prefs.getBoolean("is_logged_in", false);
-    }
+
     private void setupNavHeader() {
         if (!isLoggedIn) return; // 如果未登录，不设置头部信息
 

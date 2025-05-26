@@ -36,8 +36,8 @@
     <string name="search_history">recent search</string>
 
     <string name="profile_image_desc">Profile Picture</string>
-    <string name="default_username">Username</string>
-    <string name="default_email">user@example.com</string>
+    <string name="default_username">Guest</string>
+    <string name="default_email">Login to enjoy function</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_profile">Profile</string>
@@ -53,6 +53,7 @@
     <string name="ChooseRequest">Please choose photos</string>
     <string name="NoPhoto">There is no photo in the album</string>
     <string name="menu_login">Login</string>
+    <string name="menu_register">Register</string>
     <string name="menu_groups">groups</string>
     <string name="menu_my_group">My group</string>
     <string name="menu_join_group">Join group</string>

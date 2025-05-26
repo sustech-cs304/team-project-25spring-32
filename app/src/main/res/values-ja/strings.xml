@@ -28,8 +28,8 @@
     <string name="search_history">最近の検索</string>
 
     <string name="profile_image_desc">プロフィール画像</string>
-    <string name="default_username">ユーザー名</string>
-    <string name="default_email">user@example.com</string>
+    <string name="default_username">未登録</string>
+    <string name="default_email">ログインしてください</string>
 
     <string name="menu_home">ホーム</string>
     <string name="menu_profile">プロフィール</string>
@@ -46,6 +46,7 @@
     <string name="NoPhoto">このアルバムには写真がありません</string>
     <string name="delete">削除</string>
     <string name="menu_login">" ログイン"</string>
+    <string name="menu_register">新規登録</string>
     <string name="menu_groups">グループ</string>
     <string name="menu_my_group">自分のグループ</string>
     <string name="menu_join_group">新しいグループに参加する</string>
