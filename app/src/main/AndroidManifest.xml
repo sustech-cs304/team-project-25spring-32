@@ -65,6 +65,10 @@
             android:name=".ui.memory.MemoryDetailActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity
+            android:name=".ui.memory.CustomizeVideoActivity"
+            android:label="@string/title_activity_customize_video"
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar"> </activity>
+        <activity
             android:name=".ui.select.PhotoSelectActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>

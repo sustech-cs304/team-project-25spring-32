@@ -49,4 +49,44 @@
     <string name="menu_groups">グループ</string>
     <string name="menu_my_group">自分のグループ</string>
     <string name="menu_join_group">新しいグループに参加する</string>
+
+    <string name="title_activity_customize_video">思い出ビデオをカスタマイズ</string>
+
+    <string name="label_video_resolution">ビデオ解像度</string>
+    <string name="hint_video_width">幅 (360-1280)</string>
+    <string name="hint_video_height">高さ (360-1280)</string>
+
+    <string name="label_image_duration">画像表示時間 (秒)</string>
+    <string name="hint_image_duration">時間 (2-10 秒)</string>
+
+    <string name="label_transition_type">トランジション効果</string>
+    <string name="label_frame_rate">ビデオフレームレート</string>
+    <string name="label_music_selection">BGMを選択</string>
+    <string name="button_generate_video">ビデオを生成</string>
+
+    <string name="transition_fade">フェード</string>
+    <string name="transition_slide_left">左へスライド</string>
+    <string name="transition_slide_right">右へスライド</string>
+    <string name="transition_slide_up">上へスライド</string>
+    <string name="transition_slide_down">下へスライド</string>
+    <string name="transition_wipe_left">左へワイプ</string>
+    <string name="transition_wipe_right">右へワイプ</string>
+    <string name="transition_zoom_in_fade">ズームインフェード</string>
+    <string name="transition_distance">ディスタンス</string>
+    <string name="transition_dissolve">ディゾルブ</string>
+    <string name="transition_pixelize">ピクセレート</string>
+    <string name="transition_random">ランダム</string>
+
+    <string name="music_none">音楽なし</string>
+    <string name="music_gentle_breeze">優しいそよ風</string>
+    <string name="music_happy_journey">楽しい旅</string>
+    <string name="music_peaceful_moments">穏やかな時間</string>
+
+    <string name="error_must_be_number">数値を入力してください</string>
+    <string name="error_width_range">幅は360から1280の間でなければなりません</string>
+    <string name="error_height_range">高さは360から1280の間でなければなりません</string>
+    <string name="error_duration_range">時間は2秒から10秒の間でなければなりません</string>
+    <string name="error_select_transition">トランジションを選択してください</string>
+    <string name="error_select_framerate">フレームレートを選択してください</string>
+    <string name="error_select_music">音楽を選択してください</string>
 </resources>

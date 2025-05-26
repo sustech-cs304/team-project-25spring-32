@@ -41,8 +41,7 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_profile">Profile</string>
-
-
+    <string name="menu_circle">Circle</string>
     <string name="menu_music">Music</string>
     <string name="menu_movies">Movies</string>
     <string name="menu_settings">Settings</string>
@@ -57,4 +56,44 @@
     <string name="menu_groups">groups</string>
     <string name="menu_my_group">My group</string>
     <string name="menu_join_group">Join group</string>
+
+    <string name="title_activity_customize_video">Customize Memory Video</string>
+
+    <string name="label_video_resolution">Video Resolution</string>
+    <string name="hint_video_width">Width (360-1280)</string>
+    <string name="hint_video_height">Height (360-1280)</string>
+
+    <string name="label_image_duration">Image Display Duration (s)</string>
+    <string name="hint_image_duration">Duration (2-10 s)</string>
+
+    <string name="label_transition_type">Transition Effect</string>
+    <string name="label_frame_rate">Video Frame Rate</string>
+    <string name="label_music_selection">Select Background Music</string>
+    <string name="button_generate_video">Generate Video</string>
+
+    <string name="transition_fade">Fade</string>
+    <string name="transition_slide_left">Slide Left</string>
+    <string name="transition_slide_right">Slide Right</string>
+    <string name="transition_slide_up">Slide Up</string>
+    <string name="transition_slide_down">Slide Down</string>
+    <string name="transition_wipe_left">Wipe Left</string>
+    <string name="transition_wipe_right">Wipe Right</string>
+    <string name="transition_zoom_in_fade">Zoom In Fade</string>
+    <string name="transition_distance">Distance</string>
+    <string name="transition_dissolve">Dissolve</string>
+    <string name="transition_pixelize">Pixelize</string>
+    <string name="transition_random">Random</string>
+
+    <string name="music_none">No Music</string>
+    <string name="music_gentle_breeze">Gentle Breeze</string>
+    <string name="music_happy_journey">Happy Journey</string>
+    <string name="music_peaceful_moments">Peaceful Moments</string>
+
+    <string name="error_must_be_number">Please enter a number</string>
+    <string name="error_width_range">Width must be between 360 and 1280</string>
+    <string name="error_height_range">Height must be between 360 and 1280</string>
+    <string name="error_duration_range">Duration must be between 2 and 10 seconds</string>
+    <string name="error_select_transition">Please select a transition</string>
+    <string name="error_select_framerate">Please select a frame rate</string>
+    <string name="error_select_music">Please select music</string>
 </resources>

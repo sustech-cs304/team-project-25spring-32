@@ -49,4 +49,44 @@
     <string name="menu_groups">群组</string>
     <string name="menu_my_group">我的群组</string>
     <string name="menu_join_group">加入群组</string>
+
+    <string name="title_activity_customize_video">定制记忆视频</string>
+
+    <string name="label_video_resolution">视频分辨率</string>
+    <string name="hint_video_width">宽度 (360-1280)</string>
+    <string name="hint_video_height">高度 (360-1280)</string>
+
+    <string name="label_image_duration">图片显示时长 (秒)</string>
+    <string name="hint_image_duration">时长 (2-10 秒)</string>
+
+    <string name="label_transition_type">转场效果</string>
+    <string name="label_frame_rate">视频帧率</string>
+    <string name="label_music_selection">选择背景音乐</string>
+    <string name="button_generate_video">生成视频</string>
+
+    <string name="transition_fade">淡入淡出</string>
+    <string name="transition_slide_left">向左滑动</string>
+    <string name="transition_slide_right">向右滑动</string>
+    <string name="transition_slide_up">向上滑动</string>
+    <string name="transition_slide_down">向下滑动</string>
+    <string name="transition_wipe_left">向左擦除</string>
+    <string name="transition_wipe_right">向右擦除</string>
+    <string name="transition_zoom_in_fade">放大淡入</string>
+    <string name="transition_distance">渐渐远去</string>
+    <string name="transition_dissolve">溶解</string>
+    <string name="transition_pixelize">像素化</string>
+    <string name="transition_random">随机效果</string>
+
+    <string name="music_none">无音乐</string>
+    <string name="music_gentle_breeze">轻柔微风</string>
+    <string name="music_happy_journey">快乐旅程</string>
+    <string name="music_peaceful_moments">宁静时刻</string>
+
+    <string name="error_must_be_number">请输入数字</string>
+    <string name="error_width_range">宽度必须在 360 到 1280 之间</string>
+    <string name="error_height_range">高度必须在 360 到 1280 之间</string>
+    <string name="error_duration_range">时长必须在 2 到 10 秒之间</string>
+    <string name="error_select_transition">请选择转场效果</string>
+    <string name="error_select_framerate">请选择帧率</string>
+    <string name="error_select_music">请选择音乐</string>
 </resources>
