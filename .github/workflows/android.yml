@@ -26,3 +26,17 @@ jobs:
       run: ./gradlew clean
     - name: Build with Gradle
       run: ./gradlew assembleDebug
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Run emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 34  # 使用你需要的API级别
+        arch: x86_64
+        profile: Nexus 6
+        script: |
+          adb devices
+          adb install app/build/outputs/apk/debug/app-debug.apk
+          adb shell am start -n your.package.name/.MainActivity
