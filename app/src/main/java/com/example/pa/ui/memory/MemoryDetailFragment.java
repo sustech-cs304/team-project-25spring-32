@@ -59,7 +59,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     private SeekBar seekBar;
     private TextView timeCurrent, timeTotal;
     private Spinner spinnerSpeed;
-    private View controlsContainer; // 用于长按
+    private View customControlsView;
 
     public static MemoryDetailFragment newInstance(String memoryId) {
         MemoryDetailFragment fragment = new MemoryDetailFragment();
@@ -91,7 +91,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         timeCurrent = view.findViewById(R.id.time_current);
         timeTotal = view.findViewById(R.id.time_total);
         spinnerSpeed = view.findViewById(R.id.spinner_speed);
-        controlsContainer = view.findViewById(R.id.controls_container); // 假设这是你想长按的区域
+        customControlsView = view.findViewById(R.id.custom_controls); // 假设这是你想长按的区域
 
         // 图片展示区
         recyclerView = view.findViewById(R.id.photo_recycler_view);
@@ -130,7 +130,8 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
                 timeCurrent,
                 timeTotal,
                 spinnerSpeed,
-                playerView // 将 PlayerView 作为长按区域
+                playerView, // 将 PlayerView 作为长按区域
+                customControlsView
         );
 
         viewModel.getPhotoUris().observe(getViewLifecycleOwner(), uris -> {

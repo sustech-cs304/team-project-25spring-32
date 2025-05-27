@@ -36,6 +36,7 @@ public class VideoPlayerManager {
 
     private final Context context;
     private ExoPlayer player;
+    private View controlsRoot;
     private PlayerView playerView;
     private ImageButton btnPlayPause;
     private SeekBar seekBar;
@@ -58,13 +59,13 @@ public class VideoPlayerManager {
     /**
      * 初始化播放器和控件。
      *
-     * @param playerView      用于显示视频的 PlayerView。
-     * @param btnPlayPause    播放/暂停按钮。
-     * @param seekBar         进度条。
-     * @param timeCurrent     当前时间 TextView。
-     * @param timeTotal       总时间 TextView。
-     * @param spinnerSpeed    速度选择 Spinner。
-     * @param longPressView   接收长按事件的 View。
+     * @param playerView    用于显示视频的 PlayerView。
+     * @param btnPlayPause  播放/暂停按钮。
+     * @param seekBar       进度条。
+     * @param timeCurrent   当前时间 TextView。
+     * @param timeTotal     总时间 TextView。
+     * @param spinnerSpeed  速度选择 Spinner。
+     * @param longPressView 接收长按事件的 View。
      */
     public void initialize(
             @NonNull PlayerView playerView,
@@ -73,7 +74,8 @@ public class VideoPlayerManager {
             @NonNull TextView timeCurrent,
             @NonNull TextView timeTotal,
             @NonNull Spinner spinnerSpeed,
-            @NonNull View longPressView) {
+            @NonNull View longPressView,
+            @NonNull View controlsRoot) {
 
         this.playerView = playerView;
         this.btnPlayPause = btnPlayPause;
@@ -82,8 +84,10 @@ public class VideoPlayerManager {
         this.timeTotal = timeTotal;
         this.spinnerSpeed = spinnerSpeed;
         this.longPressView = longPressView;
+        this.controlsRoot = controlsRoot;
 
         setupPlayerControls();
+        setupVisibilityToggle(); //设置点击视频播放组件隐藏，再点击显现
     }
 
     /**
@@ -236,8 +240,10 @@ public class VideoPlayerManager {
                     ((TextView) parent.getChildAt(0)).setTextColor(context.getResources().getColor(android.R.color.white));
                 } catch (Exception e) { /* ignore */ }
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         // 长按 3 倍速
@@ -315,5 +321,18 @@ public class VideoPlayerManager {
     @Nullable
     public ExoPlayer getPlayer() {
         return player;
+    }
+
+    // 实现点击隐藏播放器组件，再次点击显现
+    private void setupVisibilityToggle() {
+        playerView.setOnClickListener(v -> toggleControlsVisibility());
+    }
+
+    private void toggleControlsVisibility() {
+        if (controlsRoot != null) {
+            int currentVisibility = controlsRoot.getVisibility();
+            controlsRoot.setVisibility(currentVisibility == View.VISIBLE ? View.GONE : View.VISIBLE);
+            Log.d(TAG, "Controls visibility toggled to: " + (controlsRoot.getVisibility() == View.VISIBLE ? "Visible" : "Gone"));
+        }
     }
 }

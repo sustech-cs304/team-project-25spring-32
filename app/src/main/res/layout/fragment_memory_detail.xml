@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -80,12 +79,31 @@
             android:orientation="vertical">
 
             <FrameLayout
-                android:id="@+id/video_preview"
+                android:id="@+id/video_container"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="8dp"
-                android:background="#66000000">
-                <include layout="@layout/layout_video_player_controls"/>
+                android:background="#000000">
+
+                <androidx.media3.ui.PlayerView
+                    android:id="@+id/player_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:resize_mode="zoom"
+                    app:show_buffering="when_playing"
+                    app:use_controller="false" />
+
+                <include
+                    android:id="@+id/custom_controls"
+                    layout="@layout/layout_video_player_controls" />
+
+                <ProgressBar
+                    android:id="@+id/progress_bar_loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
             </FrameLayout>
 
 
@@ -96,7 +114,7 @@
                 android:layout_marginTop="2dp"
                 android:nestedScrollingEnabled="false"
                 android:overScrollMode="never"
-                android:padding="2dp"/>
+                android:padding="2dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

@@ -90,6 +90,7 @@
     <string name="error_select_transition">请选择转场效果</string>
     <string name="error_select_framerate">请选择帧率</string>
     <string name="error_select_music">请选择音乐</string>
+    <string name="error_video_generation_failed">无法生成视频</string>
     <string name="button_cancel">取消</string>
     <string name="label_music_volume">背景音乐音量 (%)</string>
     <string name="text_volume_percentage">%1$d%%</string>
@@ -100,6 +101,7 @@
     <string name="deep_sea_fish">深海鱼</string>
     <string name="star_at_sea">海上星</string>
 
+    <string name="Speed">速度:</string>
     <string-array name="playback_speeds">
         <item>0.5x</item>
         <item>0.8x</item>
