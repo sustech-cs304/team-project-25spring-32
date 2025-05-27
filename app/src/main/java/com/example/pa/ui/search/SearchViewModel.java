@@ -83,6 +83,10 @@ public class SearchViewModel extends ViewModel {
             }
             cursor.close();
         }
+        if (suggestions.size()> 5) {
+            // 限制建议数量为5个
+            suggestions = suggestions.subList(0, 5);
+        }
         mSuggestions.setValue(suggestions);
     }
     public void checkSearchHistory(int userId) {

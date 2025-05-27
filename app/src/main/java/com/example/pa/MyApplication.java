@@ -17,6 +17,12 @@ import com.example.pa.data.DatabaseHelper;
 import com.example.pa.data.FileRepository;
 import com.example.pa.data.MainRepository;
 
+import org.tensorflow.lite.support.common.FileUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 public class MyApplication extends Application {
     private static MyApplication instance;
     private DatabaseHelper databaseHelper;//这里是数据库帮助类的实例，有个警告，
@@ -62,6 +68,12 @@ public class MyApplication extends Application {
                 this
         );
 
+        try {
+            insertAllTags();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         fileRepository = new FileRepository(this);
 
         Log.d("MyApplication", "Application and DAOs initialized");
@@ -77,6 +89,13 @@ public class MyApplication extends Application {
         searchHistoryDao = new SearchHistoryDao(this);
         memoryVideoDao = new MemoryVideoDao(this);
         memoryVideoPhotoDao = new MemoryVideoPhotoDao(this);
+    }
+    private void insertAllTags() throws IOException {
+        // 这里可以添加一些默认的标签
+        List<String> labels = FileUtil.loadLabels(this, "labels_mobilenet_quant_v1_224.txt");
+        for (String label : labels){
+            tagDao.addTag(label,true);
+        }
     }
 
     public static MyApplication getInstance() {
