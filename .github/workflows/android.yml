@@ -25,4 +25,4 @@ jobs:
     - name: Clean
       run: ./gradlew clean
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew assembleDebug
