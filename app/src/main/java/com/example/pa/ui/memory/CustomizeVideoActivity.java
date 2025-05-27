@@ -170,10 +170,12 @@ public class CustomizeVideoActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { }
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
     }
 
@@ -194,7 +196,7 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         } else {
             try {
                 width = Integer.parseInt(widthStr);
-                if (width < 360 || width > 1280) {
+                if (width < 360 || width > 1280 || (width % 2 == 1)) {
                     layoutWidth.setError(getString(R.string.error_width_range));
                     isValid = false;
                 }
@@ -213,7 +215,7 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         } else {
             try {
                 height = Integer.parseInt(heightStr);
-                if (height < 360 || height > 1280) {
+                if (height < 360 || height > 1280 || (height % 2 == 1)) {
                     layoutHeight.setError(getString(R.string.error_height_range));
                     isValid = false;
                 }
@@ -294,7 +296,7 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         resultIntent.putExtra(EXTRA_WIDTH, width);
         resultIntent.putExtra(EXTRA_HEIGHT, height);
         resultIntent.putExtra(EXTRA_DURATION_MS, durationMs);
-        resultIntent.putExtra(EXTRA_TRANSITION_TYPE, transitionType); // 传递枚举名称
+        resultIntent.putExtra(EXTRA_TRANSITION_TYPE, transitionType.name()); // 传递枚举名称
         resultIntent.putExtra(EXTRA_FRAME_RATE, frameRate);
         resultIntent.putExtra(EXTRA_MUSIC_VOLUME, musicVolume);
         if (musicUri != null) {
