@@ -1,9 +1,16 @@
 package com.example.pa.data;
 
+import android.content.Context;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
 import com.example.pa.data.Daos.*;
+import com.example.pa.data.model.Photo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainRepository {
     private final UserDao userDao;
@@ -15,6 +22,8 @@ public class MainRepository {
     private final SearchHistoryDao searchHistoryDao;
     private final MemoryVideoDao memoryVideoDao;
     private final MemoryVideoPhotoDao memoryVideoPhotoDao;
+    private final Context context;
+    private final SQLiteDatabase db;
 
     public MainRepository(
             UserDao userDao,
@@ -25,7 +34,8 @@ public class MainRepository {
             TagDao tagDao,
             SearchHistoryDao searchHistoryDao,
             MemoryVideoDao memoryVideoDao,
-            MemoryVideoPhotoDao memoryVideoPhotoDao
+            MemoryVideoPhotoDao memoryVideoPhotoDao,
+            Context context
     ) {
         this.userDao = userDao;
         this.albumDao = albumDao;
@@ -36,6 +46,8 @@ public class MainRepository {
         this.searchHistoryDao = searchHistoryDao;
         this.memoryVideoDao = memoryVideoDao;
         this.memoryVideoPhotoDao = memoryVideoPhotoDao;
+        this.context = context;
+        this.db = DatabaseHelper.getInstance(context).getWritableDatabase();
     }
 
 
@@ -53,10 +65,55 @@ public class MainRepository {
         if (photoPaths.isEmpty())return null;
         return photoPaths;
     }
-
-    // 选择最新的照片作为封面
-//    public String getLatestPhotoPathByAlbumName(String albumName) {
-//        int id =
+//    public void cleanEmptyAlbums() {
+//        String query = "DELETE FROM " + AlbumDao.TABLE_NAME +
+//                " WHERE " + AlbumDao.COLUMN_ID + " NOT IN (" +
+//                "   SELECT " + AlbumPhotoDao.COLUMN_ALBUM_ID +
+//                "   FROM " + AlbumPhotoDao.TABLE_NAME +
+//                ")";
+//        db.execSQL(query);
 //    }
+public void cleanEmptyAlbums() {
+    // 添加调试日志
+    Log.d("AlbumCleaner", "cleanEmptyAlbums() called"); // 或者 System.out.println("Method called");
+
+    // 打印要执行的 SQL 语句（调试用）
+    String query = "DELETE FROM " + AlbumDao.TABLE_NAME +
+            " WHERE " + AlbumDao.COLUMN_ID + " NOT IN (" +
+            "   SELECT " + AlbumPhotoDao.COLUMN_ALBUM_ID +
+            "   FROM " + AlbumPhotoDao.TABLE_NAME +
+            ")";
+
+    Log.d("AlbumCleaner", "Executing query: " + query); // 或者 System.out.println(query);
+
+    try {
+        // 执行删除操作
+        db.execSQL(query);
+        Log.d("AlbumCleaner", "Delete completed"); // 或者 System.out.println("Delete succeeded");
+    } catch (SQLException e) {
+        Log.e("AlbumCleaner", "Delete failed", e); // 打印错误日志
+    }
+}
+
+    public void syncInsertPhoto(Photo photo, int userId, Map<String, Integer> albumCache) {
+        try {
+            db.beginTransaction();
+
+            // 1. 插入 Photo
+            int id = (int) photoDao.addFullPhoto(photo);
+
+            String albumName = photo.extractAlbumName(context);
+
+            // 2. 插入 Album 和关联
+            if (albumName != null) {
+                int albumId = albumDao.getOrCreateAlbum(albumName, userId, albumCache);
+                albumPhotoDao.addPhotoToAlbum(albumId, id);
+            }
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
 
 }

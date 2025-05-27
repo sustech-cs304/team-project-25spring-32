@@ -1,6 +1,13 @@
 package com.example.pa.data.model;
 // Photo.java - 对应后端返回的图片数据
 
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
+
 import java.util.List;
 
 public class Photo {
@@ -42,5 +49,34 @@ public class Photo {
                 this.filename = filePath.substring(lastSlash + 1);
             }
         }
+    }
+
+    // 从 URI 获取相册名（通过 MediaStore）
+    public String extractAlbumName(Context context) {
+        String[] projection = {MediaStore.Images.Media.RELATIVE_PATH};
+        try (Cursor cursor = context.getContentResolver().query(
+                Uri.parse(filePath),
+                projection,
+                null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                String path = cursor.getString(0);
+                return parseAlbumNameFromRelativePath(path);
+            }
+        } catch (SecurityException e) {
+            Log.e("Photo", "权限不足无法查询URI: " + filePath);
+        }
+        return null;
+    }
+
+    // 解析相对路径获取相册名（如 "DCIM/Vacation" → "Vacation"）
+    private String parseAlbumNameFromRelativePath(String relativePath) {
+        if (relativePath == null) return null;
+        String[] segments = relativePath.split("/");
+        for (int i = 0; i < segments.length; i++) {
+            if (segments[i].equals(Environment.DIRECTORY_DCIM) && i + 1 < segments.length) {
+                return segments[i + 1];
+            }
+        }
+        return null;
     }
 }
