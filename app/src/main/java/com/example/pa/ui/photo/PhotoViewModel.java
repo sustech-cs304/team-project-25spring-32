@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -32,7 +31,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import com.example.pa.data.model.Photo;
-import com.example.pa.data.repository.PhotoRepository;
+import com.example.pa.data.cloudRepository.PhotoRepository;
 import com.example.pa.data.model.UploadResponse;
 
 public class PhotoViewModel extends AndroidViewModel {

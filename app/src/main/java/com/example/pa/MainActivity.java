@@ -1,9 +1,14 @@
 package com.example.pa;
 
+import static com.example.pa.util.checkLogin.checkLoginStatus;
+
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +20,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,12 +29,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+//import com.example.pa.auth.LoginActivity;
 import com.example.pa.data.model.Photo;
 
 import com.bumptech.glide.Glide;
@@ -35,6 +44,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
+import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
 import com.example.pa.util.ai.ImageClassifier;
@@ -58,12 +68,18 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     private FileRepository fileRepository;
     private ImageClassifier classifier;
     private AlbumViewModel viewModel;
+    //检查是否处于登录状态
+    private boolean isLoggedIn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        isLoggedIn=checkLoginStatus(this);
+        // 设置导航菜单
+        setupNavigationDrawerMenu();
+        setupNavHeader();
 
         // 1. 设置Toolbar前确保没有默认ActionBar
         if (getSupportActionBar() != null) {
@@ -92,8 +108,8 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         // 6. 绑定底部导航
         NavigationUI.setupWithNavController(binding.navView, navController);
 
-        // 7. 绑定抽屉导航
-        NavigationUI.setupWithNavController(binding.navigationDrawer, navController);
+        // 7. 绑定抽屉导航 使用检查登录的形式，取消这种固定形式
+        //NavigationUI.setupWithNavController(binding.navigationDrawer, navController);
 
         // 8. 动态显示/隐藏底部导航
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -142,15 +158,15 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
         testDatabaseOperations();
 //        fileRepository=MyApplication.getInstance().getFileRepository();
-//        try {
-//            // 初始化分类器
-//            classifier = new ImageClassifier(this);
-//
-//            // 直接加载固定路径图片并分类
-//            classifyImage();
-//        } catch (IOException e) {
-//            Log.e("ImageClassifier", "初始化失败", e);
-//        }
+        try {
+            // 初始化分类器
+            classifier = new ImageClassifier(this);
+
+            // 直接加载固定路径图片并分类
+            classifyImage();
+        } catch (IOException e) {
+            Log.e("ImageClassifier", "初始化失败", e);
+        }
 
 
         observeViewModel();
@@ -194,11 +210,91 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         });
     }
 
+
+    private void setupNavHeader() {
+        if (!isLoggedIn) return; // 如果未登录，不设置头部信息
+
+        View headerView = binding.navigationDrawer.getHeaderView(0);
+        ImageView imageView = headerView.findViewById(R.id.imageView);
+        TextView usernameTextView = headerView.findViewById(R.id.username);
+        TextView emailTextView = headerView.findViewById(R.id.email);
+
+        // 使用Glide加载头像,由于Url未实现，头像部分注释
+//        Glide.with(this)
+//                .load(getProfileImageUrl())
+//                .placeholder(R.drawable.ic_default_profile)
+//                .error(R.drawable.ic_default_profile)
+//                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+//                .into(imageView);
+
+        // 设置用户名和邮箱
+//        usernameTextView.setText(getUsername());
+//        emailTextView.setText(getEmail());
+          usernameTextView.setText("getUsername()");
+          emailTextView.setText("getEmail()");
+    }
+    private void setupNavigationDrawerMenu() {
+        // 根据登录状态加载不同的菜单
+        binding.navigationDrawer.getMenu().clear();
+        binding.navigationDrawer.inflateMenu(isLoggedIn ? R.menu.menu_nav_logged_in : R.menu.menu_nav_logged_out);
+
+        // 设置导航项点击监听器
+        binding.navigationDrawer.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_login) {
+                // 处理登录/注册
+                //startActivity(new Intent(this, LoginActivity.class));
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+
+            if (id == R.id.nav_logout) {
+                // 处理退出登录
+                performLogout();
+                binding.drawerLayout.closeDrawer(GravityCompat.START);
+                return true;
+            }
+            if (id==R.id.nav_help){
+                // 处理帮助
+                Intent intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+                return true;
+            }
+
+
+//            if (id == R.id.nav_settings) {
+//                navController.navigate(R.id.navigation_settings);
+//            }
+
+            binding.drawerLayout.closeDrawer(GravityCompat.START);
+            return true;
+        });
+    }
+    private void performLogout() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.logout_title))
+                .setMessage(getString(R.string.logout_message))
+                .setPositiveButton(getString(R.string.positive_button), (dialog, which) -> {
+                    // 清除登录状态
+                    SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+                    prefs.edit().putBoolean("is_logged_in", false).apply();
+
+                    // 更新登录状态并刷新菜单
+                    isLoggedIn = false;
+                    setupNavigationDrawerMenu();
+
+                    // 可选：跳转到登录页面
+                    //startActivity(new Intent(this, LoginActivity.class));
+                    finish();
+                })
+                .setNegativeButton(getString(R.string.negative_button), null)
+                .show();
+    }
     private void classifyImage() {
         String TAG = "ImageClassifier";
         assert fileRepository!=null;
-//        Uri IMAGE_URI=fileRepository.getAlbumImages("NewAlbum").get(0);
-        Uri IMAGE_URI=fileRepository.getAlbumImages("123").get(0);
+        Uri IMAGE_URI=fileRepository.getAlbumImages("所有照片").get(0);
         new Thread(() -> {
             try {
                 // 1. 从URI加载原始图片（确保使用ARGB_8888配置）
@@ -344,42 +440,44 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
             testUserOperations(app.getUserDao());
 
             // ========== 照片测试 ==========
-//            testPhotoOperations(app.getPhotoDao());
+            testPhotoOperations(app.getPhotoDao());
 
             // ========== 相册测试 ==========
-//            testAlbumOperations(app.getAlbumDao());
+            //testAlbumOperations(app.getAlbumDao());
 
             // ========== 标签测试 ==========
-//            testTagOperations(app.getTagDao());
+            testTagOperations(app.getTagDao());
 
             // ========== 搜索历史测试 ==========
-//            testSearchHistoryOperations(app.getSearchHistoryDao());
+            testSearchHistoryOperations(app.getSearchHistoryDao());
 
             // ========== 记忆视频测试 ==========
             //testMemoryVideoOperations(app.getMemoryVideoDao());
 
             // ========== 照片标签测试 ==========
-//            testPhotoTagOperations(app.getPhotoTagDao());
+            testPhotoTagOperations(app.getPhotoTagDao());
 
             // 测试搜索
-//            Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
-//            if (cursor.moveToFirst()) {
-//                do {
-//                    Log.d("testSEARCH", "Album name: " + cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
-//                } while (cursor.moveToNext());
-//                cursor.close();
-//            }
-//
-//            // 测试标签
-//            Cursor cursor2 = app.getTagDao().getRandomTags(3);
-//            if (cursor2.moveToFirst()) {
-//                do {
-//                    Log.d("testTAG", "Tag name: " + cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
-//                } while (cursor2.moveToNext());
-//                cursor2.close();
-//            }
-//
-//            Log.d("Database", "All database tests completed successfully");
+            Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
+            if (cursor.moveToFirst()) {
+                do {
+                    Log.d("testSEARCH", "Album name: " +
+                            cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+
+            // 测试标签
+            Cursor cursor2 = app.getTagDao().getRandomTags(3);
+            if (cursor2.moveToFirst()) {
+                do {
+                    Log.d("testTAG", "Tag name: " +
+                            cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
+                } while (cursor2.moveToNext());
+                cursor2.close();
+            }
+
+            Log.d("Database", "All database tests completed successfully");
 
         } catch (NoSuchAlgorithmException e) {
             Log.e("Database", "Password hashing failed", e);
@@ -500,7 +598,8 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         photoTagDao.addTagToPhoto((int) photoId8, (int) tagId1);
 
         // 可添加日志验证结果
-        Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", " + success4 + ", " + success5 + ", " + success6 + ", " + success7);
+        Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", "
+                + success4 + ", " + success5 + ", " + success6 + ", " + success7);
 
 // 遍历为每个 photoId 添加 tag1
         for (long photoId = 9; photoId <= 23; photoId++) {

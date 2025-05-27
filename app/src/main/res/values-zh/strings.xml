@@ -7,6 +7,7 @@
     <string name="title_social">社交</string>
     <string name="download">下载</string>
     <string name="share">分享</string>
+    <string name="deleted">已删除</string>
     <string name="preview">预览</string>
     <string name="edit">编辑</string>
 
@@ -27,20 +28,82 @@
     <string name="search_history">最近搜索</string>
 
     <string name="profile_image_desc">用户头像</string>
-    <string name="default_username">用户名</string>
-    <string name="default_email">user@example.com</string>
+    <string name="default_username">你还未登录</string>
+    <string name="default_email">登录体验更多精彩内容</string>
 
     <string name="menu_home">首页</string>
     <string name="menu_profile">个人资料</string>
-    <string name="menu_categories">分类</string>
+    <string name="menu_circle">圈子</string>
     <string name="menu_music">音乐</string>
     <string name="menu_movies">电影</string>
     <string name="menu_settings">设置</string>
-    <string name="menu_help">帮助中心</string>
+    <string name="menu_help">快速入门</string>
     <string name="menu_logout">退出登录</string>
 
     <string name="playback_speed">播放</string>
     <string name="finish">完成</string>
     <string name="ChooseRequest">请选择图片</string>
     <string name="NoPhoto">无</string>
+    <string name="delete">删除</string>
+    <string name="menu_login">登录</string>
+    <string name="menu_register">注册</string>
+    <string name="menu_groups">群组</string>
+    <string name="menu_my_group">我的群组</string>
+    <string name="menu_join_group">加入群组</string>
+
+    <string name="title_activity_customize_video">定制记忆视频</string>
+
+    <string name="label_video_resolution">视频分辨率 (360-1280)</string>
+    <string name="hint_video_width">宽度</string>
+    <string name="hint_video_height">高度</string>
+
+    <string name="label_image_duration">图片显示时长 (秒)</string>
+    <string name="hint_image_duration">时长 (2-10 秒)</string>
+
+    <string name="label_transition_type">转场效果</string>
+    <string name="label_frame_rate">视频帧率</string>
+    <string name="label_music_selection">选择背景音乐</string>
+    <string name="button_generate_video">生成</string>
+
+    <string name="transition_fade">淡入淡出</string>
+    <string name="transition_slide_left">向左滑动</string>
+    <string name="transition_slide_right">向右滑动</string>
+    <string name="transition_slide_up">向上滑动</string>
+    <string name="transition_slide_down">向下滑动</string>
+    <string name="transition_wipe_left">向左擦除</string>
+    <string name="transition_wipe_right">向右擦除</string>
+    <string name="transition_zoom_in_fade">放大淡入</string>
+    <string name="transition_distance">渐渐远去</string>
+    <string name="transition_dissolve">溶解</string>
+    <string name="transition_pixelize">像素化</string>
+    <string name="transition_random">随机效果</string>
+
+    <string name="music_none">无音乐</string>
+    <string name="music_gentle_breeze">轻柔微风</string>
+    <string name="music_happy_journey">快乐旅程</string>
+    <string name="music_peaceful_moments">宁静时刻</string>
+
+    <string name="error_must_be_number">请输入数字</string>
+    <string name="error_width_range">宽度必须在 360 到 1280 之间</string>
+    <string name="error_height_range">高度必须在 360 到 1280 之间</string>
+    <string name="error_duration_range">时长必须在 2 到 10 秒之间</string>
+    <string name="error_select_transition">请选择转场效果</string>
+    <string name="error_select_framerate">请选择帧率</string>
+    <string name="error_select_music">请选择音乐</string>
+    <string name="button_cancel">取消</string>
+    <string name="label_music_volume">背景音乐音量 (%)</string>
+    <string name="text_volume_percentage">%1$d%%</string>
+
+    <string name="yandai_xiejie">烟袋斜街</string>
+    <string name="beyond">Beyond</string>
+    <string name="solstice">至日</string>
+    <string name="deep_sea_fish">深海鱼</string>
+    <string name="star_at_sea">海上星</string>
+    
+    <string name="logout_title">退出登录</string>
+    <string name="logout_message">你确定要退出登录吗？</string>
+    <string name="positive_button">确定</string>
+    <string name="negative_button">取消</string>
+    <string name="help_content">帮助文本</string>
+    <string name="return_">返回</string>
 </resources>

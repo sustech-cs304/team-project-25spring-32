@@ -11,8 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -30,6 +33,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     private RecyclerView recyclerView;
     private MemoryPhotoAdapter adapter;
     private MemoryDetailViewModel viewModel;
+    private ActivityResultLauncher<Intent> customizeVideoLauncher; // 添加启动器
     private ImageButton btnBack;
     private ImageButton btnAdd;
     private ImageButton btnDelete;
@@ -59,6 +63,19 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         View videoPreview = view.findViewById(R.id.video_preview);
         recyclerView = view.findViewById(R.id.photo_recycler_view);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+
+        customizeVideoLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        handleCustomizeResult(data);
+                    } else {
+                        // 用户取消或返回，可以显示提示或不做任何事
+                        Log.d(TAG, "Video customization cancelled or failed.");
+                    }
+                });
+
         return view;
     }
 
@@ -106,7 +123,11 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         btnAdd.setOnClickListener(v -> Toast.makeText(getContext(), "添加照片 (TODO)", Toast.LENGTH_SHORT).show());
         btnDelete.setOnClickListener(v -> Toast.makeText(getContext(), "批量删除 (TODO)", Toast.LENGTH_SHORT).show());
         // Fragment 触发 ViewModel 的导出逻辑
-        btnExport.setOnClickListener(v -> viewModel.exportVideo());
+        btnExport.setOnClickListener(v -> {
+            // 启动 CustomizeVideoActivity
+            Intent intent = new Intent(getContext(), CustomizeVideoActivity.class);
+            customizeVideoLauncher.launch(intent);
+        });
     }
 
     public void onBackPressed() {
@@ -137,5 +158,33 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         super.onDestroyView();
         // 在 Fragment 销毁视图时，不再需要手动取消 FFmpeg 任务，因为 ViewModel 已经负责了
         // ViewModel 的 onCleared() 会处理资源的释放
+    }
+
+    // 加载从CustomizeVideoActivity里面获取的定制视频参数
+    private void handleCustomizeResult(Intent data) {
+        try {
+            int width = data.getIntExtra(CustomizeVideoActivity.EXTRA_WIDTH, 1280);
+            int height = data.getIntExtra(CustomizeVideoActivity.EXTRA_HEIGHT, 720);
+            int durationMs = data.getIntExtra(CustomizeVideoActivity.EXTRA_DURATION_MS, 3000);
+            String transitionName = data.getStringExtra(CustomizeVideoActivity.EXTRA_TRANSITION_TYPE);
+            TransitionType transitionType = TransitionType.valueOf(transitionName != null ? transitionName : TransitionType.FADE.name());
+            int frameRate = data.getIntExtra(CustomizeVideoActivity.EXTRA_FRAME_RATE, 30);
+            String musicUriString = data.getStringExtra(CustomizeVideoActivity.EXTRA_MUSIC_URI);
+            Uri musicUri = musicUriString != null ? Uri.parse(musicUriString) : null;
+            float musicVolume = data.getFloatExtra(CustomizeVideoActivity.EXTRA_MUSIC_VOLUME, 1.0f); // 默认 0.8
+
+            Log.d(TAG, "Received custom options: " + width + "x" + height +
+                    ", Duration=" + durationMs + "ms" +
+                    ", Transition=" + transitionType.name() +
+                    ", FrameRate=" + frameRate +
+                    ", Music=" + (musicUri != null ? musicUri.toString() : "None"));
+
+            // 调用 ViewModel 的导出方法，并传递参数
+            viewModel.exportVideo(width, height, durationMs, transitionType, frameRate, musicUri, musicVolume);
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error processing customization result", e);
+            Toast.makeText(getContext(), "处理定制参数时出错", Toast.LENGTH_SHORT).show();
+        }
     }
 }

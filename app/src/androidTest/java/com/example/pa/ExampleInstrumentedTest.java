@@ -96,4 +96,20 @@ public class ExampleInstrumentedTest {
 
 
     }
+
+    @Test
+    public void checkLoginStatus() {
+        // 测试登录状态检查
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        boolean isLoggedIn = com.example.pa.util.checkLogin.checkLoginStatus(context);
+        assertFalse("User should not be logged in by default", isLoggedIn);
+    }
+
+    @Test
+    public void test_getAppContext() {
+        // 测试获取应用上下文
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertNotNull("Application context should not be null", appContext);
+        assertEquals("com.example.pa", appContext.getPackageName());
+    }
 }

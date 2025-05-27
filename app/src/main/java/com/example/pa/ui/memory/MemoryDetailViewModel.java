@@ -9,6 +9,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast; // 注意：ViewModel 不直接显示 Toast，但这里为了方便复制 saveVideoFromTempToMediaStore 方法，暂时保留
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -55,7 +56,7 @@ public class MemoryDetailViewModel extends ViewModel {
     }
 
     public void loadPhotos(String memoryId) {
-        List<Uri> sampleUris = fileRepository.getAlbumImages("所有照片");
+        List<Uri> sampleUris = fileRepository.getAlbumImages("Camera");
         int numImagesToTest = 5;
         if (sampleUris != null && sampleUris.size() > numImagesToTest) {
             sampleUris = sampleUris.subList(0, numImagesToTest);
@@ -68,9 +69,19 @@ public class MemoryDetailViewModel extends ViewModel {
     }
 
     /**
-     * 触发视频生成
+     * 触发视频生成 (使用用户定制参数)
+     *
+     * @param targetWidth    目标宽度
+     * @param targetHeight   目标高度
+     * @param durationMs     图片显示时长 (毫秒)
+     * @param transitionType 转场类型
+     * @param frameRate      帧率
+     * @param musicUri       音乐 Uri (可选)
+     * @param musicVolume    音乐音量 (0.0 - 1.0)
      */
-    public void exportVideo() {
+    public void exportVideo(int targetWidth, int targetHeight, int durationMs,
+                            TransitionType transitionType, int frameRate, @Nullable Uri musicUri, float musicVolume) { // 添加 musicVolume
+
         if (Boolean.TRUE.equals(_isCreatingVideo.getValue())) {
             _toastMessage.setValue("视频正在生成中，请稍候...");
             return;
@@ -93,18 +104,22 @@ public class MemoryDetailViewModel extends ViewModel {
         Log.d(TAG, "Temp output file path for FFmpeg: " + tempOutputFilePath);
 
         // 2. 构建 VideoCreationOptions (使用 Builder)
-        int targetWidth = 1280;
-        int targetHeight = 720;
-
-        VideoCreationOptions options = new VideoCreationOptions.Builder(imageUris, tempOutputFilePath)
+        VideoCreationOptions.Builder builder = new VideoCreationOptions.Builder(imageUris, tempOutputFilePath)
                 .setVideoResolution(targetWidth + "x" + targetHeight)
-                .setImageDisplayDurationMs(3000)
-                .setTransitionDurationMs(500)
-                .setTransitionType(TransitionType.FADE)
-                .setFrameRate(30)
-                .setVideoBitrate(2000000)
-                .setAudioBitrate(128000)
-                .build();
+                .setImageDisplayDurationMs(durationMs)
+                .setTransitionType(transitionType)
+                .setFrameRate(frameRate)
+                .setMusicVolume(musicVolume) // 设置音量
+                // 你可以根据需要，让用户也定制转场时长和比特率，或者使用默认值
+                .setTransitionDurationMs(500) // 示例: 使用默认值或从定制页获取
+                .setVideoBitrate(2000000)      // 示例: 使用默认值或从定制页获取
+                .setAudioBitrate(128000);      // 示例: 使用默认值或从定制页获取
+
+        if (musicUri != null) {
+            builder.setMusicUri(musicUri);
+        }
+
+        VideoCreationOptions options = builder.build();
 
         // 3. 调用 FFmpegVideoCreationService 开始创建
         videoCreationService.createVideo(options, new VideoCreationService.VideoCreationCallback() {
@@ -145,6 +160,7 @@ public class MemoryDetailViewModel extends ViewModel {
     /**
      * 将 FFmpeg 生成的临时视频文件复制到 MediaStore (DCIM/Memory 目录)
      * 这个方法将在后台线程中执行
+     *
      * @param tempFilePath FFmpeg 生成的临时文件的路径
      */
     private void saveVideoFromTempToMediaStore(String tempFilePath) {
