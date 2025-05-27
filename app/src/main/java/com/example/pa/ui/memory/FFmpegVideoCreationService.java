@@ -284,7 +284,7 @@ public class FFmpegVideoCreationService implements VideoCreationService {
         for (int i = 0; i < numImages; i++) {
             command.append(String.format(Locale.US, "[%d:v]setpts=PTS-STARTPTS,scale=%s:%s:force_original_aspect_ratio=decrease:eval=frame,",
                     i, targetWidth, targetHeight));
-            command.append(String.format(Locale.US, "pad=%s:%s:-1:-1:color=black[v%d]",
+            command.append(String.format(Locale.US, "pad=%s:%s:-1:-1:color=white[v%d]",
                     targetWidth, targetHeight, i));
             if (i < numImages - 1) {
                 command.append(";");
