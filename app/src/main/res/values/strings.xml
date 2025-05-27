@@ -106,6 +106,16 @@
     <string name="solstice">Solstice</string>
     <string name="deep_sea_fish">Deep Sea Fish</string>
     <string name="star_at_sea">Star at Sea</string>
+
+    <string-array name="playback_speeds">
+        <item>0.5x</item>
+        <item>0.8x</item>
+        <item>1.0x (Normal)</item>
+        <item>1.2x</item>
+        <item>1.5x</item>
+        <item>2.0x</item>
+    </string-array>
+
     <string name="logout_title">Logout</string>
     <string name="logout_message">Are you sure you want to log out?</string>
 

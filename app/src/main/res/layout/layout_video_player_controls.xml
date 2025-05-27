@@ -4,90 +4,96 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000"> <com.google.android.exoplayer2.ui.PlayerView
-    android:id="@+id/player_view"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="1"
-    app:show_buffering="when_playing"
-    app:use_controller="false" /> <LinearLayout
-    android:id="@+id/controls_container"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp"
-    android:background="#80000000"> <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:background="#000000"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/time_current"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        tools:text="00:00" />
-
-    <SeekBar
-        android:id="@+id/seek_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <androidx.media3.ui.PlayerView android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:maxHeight="4dp"
-        android:progressDrawable="@drawable/seekbar_progress"
-        android:thumb="@drawable/seekbar_thumb"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp"
-        tools:progress="50" />
-
-    <TextView
-        android:id="@+id/time_total"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        tools:text="00:00" />
-
-</LinearLayout>
+        app:show_buffering="when_playing"
+        app:use_controller="false" />
 
     <LinearLayout
+        android:id="@+id/controls_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginTop="4dp">
+        android:background="#80000000"
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <ImageButton
-            android:id="@+id/btn_play_pause"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_play_arrow"
-            app:tint="@android:color/white"
-            tools:ignore="SpeakableTextPresentCheck" />
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="速度:"
-            android:textColor="@android:color/white"
-            android:textSize="14sp" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Spinner
-            android:id="@+id/spinner_speed"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/time_current"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="00:00" />
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:maxHeight="4dp"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:progressDrawable="@drawable/seekbar_progress"
+                android:thumb="@drawable/seekbar_thumb"
+                tools:progress="50" />
+
+            <TextView
+                android:id="@+id/time_total"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                tools:text="00:00" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:prompt="@string/playback_speed"
-            android:spinnerMode="dropdown" />
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/btn_play_pause"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_play_arrow"
+                app:tint="@android:color/white"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:text="速度:"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+            <Spinner
+                android:id="@+id/spinner_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:prompt="@string/playback_speed"
+                android:spinnerMode="dropdown"
+                tools:ignore="TouchTargetSizeCheck" />
+
+        </LinearLayout>
 
     </LinearLayout>
-
-</LinearLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar_creation"
@@ -102,8 +108,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textColor="@color/red"
         android:text="视频创建失败！"
+        android:textColor="@color/red"
         android:visibility="gone"
         tools:visibility="visible" />
 

@@ -99,6 +99,15 @@
     <string name="solstice">ソルスティス</string>
     <string name="deep_sea_fish">深海魚</string>
     <string name="star_at_sea">海上の星</string>
+
+    <string-array name="playback_speeds">
+        <item>0.5x</item>
+        <item>0.8x</item>
+        <item>1.0x (標準)</item>
+        <item>1.2x</item>
+        <item>1.5x</item>
+        <item>2.0x</item>
+    </string-array>
     
     <string name="logout_title">ログアウト</string>
     <string name="logout_message">ログアウトしますか?</string>
