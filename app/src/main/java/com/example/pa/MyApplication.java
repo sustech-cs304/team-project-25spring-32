@@ -58,7 +58,8 @@ public class MyApplication extends Application {
                 photoDao, photoTagDao,
                 tagDao, searchHistoryDao,
                 memoryVideoDao,
-                memoryVideoPhotoDao
+                memoryVideoPhotoDao,
+                this
         );
 
         fileRepository = new FileRepository(this);

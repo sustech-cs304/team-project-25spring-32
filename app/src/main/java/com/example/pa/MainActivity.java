@@ -3,6 +3,9 @@ package com.example.pa;
 import static com.example.pa.util.checkLogin.checkLoginStatus;
 
 import android.annotation.SuppressLint;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -22,9 +26,11 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -33,12 +39,16 @@ import androidx.navigation.ui.NavigationUI;
 //import com.example.pa.auth.LoginActivity;
 import com.example.pa.data.model.Photo;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.ui.help.HelpActivity;
+import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
 import com.example.pa.util.ai.ImageClassifier;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,12 +61,13 @@ import java.util.List;
 
 import android.Manifest;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements FileRepository.DeleteCallback {
     private ActivityMainBinding binding;
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
     private AppBarConfiguration appBarConfiguration;
     private FileRepository fileRepository;
     private ImageClassifier classifier;
+    private AlbumViewModel viewModel;
     //检查是否处于登录状态
     private boolean isLoggedIn = false;
 
@@ -135,7 +146,10 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
         fileRepository=MyApplication.getInstance().getFileRepository();
+        fileRepository.setDeleteCallback(this);
+        fileRepository.registerMediaStoreObserver();
 
         // 首次启动时请求权限
         requestNecessaryPermissions();
@@ -155,10 +169,47 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
+        observeViewModel();
         // 设置底部导航
         //setupBottomNavigation();
     }
+
+    private void observeViewModel() {
+        viewModel.getDeleteEvent().observe(this, event -> {
+            if (event != null) {
+                Log.d("Delete", "成功观察");
+                handleDeleteEvent(event.uris, event.albumName);
+            }
+        });
+    }
+
+    private void handleDeleteEvent(List<Uri> uris, String albumName) {
+        fileRepository.deleteAlbum(uris, new FileRepository.DeleteRequestProvider() {
+            @Override
+            public void provideDeleteRequest(PendingIntent deleteIntent) {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Log.d("Delete", "版本正确");
+                    startIntentSenderForResult(
+                                deleteIntent.getIntentSender(),
+                                FileRepository.DELETE_REQUEST_CODE,
+                                null, 0, 0, 0,
+                                null
+                        );
+                    } else {
+                        startIntentSenderForResult(
+                                deleteIntent.getIntentSender(),
+                                FileRepository.DELETE_REQUEST_CODE,
+                                null, 0, 0, 0
+                        );
+                    }
+                } catch (IntentSender.SendIntentException e) {
+                    Log.e("Delete", "启动删除请求失败", e);
+                }
+            }
+        });
+    }
+
 
     private void setupNavHeader() {
         if (!isLoggedIn) return; // 如果未登录，不设置头部信息
@@ -587,5 +638,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d("Database", "Cleaned up all test data");
 
         super.onDestroy();
+    }
+
+    @Override
+    public void onComplete() {
+        viewModel.loadAlbums(); // 删除成功后刷新列表
+        Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onError(String error) {
+        Toast.makeText(this, error, Toast.LENGTH_LONG).show();
     }
 }

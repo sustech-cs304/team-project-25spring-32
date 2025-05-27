@@ -1,6 +1,21 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("org.sonarqube") version "4.4.1.3373"
 }
+sonarqube {
+    properties {
+        property("sonar.projectKey", "com.example.pa")
+        property("sonar.projectName", "PA")
+        property("sonar.projectVersion", "1.0")
+        property("sonar.sources", "src/main/java")
+        property("sonar.tests", "src/test/java")
+        property("sonar.language", "java")
+        property("sonar.sourceEncoding", "UTF-8")
+        property("sonar.java.binaries", "build/intermediates/javac/debug")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/jacocoTestReport/jacocoTestReport.xml")
+    }
+}
+
 
 android {
     namespace = "com.example.pa"
@@ -23,6 +38,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = true
         }
     }
     compileOptions {

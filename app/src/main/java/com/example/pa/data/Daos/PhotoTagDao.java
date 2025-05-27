@@ -93,6 +93,18 @@ public class PhotoTagDao {
         }
     }
 
+    public boolean removeTagFromPhotoByPhoto(int photoId) {
+        try {
+            int affected = db.delete(TABLE_NAME,
+                    COLUMN_PHOTO_ID + " = ?",
+                    new String[]{String.valueOf(photoId)});
+            return affected > 0;
+        } catch (SQLException e) {
+            Log.e("PhotoTagDao", "从照片移除标签失败", e);
+            return false;
+        }
+    }
+
     public void clearTable() {
         db.beginTransaction();
         try {

@@ -82,7 +82,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         cancel = rootView.findViewById(R.id.btnCancel);
 
         // 获取 ViewModel
-        albumViewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
+        albumViewModel = new ViewModelProvider(requireActivity()).get(AlbumViewModel.class);
 
         if (checkPermissions()) {
             albumViewModel.addAlbum("所有照片",1,false,false,"private");

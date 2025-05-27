@@ -15,7 +15,6 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PhotoDao {
@@ -165,6 +164,21 @@ public class PhotoDao {
                     new String[]{String.valueOf(photoId)});
             return affected > 0;
         } catch (SQLException e) {
+            Log.e("PhotoDao", "删除照片失败" + photoId, e);
+            return false;
+        }
+    }
+
+    /**
+     * 根据路径删除照片（级联删除相关数据需在数据库定义）
+     */
+    public boolean deletePhotoByUri(String uri) {
+        try {
+            int affected = db.delete(TABLE_NAME,
+                    COLUMN_FILE_PATH + " = ?",
+                    new String[]{String.valueOf(uri)});
+            return affected > 0;
+        } catch (SQLException e) {
             Log.e("PhotoDao", "删除照片失败", e);
             return false;
         }
@@ -207,6 +221,24 @@ public class PhotoDao {
         return null;
     }
 
+    @SuppressLint("Range")
+    public int getPhotoIdByPath(String path) {
+        try (Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_ID},
+                COLUMN_FILE_PATH + " = ?",
+                new String[]{String.valueOf(path)},
+                null, null, null)) {
+
+            if (cursor.moveToFirst()) {
+                return cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+            }
+        } catch (Exception e) {
+            Log.e("PhotoDao", "查询照片路径失败", e);
+            Log.e("PhotoDao", "Uri: " + path);
+        }
+        return -1;
+    }
+
     /**
      * 获取用户的所有照片
      */
@@ -216,6 +248,50 @@ public class PhotoDao {
                 COLUMN_USER_ID + " = ?",
                 new String[]{String.valueOf(userId)},
                 null, null, COLUMN_UPLOADED_TIME + " DESC"); // 按上传时间倒序
+    }
+
+    /**
+     * 获取用户的所有照片路径
+     */
+    @SuppressLint("Range")
+    public List<String> getPhotoPathByUser(int userId) {
+        List<String> photoPaths = new ArrayList<>();
+        try (Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_FILE_PATH},
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(userId)},
+                null, null, null)) {
+
+            while (cursor.moveToFirst()) {
+                photoPaths.add(cursor.getString(cursor.getColumnIndex(COLUMN_FILE_PATH)));
+            }
+        } catch (Exception e) {
+            Log.e("PhotoDao", "查询照片路径失败", e);
+            Log.e("PhotoDao", "User: " + userId);
+        }
+        return photoPaths;
+    }
+
+    // 使用分页查询替代全量加载
+    public List<String> getPhotoPathByUser(int userId, int page, int pageSize) {
+        List<String> uris = new ArrayList<>(pageSize);
+
+        String query = "SELECT " + COLUMN_FILE_PATH +
+                " FROM " + TABLE_NAME +
+                " WHERE " + COLUMN_USER_ID + " = ?" +
+                " LIMIT ? OFFSET ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{
+                String.valueOf(userId),
+                String.valueOf(pageSize),
+                String.valueOf(page * pageSize)
+        });
+
+        while (cursor.moveToNext()) {
+            uris.add(cursor.getString(0));
+        }
+        cursor.close();
+        return uris;
     }
 
     /**

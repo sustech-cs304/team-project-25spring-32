@@ -45,6 +45,7 @@ public class AlbumPhotoDao {
         values.put(COLUMN_PHOTO_ID, photoId);
 
         try {
+            Log.d("AlbumPhotoDao", "addPhoto " + photoId + "ToAlbum: " + albumId);
             long result = db.insert(TABLE_NAME, null, values);
             return result != -1;
         } catch (SQLException e) {
@@ -66,6 +67,30 @@ public class AlbumPhotoDao {
             int affected = db.delete(TABLE_NAME,
                     COLUMN_ALBUM_ID + " = ? AND " + COLUMN_PHOTO_ID + " = ?",
                     new String[]{String.valueOf(albumId), String.valueOf(photoId)});
+            return affected > 0;
+        } catch (SQLException e) {
+            Log.e("AlbumPhotoDao", "从相册移除照片失败", e);
+            return false;
+        }
+    }
+
+    public boolean removePhotoFromAlbumByPhoto(int photoId) {
+        try {
+            int affected = db.delete(TABLE_NAME,
+                    COLUMN_PHOTO_ID + " = ?",
+                    new String[]{String.valueOf(photoId)});
+            return affected > 0;
+        } catch (SQLException e) {
+            Log.e("AlbumPhotoDao", "从相册移除照片失败", e);
+            return false;
+        }
+    }
+
+    public boolean removePhotoFromAlbumByAlbum(int albumId) {
+        try {
+            int affected = db.delete(TABLE_NAME,
+                    COLUMN_ALBUM_ID + " = ?",
+                    new String[]{String.valueOf(albumId)});
             return affected > 0;
         } catch (SQLException e) {
             Log.e("AlbumPhotoDao", "从相册移除照片失败", e);
