@@ -95,7 +95,7 @@ public void cleanEmptyAlbums() {
     }
 }
 
-    public void syncInsertPhoto(Photo photo, int userId, Map<String, Integer> albumCache) {
+    public void syncInsertPhoto(Photo photo, int userId, Map<String, Integer> albumCache, int tagId) {
         try {
             db.beginTransaction();
 
@@ -109,6 +109,9 @@ public void cleanEmptyAlbums() {
                 int albumId = albumDao.getOrCreateAlbum(albumName, userId, albumCache);
                 albumPhotoDao.addPhotoToAlbum(albumId, id);
             }
+
+            // 3. 插入 Tag
+            photoTagDao.addTagToPhoto(id, tagId);
 
             db.setTransactionSuccessful();
         } finally {

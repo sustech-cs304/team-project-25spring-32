@@ -2,15 +2,19 @@ package com.example.pa.ui.album;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pa.R;
 import com.example.pa.ui.select.PhotoSelectActivity;
+
+import java.util.ArrayList;
 
 public class PhotoinAlbumActivity extends AppCompatActivity {
     private ImageButton backButton;
@@ -55,6 +59,25 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
             }
         });
     }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        // 检查请求码和结果码
+//        if (requestCode == REQUEST_SELECT_PHOTOS && resultCode == RESULT_OK) {
+//            if (data != null) {
+//                // 获取返回的选中图片 URI 列表
+//                ArrayList<Uri> selectedUris = data.getParcelableArrayListExtra("selected_photos");
+//
+//                // 处理选中的图片
+//                if (selectedUris != null && !selectedUris.isEmpty()) {
+//                    addPhotosToAlbum(selectedUris);    // 添加到相册
+//                    refreshAlbumFragment();            // 刷新界面
+//                }
+//            }
+//        }
+//    }
 
     public void onAddClick() {
         Intent intent = new Intent(this, PhotoSelectActivity.class);

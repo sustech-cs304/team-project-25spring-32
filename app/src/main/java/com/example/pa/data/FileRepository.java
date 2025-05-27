@@ -266,7 +266,9 @@ public class FileRepository {
 //                int albumId = myApplication.getAlbumDao().getOrCreateAlbum(albumName, userId, albumCache);
 //                myApplication.getAlbumPhotoDao().addPhotoToAlbum(albumId, photo.id);
 //            }
-            myApplication.getMainRepository().syncInsertPhoto(photo, userId, albumCache);
+            String tagName = null;
+            int tagId = myApplication.getTagDao().getTagIdByNameSpec(tagName);
+            myApplication.getMainRepository().syncInsertPhoto(photo, userId, albumCache, tagId);
         }
 
         // 处理照片删除
