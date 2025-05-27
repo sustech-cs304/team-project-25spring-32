@@ -90,6 +90,7 @@
     <string name="error_select_transition">请选择转场效果</string>
     <string name="error_select_framerate">请选择帧率</string>
     <string name="error_select_music">请选择音乐</string>
+    <string name="error_video_generation_failed">无法生成视频</string>
     <string name="button_cancel">取消</string>
     <string name="label_music_volume">背景音乐音量 (%)</string>
     <string name="text_volume_percentage">%1$d%%</string>
@@ -99,6 +100,16 @@
     <string name="solstice">至日</string>
     <string name="deep_sea_fish">深海鱼</string>
     <string name="star_at_sea">海上星</string>
+
+    <string name="Speed">速度:</string>
+    <string-array name="playback_speeds">
+        <item>0.5x</item>
+        <item>0.8x</item>
+        <item>1.0x (正常)</item>
+        <item>1.2x</item>
+        <item>1.5x</item>
+        <item>2.0x</item>
+    </string-array>
     
     <string name="logout_title">退出登录</string>
     <string name="logout_message">你确定要退出登录吗？</string>

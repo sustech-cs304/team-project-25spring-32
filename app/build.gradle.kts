@@ -57,14 +57,15 @@ android {
 dependencies {
     //noinspection UseTomlInstead
     implementation("com.arthenica:ffmpeg-kit-full-gpl:6.0-2.LTS")
-    implementation ("com.google.android.exoplayer:exoplayer-core:2.19.1")
-    implementation ("com.google.android.exoplayer:exoplayer-ui:2.19.1")
-    // 如果需要 dash, hls 等格式，添加对应的模块
-    implementation ("com.google.android.exoplayer:exoplayer-dash:2.19.1")
-    implementation ("com.google.android.exoplayer:exoplayer-hls:2.19.1")
-    implementation ("androidx.annotation:annotation:1.9.1")
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation("androidx.media3:media3-common:1.3.1")
+    implementation("androidx.media3:media3-exoplayer-hls:1.3.1")
+    implementation("androidx.media3:media3-exoplayer-dash:1.3.1")
+    implementation("androidx.media3:media3-exoplayer-smoothstreaming:1.3.1")
+    implementation("androidx.annotation:annotation:1.9.1")
     implementation(libs.glide)
-    implementation (libs.flexbox)
+    implementation(libs.flexbox)
     implementation(libs.room.common)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
@@ -74,10 +75,10 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
-    implementation (libs.gson)
-    implementation (libs.tensorflow.lite)
-    implementation (libs.tensorflow.lite.gpu)  // 可选（GPU加速）
-    implementation (libs.tensorflow.lite.support)
+    implementation(libs.gson)
+    implementation(libs.tensorflow.lite)
+    implementation(libs.tensorflow.lite.gpu)  // 可选（GPU加速）
+    implementation(libs.tensorflow.lite.support)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

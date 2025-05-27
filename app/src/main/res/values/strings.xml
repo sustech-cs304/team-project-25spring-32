@@ -97,6 +97,7 @@
     <string name="error_select_transition">Please select a transition</string>
     <string name="error_select_framerate">Please select a frame rate</string>
     <string name="error_select_music">Please select music</string>
+    <string name="error_video_generation_failed">Failed to generate video</string>
     <string name="button_cancel">Cancel</string>
     <string name="label_music_volume">Background Music Volume (%)</string>
     <string name="text_volume_percentage">%1$d%%</string>
@@ -106,6 +107,17 @@
     <string name="solstice">Solstice</string>
     <string name="deep_sea_fish">Deep Sea Fish</string>
     <string name="star_at_sea">Star at Sea</string>
+
+    <string name="Speed">Speed:</string>
+    <string-array name="playback_speeds">
+        <item>0.5x</item>
+        <item>0.8x</item>
+        <item>1.0x (Normal)</item>
+        <item>1.2x</item>
+        <item>1.5x</item>
+        <item>2.0x</item>
+    </string-array>
+
     <string name="logout_title">Logout</string>
     <string name="logout_message">Are you sure you want to log out?</string>
 
@@ -115,4 +127,5 @@
 
     <string name="help_content">This is a sample help text. You can replace it with your own content.</string>
     <string name="return_">return</string>
+
 </resources>

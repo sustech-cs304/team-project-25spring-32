@@ -2,63 +2,55 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#000000"> <com.google.android.exoplayer2.ui.PlayerView
-    android:id="@+id/player_view"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="1"
-    app:show_buffering="when_playing"
-    app:use_controller="false" /> <LinearLayout
-    android:id="@+id/controls_container"
+    android:id="@+id/controls_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="#80000000"
     android:orientation="vertical"
     android:padding="8dp"
-    android:background="#80000000"> <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
-
-    <TextView
-        android:id="@+id/time_current"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        tools:text="00:00" />
-
-    <SeekBar
-        android:id="@+id/seek_bar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:maxHeight="4dp"
-        android:progressDrawable="@drawable/seekbar_progress"
-        android:thumb="@drawable/seekbar_thumb"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp"
-        tools:progress="50" />
-
-    <TextView
-        android:id="@+id/time_total"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:textSize="12sp"
-        tools:text="00:00" />
-
-</LinearLayout>
+    android:visibility="visible">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:layout_marginTop="4dp">
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/time_current"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:text="00:00" />
+
+        <SeekBar
+            android:id="@+id/seek_bar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:maxHeight="4dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            tools:progress="50" />
+
+        <TextView
+            android:id="@+id/time_total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            tools:text="00:00" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <ImageButton
             android:id="@+id/btn_play_pause"
@@ -67,13 +59,17 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_play_arrow"
             app:tint="@android:color/white"
-            tools:ignore="SpeakableTextPresentCheck" />
+            tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="速度:"
+            android:text="@string/Speed"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
 
@@ -82,12 +78,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
+            android:backgroundTint="@android:color/white"
             android:prompt="@string/playback_speed"
-            android:spinnerMode="dropdown" />
+            android:spinnerMode="dropdown"
+            tools:ignore="TouchTargetSizeCheck" />
 
     </LinearLayout>
-
-</LinearLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar_creation"
@@ -102,8 +98,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:text="@string/error_video_generation_failed"
         android:textColor="@color/red"
-        android:text="视频创建失败！"
         android:visibility="gone"
         tools:visibility="visible" />
 

@@ -2,6 +2,7 @@ package com.example.pa.ui.memory;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -31,7 +32,8 @@ import java.util.concurrent.Executors; // 用于异步文件操作
 public class MemoryDetailViewModel extends ViewModel {
 
     private static final String TAG = "MemoryDetailViewModel";
-
+    private static final String PREFS_NAME = "MemoryVideoPrefs"; // SharedPreferences 文件名
+    private static final String KEY_LAST_VIDEO_URI = "LastVideoUri"; // SharedPreferences Key
     private final MutableLiveData<List<Uri>> photoUris = new MutableLiveData<>();
     private final FileRepository fileRepository;
     private final FFmpegVideoCreationService videoCreationService;
@@ -43,12 +45,18 @@ public class MemoryDetailViewModel extends ViewModel {
 
     // 用于文件操作的线程池，避免阻塞 ViewModel
     private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
+    private final Context appContext; // 保存 Context
+    private final SharedPreferences prefs; // SharedPreferences 实例
+    private final MutableLiveData<Uri> _currentVideoUri = new MutableLiveData<>(null);
+    public final LiveData<Uri> currentVideoUri = _currentVideoUri;
 
     public MemoryDetailViewModel() {
-        Context appContext = MyApplication.getInstance().getApplicationContext();
+        this.appContext = MyApplication.getInstance().getApplicationContext();
         this.fileRepository = new FileRepository(appContext);
         this.videoCreationService = new FFmpegVideoCreationService(appContext);
         this.uriToPathHelper = new UriToPathHelper();
+        this.prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); // 初始化 SharedPreferences
+        loadLastVideoUri(); // 初始化时加载上次的 Uri
     }
 
     public LiveData<List<Uri>> getPhotoUris() {
@@ -253,6 +261,11 @@ public class MemoryDetailViewModel extends ViewModel {
 
             Log.d(TAG, "Video successfully saved to MediaStore: " + newVideoUri.toString());
             _toastMessage.postValue("视频已导出至 DCIM/Memory 目录"); // 在后台线程更新 LiveData
+
+            // 将最新生成的视频保存下来，用于在 MemoryDeatilFragment展示
+            _currentVideoUri.postValue(newVideoUri); // 更新 LiveData
+            saveLastVideoUri(newVideoUri);         // 保存到 SharedPreferences
+
         } catch (Exception e) {
             Log.e(TAG, "Failed to save video to MediaStore", e);
             _toastMessage.postValue("视频保存失败: " + e.getMessage()); // 在后台线程更新 LiveData
@@ -283,5 +296,28 @@ public class MemoryDetailViewModel extends ViewModel {
         // 当 ViewModel 被销毁时，取消正在进行的 FFmpeg 任务和关闭线程池
         videoCreationService.cancelCurrentTask();
         ioExecutor.shutdownNow(); // 立即关闭线程池
+    }
+
+    // 将上次保存的视频 Uri导出
+    private void loadLastVideoUri() {
+        String uriString = prefs.getString(KEY_LAST_VIDEO_URI, null);
+        if (uriString != null) {
+            _currentVideoUri.postValue(Uri.parse(uriString));
+            Log.d(TAG, "Loaded last video URI: " + uriString);
+        } else {
+            Log.d(TAG, "No last video URI found.");
+            // 在这里可以触发默认视频生成逻辑（如果需要）
+            // generateDefaultVideoIfNeeded();
+        }
+    }
+
+    // 在生成视频之后，将最新的 Uri保存至 prefs
+    private void saveLastVideoUri(Uri videoUri) {
+        if (videoUri != null) {
+            prefs.edit().putString(KEY_LAST_VIDEO_URI, videoUri.toString()).apply();
+            Log.d(TAG, "Saved last video URI: " + videoUri.toString());
+        } else {
+            prefs.edit().remove(KEY_LAST_VIDEO_URI).apply();
+        }
     }
 }
