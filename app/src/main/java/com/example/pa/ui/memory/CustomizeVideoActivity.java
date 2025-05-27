@@ -294,7 +294,7 @@ public class CustomizeVideoActivity extends AppCompatActivity {
         resultIntent.putExtra(EXTRA_WIDTH, width);
         resultIntent.putExtra(EXTRA_HEIGHT, height);
         resultIntent.putExtra(EXTRA_DURATION_MS, durationMs);
-        resultIntent.putExtra(EXTRA_TRANSITION_TYPE, transitionType); // 传递枚举名称
+        resultIntent.putExtra(EXTRA_TRANSITION_TYPE, transitionType.name()); // 传递枚举名称
         resultIntent.putExtra(EXTRA_FRAME_RATE, frameRate);
         resultIntent.putExtra(EXTRA_MUSIC_VOLUME, musicVolume);
         if (musicUri != null) {
