@@ -34,6 +34,7 @@ public class ImageClassifier {
 
         // 读取标签
         labels = FileUtil.loadLabels(context, "labels_mobilenet_quant_v1_224.txt");
+        //TODO:优化方向，将labels只读一次
 
         // 获取输入输出张量信息
         int imageTensorIndex = 0;
