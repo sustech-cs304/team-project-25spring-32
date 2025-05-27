@@ -69,10 +69,6 @@ public class ImageClassifier {
         Map<String, Float> labeledProbability = new TensorLabel(labels, outputProbabilityBuffer)
                 .getMapWithFloatValue();
 
-        //记录各标签概率
-        for (Map.Entry<String, Float> entry : labeledProbability.entrySet()) {
-            Log.d("log111","Label: " + entry.getKey() + ", Probability: " + entry.getValue());
-        }
 
         // 返回最高概率的标签
         return Collections.max(labeledProbability.entrySet(), Map.Entry.comparingByValue()).getKey();

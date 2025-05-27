@@ -11,6 +11,7 @@ import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -20,14 +21,18 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.pa.MainActivity;
 import com.example.pa.MyApplication;
 import com.example.pa.data.model.Photo;
+import com.example.pa.util.ai.ImageClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -68,6 +73,7 @@ public class FileRepository {
     private static final String SYNC_PREFS = "sync_prefs";
     private static final String KEY_LAST_SYNC = "last_sync_time";
     private long lastTriggerTime = 0;
+    private ImageClassifier classifier;
 
 
     public FileRepository(Context context) {
@@ -267,6 +273,15 @@ public class FileRepository {
 //                myApplication.getAlbumPhotoDao().addPhotoToAlbum(albumId, photo.id);
 //            }
             String tagName = null;
+            try {
+                // 初始化分类器
+                classifier = new ImageClassifier(context);
+
+                // 直接加载固定路径图片并分类
+                tagName=classifyImage(Uri.parse(photo.filePath));
+            } catch (IOException e) {
+                Log.e("ImageClassifier", "初始化失败", e);
+            }
             int tagId = myApplication.getTagDao().getTagIdByNameSpec(tagName);
             myApplication.getMainRepository().syncInsertPhoto(photo, userId, albumCache, tagId);
         }
@@ -761,6 +776,65 @@ public class FileRepository {
             scanSingleDirectory(dir, null); // 不需要回调
             scanSubdirectories(dir); // 继续递归
         }
+    }
+    private String classifyImage(Uri imageUri) {
+        String TAG = "ImageClassifier";
+        //assert fileRepository!=null;
+        String result="null";
+
+        try {
+            // 1. 从URI加载原始图片（确保使用ARGB_8888配置）
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888; // 关键设置
+
+            InputStream inputStream = context.getContentResolver().openInputStream(imageUri);
+            Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream, null, options);
+            if (inputStream != null) inputStream.close();
+
+            if (originalBitmap == null) {
+                throw new IOException("Failed to decode bitmap");
+            }
+
+            // 2. 转换为模型需要的尺寸（保持ARGB_8888格式）
+            int modelInputSize = 224; // MobileNet通常需要224x224
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                    originalBitmap,
+                    modelInputSize,
+                    modelInputSize,
+                    true
+            );
+
+            // 3. 确保Alpha通道存在（虽然模型只用RGB，但TensorImage要求ARGB格式）
+            if (scaledBitmap.getConfig() != Bitmap.Config.ARGB_8888) {
+                Bitmap argbBitmap = scaledBitmap.copy(Bitmap.Config.ARGB_8888, false);
+                scaledBitmap.recycle(); // 回收临时bitmap
+                scaledBitmap = argbBitmap;
+            }
+            // 确保 scaledBitmap 是 RGB_565 或使用 copy 去掉 alpha
+            //保存bitmap为图片并存储
+            //String path = fileRepository.saveBitmapToFile(scaledBitmap, "test_image.jpg");
+            //Log.d(TAG, "保存图片路径: " + path);
+
+
+
+            // 4. 进行分类
+            Log.d("scan",scaledBitmap.toString());
+            result = classifier.classify(scaledBitmap);
+
+
+            // 5. 输出结果
+            Log.d(TAG, "分类结果: " + result);
+
+            // 6. 更新UI（显示原始图片）
+
+            // 7. 回收不再需要的bitmap
+            scaledBitmap.recycle();
+
+        } catch (Exception e) {
+            Log.e(TAG, "分类出错", e);
+        }
+
+        return result;
     }
 }
 

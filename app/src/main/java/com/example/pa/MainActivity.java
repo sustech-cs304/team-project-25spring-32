@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
     private AppBarConfiguration appBarConfiguration;
     private FileRepository fileRepository;
-    private ImageClassifier classifier;
+
     private AlbumViewModel viewModel;
     //检查是否处于登录状态
     private boolean isLoggedIn = false;
@@ -158,15 +158,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
         testDatabaseOperations();
 //        fileRepository=MyApplication.getInstance().getFileRepository();
-        try {
-            // 初始化分类器
-            classifier = new ImageClassifier(this);
 
-            // 直接加载固定路径图片并分类
-            classifyImage();
-        } catch (IOException e) {
-            Log.e("ImageClassifier", "初始化失败", e);
-        }
 
 
         observeViewModel();
@@ -291,66 +283,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                 .setNegativeButton(getString(R.string.negative_button), null)
                 .show();
     }
-    private void classifyImage() {
-        String TAG = "ImageClassifier";
-        assert fileRepository!=null;
-        Uri IMAGE_URI=fileRepository.getAlbumImages("所有照片").get(0);
-        new Thread(() -> {
-            try {
-                // 1. 从URI加载原始图片（确保使用ARGB_8888配置）
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888; // 关键设置
 
-                InputStream inputStream = getContentResolver().openInputStream(IMAGE_URI);
-                Bitmap originalBitmap = BitmapFactory.decodeStream(inputStream, null, options);
-                if (inputStream != null) inputStream.close();
-
-                if (originalBitmap == null) {
-                    throw new IOException("Failed to decode bitmap");
-                }
-
-                // 2. 转换为模型需要的尺寸（保持ARGB_8888格式）
-                int modelInputSize = 224; // MobileNet通常需要224x224
-                Bitmap scaledBitmap = Bitmap.createScaledBitmap(
-                        originalBitmap,
-                        modelInputSize,
-                        modelInputSize,
-                        true
-                );
-
-                // 3. 确保Alpha通道存在（虽然模型只用RGB，但TensorImage要求ARGB格式）
-                if (scaledBitmap.getConfig() != Bitmap.Config.ARGB_8888) {
-                    Bitmap argbBitmap = scaledBitmap.copy(Bitmap.Config.ARGB_8888, false);
-                    scaledBitmap.recycle(); // 回收临时bitmap
-                    scaledBitmap = argbBitmap;
-                }
-                // 确保 scaledBitmap 是 RGB_565 或使用 copy 去掉 alpha
-                //保存bitmap为图片并存储
-                String path = fileRepository.saveBitmapToFile(scaledBitmap, "test_image.jpg");
-                Log.d(TAG, "保存图片路径: " + path);
-
-
-
-                // 4. 进行分类
-                Log.d("scan",scaledBitmap.toString());
-                String result = classifier.classify(scaledBitmap);
-
-                // 5. 输出结果
-                Log.d(TAG, "分类结果: " + result);
-
-                // 6. 更新UI（显示原始图片）
-
-                // 7. 回收不再需要的bitmap
-                scaledBitmap.recycle();
-
-            } catch (Exception e) {
-                Log.e(TAG, "分类出错", e);
-                runOnUiThread(() ->
-                        Toast.makeText(this, "分类出错: " + e.getMessage(), Toast.LENGTH_LONG).show()
-                );
-            }
-        }).start();
-    }
 
     private void performInitialMediaScan() {
         Log.d("MediaScan", "开始初始化扫描...");
