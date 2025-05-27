@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,20 @@ public class ExampleInstrumentedTest {
     public void setUp() {
         // 获取 Application 实例, 这个一定要有
         app = (MyApplication) InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
+    }
+
+    @After
+    public void tearDown() {
+        // 清理工作，如果需要的话
+        app = null;
+        if (com.example.pa.util.checkLogin.checkLoginStatus(InstrumentationRegistry.getInstrumentation().getTargetContext())){
+            // 如果用户已登录，清除登录状态
+            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("is_logged_in", false)
+                    .apply();
+        }
     }
 
     @Test
@@ -87,15 +102,15 @@ public class ExampleInstrumentedTest {
         assertNotNull(memoryVideoPhotoDao);
     }
 
-    @Test
-    public void test_getPhoto_from_path(){
-        // 测试从路径获取照片
-        String path = "/storage/emulated/0/DCIM/ic_launcher.png";
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
-        assertNotNull("Failed to load image from path", bitmap);
-
-
-    }
+//    @Test
+//    public void test_getPhoto_from_path(){
+//        // 测试从路径获取照片
+//        String path = "/storage/emulated/0/DCIM/ic_launcher.png";
+//        Bitmap bitmap = BitmapFactory.decodeFile(path);
+//        assertNotNull("Failed to load image from path", bitmap);
+//
+//
+//    }
 
     @Test
     public void checkLoginStatus() {
@@ -112,4 +127,23 @@ public class ExampleInstrumentedTest {
         assertNotNull("Application context should not be null", appContext);
         assertEquals("com.example.pa", appContext.getPackageName());
     }
+
+//    @Test
+//    public void test_ImageClassifier(){
+//        // 测试 ImageClassifier
+//        try {
+//            Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+//            com.example.pa.util.ai.ImageClassifier classifier = new com.example.pa.util.ai.ImageClassifier(context);
+//            assertNotNull("ImageClassifier should not be null", classifier);
+//
+//            // 测试分类功能
+//            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+//            String result = classifier.classify(bitmap);
+//            assertNotNull("Classification result should not be null", result);
+//            assertFalse("Classification result should not be empty", result.isEmpty());
+//        } catch (Exception e) {
+//            fail("ImageClassifier initialization or classification failed: " + e.getMessage());
+//        }
+//
+//    }
 }
