@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
         fileRepository=MyApplication.getInstance().getFileRepository();
         fileRepository.setDeleteCallback(this);
+        fileRepository.registerMediaStoreObserver();
 
         // 首次启动时请求权限
         requestNecessaryPermissions();
@@ -141,15 +142,15 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
         testDatabaseOperations();
 //        fileRepository=MyApplication.getInstance().getFileRepository();
-        try {
-            // 初始化分类器
-            classifier = new ImageClassifier(this);
-
-            // 直接加载固定路径图片并分类
-            classifyImage();
-        } catch (IOException e) {
-            Log.e("ImageClassifier", "初始化失败", e);
-        }
+//        try {
+//            // 初始化分类器
+//            classifier = new ImageClassifier(this);
+//
+//            // 直接加载固定路径图片并分类
+//            classifyImage();
+//        } catch (IOException e) {
+//            Log.e("ImageClassifier", "初始化失败", e);
+//        }
 
 
         observeViewModel();
@@ -343,42 +344,42 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
             testUserOperations(app.getUserDao());
 
             // ========== 照片测试 ==========
-            testPhotoOperations(app.getPhotoDao());
+//            testPhotoOperations(app.getPhotoDao());
 
             // ========== 相册测试 ==========
-            //testAlbumOperations(app.getAlbumDao());
+//            testAlbumOperations(app.getAlbumDao());
 
             // ========== 标签测试 ==========
-            testTagOperations(app.getTagDao());
+//            testTagOperations(app.getTagDao());
 
             // ========== 搜索历史测试 ==========
-            testSearchHistoryOperations(app.getSearchHistoryDao());
+//            testSearchHistoryOperations(app.getSearchHistoryDao());
 
             // ========== 记忆视频测试 ==========
             //testMemoryVideoOperations(app.getMemoryVideoDao());
 
             // ========== 照片标签测试 ==========
-            testPhotoTagOperations(app.getPhotoTagDao());
+//            testPhotoTagOperations(app.getPhotoTagDao());
 
             // 测试搜索
-            Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
-            if (cursor.moveToFirst()) {
-                do {
-                    Log.d("testSEARCH", "Album name: " + cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
-                } while (cursor.moveToNext());
-                cursor.close();
-            }
-
-            // 测试标签
-            Cursor cursor2 = app.getTagDao().getRandomTags(3);
-            if (cursor2.moveToFirst()) {
-                do {
-                    Log.d("testTAG", "Tag name: " + cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
-                } while (cursor2.moveToNext());
-                cursor2.close();
-            }
-
-            Log.d("Database", "All database tests completed successfully");
+//            Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
+//            if (cursor.moveToFirst()) {
+//                do {
+//                    Log.d("testSEARCH", "Album name: " + cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
+//                } while (cursor.moveToNext());
+//                cursor.close();
+//            }
+//
+//            // 测试标签
+//            Cursor cursor2 = app.getTagDao().getRandomTags(3);
+//            if (cursor2.moveToFirst()) {
+//                do {
+//                    Log.d("testTAG", "Tag name: " + cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
+//                } while (cursor2.moveToNext());
+//                cursor2.close();
+//            }
+//
+//            Log.d("Database", "All database tests completed successfully");
 
         } catch (NoSuchAlgorithmException e) {
             Log.e("Database", "Password hashing failed", e);

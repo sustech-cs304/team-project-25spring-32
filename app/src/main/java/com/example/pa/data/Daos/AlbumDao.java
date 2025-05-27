@@ -1,5 +1,6 @@
 package com.example.pa.data.Daos;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +9,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.pa.data.DatabaseHelper;
+
+import java.util.Map;
 
 public class AlbumDao {
     /**
@@ -59,7 +62,14 @@ public class AlbumDao {
         values.put(COLUMN_VISIBILITY, visibility);
 
         try {
-            return db.insert(TABLE_NAME, null, values);
+            Log.d("AlbumDao", "addAlbum: " + name);
+//            return db.insert(TABLE_NAME, null, values);
+            long result = db.insert(TABLE_NAME, null, values);
+            if (result == -1) {
+                Log.e("AlbumDao", "插入失败，但未抛出异常");
+                // 可能是表名错误、字段名错误等
+            }
+            return result;
         } catch (SQLException e) {
             Log.e("AlbumDao", "添加相册失败: " + e.getMessage());
             return -1;
@@ -86,6 +96,29 @@ public class AlbumDao {
                 COLUMN_USER_ID + " = ?",
                 new String[]{String.valueOf(userId)},
                 null, null, COLUMN_CREATED_TIME + " DESC");
+    }
+
+    // 获取或创建相册
+    public int getOrCreateAlbum(String albumName, int userId, Map<String, Integer> cache) {
+        if (cache.containsKey(albumName)) {
+            return cache.get(albumName);
+        }
+
+        @SuppressLint("Recycle") Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_ID}, COLUMN_NAME + " = ? AND " + COLUMN_USER_ID + " = ?",
+                new String[]{albumName, String.valueOf(userId)},
+                null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int albumId = cursor.getInt(0);
+            cache.put(albumName, albumId);
+            return albumId;
+        } else {
+            long albumId = addAlbum(albumName, userId, false,
+            false, "private");// 默认设置为隐私
+            cache.put(albumName, (int) albumId);
+            return (int) albumId;
+        }
     }
 
     public boolean deleteAlbum(int albumId) {
