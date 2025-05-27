@@ -98,6 +98,24 @@ public class TagDao {
         }
         return new ArrayList<>(); // 如果没有找到，返回空列表
     }
+    @SuppressLint("Range")
+    public int getTagIdByNameSpec(String tagName) {//精确查找，即查找所有严格符合tagName内容的标签
+        Cursor cursor = db.query(TABLE_NAME,
+                new String[]{COLUMN_ID},
+                COLUMN_NAME + " = ?",
+                new String[]{tagName},
+                null, null, null);
+        if (cursor != null) {
+            int tagId = -1; // 默认值为-1，表示未找到
+            while (cursor.moveToNext()) {
+                tagId = cursor.getInt(cursor.getColumnIndex(COLUMN_ID));
+
+            }
+            cursor.close();
+            return tagId;
+        }
+        return -1; // 如果没有找到，返回空列表
+    }
     public String getPhotoPathByTagId(int tagId) {
         Cursor cursor = db.query(TABLE_NAME,
                 new String[]{COLUMN_NAME},
