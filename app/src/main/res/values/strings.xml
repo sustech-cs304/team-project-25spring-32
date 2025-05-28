@@ -127,5 +127,9 @@
 
     <string name="help_content">This is a sample help text. You can replace it with your own content.</string>
     <string name="return_">return</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="hint">Please enter content</string>
+    <string name="confirm">Confirm</string>
 
 </resources>

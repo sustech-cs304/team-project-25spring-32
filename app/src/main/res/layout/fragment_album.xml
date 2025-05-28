@@ -123,7 +123,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:autofillHints=""
-        android:hint="请输入内容"
+        android:hint="@string/hint"
         android:inputType="text"
         android:padding="12dp"
         android:textColor="#000000"
@@ -142,7 +142,7 @@
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="取消"
+            android:text="@string/cancel"
             android:layout_marginEnd="16dp"
             android:onClick="onCancelClicked" />
 
@@ -152,7 +152,7 @@
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="确认"
+            android:text="@string/confirm"
             android:onClick="onConfirmClicked"/>
     </LinearLayout>
 </LinearLayout>
