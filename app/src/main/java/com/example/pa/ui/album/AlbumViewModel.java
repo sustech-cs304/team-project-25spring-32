@@ -51,6 +51,7 @@ public class AlbumViewModel extends ViewModel {
     private MainRepository mainRepository;
     private AlbumDao albumDao;
     private final FileRepository fileRepository;
+    private int userId = 1;
 
     public AlbumViewModel() {
         this.mainRepository = MyApplication.getInstance().getMainRepository();
@@ -66,7 +67,9 @@ public class AlbumViewModel extends ViewModel {
 
     // 加载用户相册列表
     public void loadAlbums() {
-        List<Album> albums = getAlbumsByUserId(1);
+        List<Album> albums = new ArrayList<>();
+        albums.add(new Album(0, "所有照片", userId, false, false, "private", null));
+        albums.addAll(getAlbumsByUserId(userId));
         albumList.setValue(albums);
     }
 
