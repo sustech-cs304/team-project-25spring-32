@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -141,7 +142,8 @@ public class SearchFragment extends Fragment {
             }
             if (context != null) {
                 Intent intent = new Intent(context, PhotoDetailActivity.class);
-                intent.putExtra("image_path", imagePath);
+                Uri imageUri = Uri.parse(imagePath);
+                intent.putExtra("Uri", imageUri);
                 startActivity(intent);
 
                 if (getActivity() != null) {
