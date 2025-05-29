@@ -90,16 +90,14 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 半透明遮罩背景 -->
-    <View
-        android:id="@+id/overlay_background"
+    <FrameLayout
+        android:id="@+id/mask_layer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#80000000"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:clickable="true"
+        android:focusable="true"/>
 
     <!-- 操作选项面板 - 水平布局 -->
     <LinearLayout

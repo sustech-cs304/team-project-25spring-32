@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.example.pa.R;
 import com.example.pa.ui.select.PhotoSelectActivity;
@@ -60,24 +61,34 @@ public class PhotoinAlbumActivity extends AppCompatActivity {
         });
     }
 
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        // 检查请求码和结果码
-//        if (requestCode == REQUEST_SELECT_PHOTOS && resultCode == RESULT_OK) {
-//            if (data != null) {
-//                // 获取返回的选中图片 URI 列表
-//                ArrayList<Uri> selectedUris = data.getParcelableArrayListExtra("selected_photos");
-//
-//                // 处理选中的图片
-//                if (selectedUris != null && !selectedUris.isEmpty()) {
-//                    addPhotosToAlbum(selectedUris);    // 添加到相册
-//                    refreshAlbumFragment();            // 刷新界面
-//                }
-//            }
-//        }
-//    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // 检查请求码和结果码
+        if (requestCode == REQUEST_SELECT_PHOTOS && resultCode == RESULT_OK) {
+            if (data != null) {
+                // 获取返回的选中图片 URI 列表
+                ArrayList<Uri> selectedUris = data.getParcelableArrayListExtra("selected_photos");
+
+                // 处理选中的图片
+                if (requestCode == REQUEST_SELECT_PHOTOS && resultCode == RESULT_OK && data != null) {
+                    // 获取返回的照片列表和操作类型
+                    ArrayList<Uri> selectedPhotos = data.getParcelableArrayListExtra("selected_photos");
+                    String operationType = data.getStringExtra("operation_type");
+
+                    // 找到当前显示的Fragment
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.photo_fragment_container);
+                    if (fragment instanceof PhotoinAlbumFragment) {
+                        PhotoinAlbumFragment photoFragment = (PhotoinAlbumFragment) fragment;
+
+                        // 将结果传递给Fragment处理
+                        photoFragment.handlePhotoSelectionResult(selectedPhotos, operationType);
+                    }
+                }
+            }
+        }
+    }
 
     public void onAddClick() {
         Intent intent = new Intent(this, PhotoSelectActivity.class);

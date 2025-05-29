@@ -22,6 +22,7 @@ public class PhotoinAlbumViewModel extends ViewModel {
 //    private final Map<String, MutableLiveData<List<Photo>>> albumImages = new HashMap<>();
     private final FileRepository fileRepository;
     private final MutableLiveData<List<Uri>> photos = new MutableLiveData<>();
+    private final MutableLiveData<String> operationType = new MutableLiveData<>("");
 
     public PhotoinAlbumViewModel() {
         // 初始化每个相册的默认图片
@@ -38,6 +39,22 @@ public class PhotoinAlbumViewModel extends ViewModel {
     public void loadAlbumPhotos(String albumName) {
         List<Uri> result = fileRepository.getAlbumImages(albumName);
         photos.postValue(result);
+    }
+
+    public void copyPhotosToAlbum(ArrayList<Uri> photos, String albumName) {
+        fileRepository.copyImages(photos, albumName);
+        loadAlbumPhotos(albumName);
+    }
+
+    public void movePhotosToAlbum(ArrayList<Uri> photos, String albumName) {
+    }
+
+    public void setOperationType(String type) {
+        operationType.setValue(type);
+    }
+
+    public LiveData<String> getOperationType() {
+        return operationType;
     }
 
 //    public LiveData<List<Photo>> getImagesByAlbum(String albumName) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,5 +107,40 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
                 );
             }
         }
+    }
+
+    public void handlePhotoSelectionResult(ArrayList<Uri> selectedPhotos, String operationType) {
+        if (photoinAlbumViewModel != null) {
+            // 设置操作类型
+            photoinAlbumViewModel.setOperationType(operationType);
+
+            // 处理选中的照片
+            if (selectedPhotos != null && !selectedPhotos.isEmpty()) {
+                processSelectedPhotos(selectedPhotos, operationType);
+            }
+        }
+    }
+
+    private void processSelectedPhotos(ArrayList<Uri> selectedPhotos, String operationType) {
+        // 根据操作类型执行不同操作
+        if ("copy".equals(operationType)) {
+            copyPhotosToAlbum(selectedPhotos);
+        } else if ("move".equals(operationType)) {
+            movePhotosToAlbum(selectedPhotos);
+        }
+    }
+
+    private void copyPhotosToAlbum(ArrayList<Uri> photos) {
+        // 实现复制照片到当前相册的逻辑
+        Log.d("PhotoinAlbum", "Copying " + photos.size() + " photos to " + albumName);
+        // 调用ViewModel中的方法处理复制
+        photoinAlbumViewModel.copyPhotosToAlbum(photos, albumName);
+    }
+
+    private void movePhotosToAlbum(ArrayList<Uri> photos) {
+        // 实现移动照片到当前相册的逻辑
+        Log.d("PhotoinAlbum", "Moving " + photos.size() + " photos to " + albumName);
+        // 调用ViewModel中的方法处理移动
+        photoinAlbumViewModel.movePhotosToAlbum(photos, albumName);
     }
 }
