@@ -24,6 +24,7 @@ import com.example.pa.MyApplication;
 import com.example.pa.data.Daos.AlbumDao;
 import com.example.pa.data.Daos.AlbumDao.Album;
 import com.example.pa.data.FileRepository;
+import com.example.pa.data.MainRepository;
 
 /**
  * AI-generated-content
@@ -47,10 +48,12 @@ public class AlbumViewModel extends ViewModel {
     private final MutableLiveData<DeleteEvent> deleteEvent = new MutableLiveData<>();
     private MutableLiveData<List<Album>> albumList = new MutableLiveData<>();
     private MutableLiveData<String> event = new MutableLiveData<>();
+    private MainRepository mainRepository;
     private AlbumDao albumDao;
     private final FileRepository fileRepository;
 
     public AlbumViewModel() {
+        this.mainRepository = MyApplication.getInstance().getMainRepository();
         this.albumDao = MyApplication.getInstance().getAlbumDao();
         this.fileRepository = MyApplication.getInstance().getFileRepository();
 //        initialAlbums();  //仅用作展示
@@ -136,7 +139,7 @@ public class AlbumViewModel extends ViewModel {
 
     // 删除相册
     public void deleteAlbum(int albumId, String name) {
-        boolean result = albumDao.deleteAlbum(albumId);
+        boolean result = mainRepository.deleteAlbum(albumId);
         if (result) {
             List<Uri> albumUris = fileRepository.getAlbumImages(name);
             Log.d("Delete", "找到图片" + albumUris);

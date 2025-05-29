@@ -73,27 +73,27 @@ public class MainRepository {
 //                ")";
 //        db.execSQL(query);
 //    }
-public void cleanEmptyAlbums() {
-    // 添加调试日志
-    Log.d("AlbumCleaner", "cleanEmptyAlbums() called"); // 或者 System.out.println("Method called");
+    public void cleanEmptyAlbums() {
+        // 添加调试日志
+        Log.d("AlbumCleaner", "cleanEmptyAlbums() called"); // 或者 System.out.println("Method called");
 
-    // 打印要执行的 SQL 语句（调试用）
-    String query = "DELETE FROM " + AlbumDao.TABLE_NAME +
-            " WHERE " + AlbumDao.COLUMN_ID + " NOT IN (" +
-            "   SELECT " + AlbumPhotoDao.COLUMN_ALBUM_ID +
-            "   FROM " + AlbumPhotoDao.TABLE_NAME +
-            ")";
+        // 打印要执行的 SQL 语句（调试用）
+        String query = "DELETE FROM " + AlbumDao.TABLE_NAME +
+                " WHERE " + AlbumDao.COLUMN_ID + " NOT IN (" +
+                "   SELECT " + AlbumPhotoDao.COLUMN_ALBUM_ID +
+                "   FROM " + AlbumPhotoDao.TABLE_NAME +
+                ")";
 
-    Log.d("AlbumCleaner", "Executing query: " + query); // 或者 System.out.println(query);
+        Log.d("AlbumCleaner", "Executing query: " + query); // 或者 System.out.println(query);
 
-    try {
-        // 执行删除操作
-        db.execSQL(query);
-        Log.d("AlbumCleaner", "Delete completed"); // 或者 System.out.println("Delete succeeded");
-    } catch (SQLException e) {
-        Log.e("AlbumCleaner", "Delete failed", e); // 打印错误日志
+        try {
+            // 执行删除操作
+            db.execSQL(query);
+            Log.d("AlbumCleaner", "Delete completed"); // 或者 System.out.println("Delete succeeded");
+        } catch (SQLException e) {
+            Log.e("AlbumCleaner", "Delete failed", e); // 打印错误日志
+        }
     }
-}
 
     public void syncInsertPhoto(Photo photo, int userId, Map<String, Integer> albumCache, int tagId) {
         try {
@@ -117,6 +117,23 @@ public void cleanEmptyAlbums() {
         } finally {
             db.endTransaction();
         }
+    }
+
+    public boolean deletePhoto(int photoId) {
+        return albumPhotoDao.removePhotoFromAlbumByPhoto(photoId)
+                && photoTagDao.removeTagFromPhotoByPhoto(photoId)
+                && photoDao.deletePhoto(photoId);
+    }
+
+    public boolean deleteAlbum(int albumId) {
+        List<Integer> photoIds = albumPhotoDao.getPhotoIdsInAlbum(albumId);
+        for (int photoId : photoIds) {
+            boolean result = deletePhoto(photoId);
+            if (!result) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

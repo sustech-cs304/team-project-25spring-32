@@ -1,5 +1,6 @@
 package com.example.pa.data.Daos;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.pa.data.DatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AlbumPhotoDao {
     /**
@@ -60,6 +64,23 @@ public class AlbumPhotoDao {
                 COLUMN_ALBUM_ID + " = ?",
                 new String[]{String.valueOf(albumId)},
                 null, null, COLUMN_ADDED_TIME + " DESC");
+    }
+
+    @SuppressLint("Range")
+    public List<Integer> getPhotoIdsInAlbum(int albumId) {
+        List<Integer> photoIds = new ArrayList<>();
+        Cursor result = db.query(TABLE_NAME,
+                new String[]{COLUMN_PHOTO_ID},
+                COLUMN_ALBUM_ID + " = ?",
+                new String[]{String.valueOf(albumId)},
+                null, null, null);
+        if (result != null) {
+            while (result.moveToNext()) {
+                photoIds.add(result.getInt(result.getColumnIndex(COLUMN_PHOTO_ID)));
+            }
+            result.close();
+        }
+        return photoIds;
     }
 
     public boolean removePhotoFromAlbum(int albumId, int photoId) {
