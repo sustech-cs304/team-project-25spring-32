@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -26,6 +27,10 @@ import com.example.pa.data.Daos.PhotoTagDao;
 import com.example.pa.data.Daos.SearchHistoryDao;
 import com.example.pa.data.Daos.TagDao;
 import com.example.pa.data.Daos.UserDao;
+import com.example.pa.data.cloudRepository.UserRepository;
+import com.example.pa.data.model.user.RegisterResponse;
+
+import io.reactivex.rxjava3.core.Observable;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -35,11 +40,14 @@ import com.example.pa.data.Daos.UserDao;
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
     private MyApplication app;
+    UserRepository userRepository;
 
     @Before //这个就是测试前的准备工作
     public void setUp() {
         // 获取 Application 实例, 这个一定要有
         app = (MyApplication) InstrumentationRegistry.getInstrumentation().getTargetContext().getApplicationContext();
+        // 初始化 UserRepository
+        userRepository = new UserRepository(InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
 
     @After
@@ -146,4 +154,27 @@ public class ExampleInstrumentedTest {
 //        }
 //
 //    }
+
+    @Test
+    public void test_registerRx(){
+        Observable<RegisterResponse> t= userRepository.registerRx("wang","123@qq.com","123456");
+        t.subscribe(
+                response -> {
+                    // 只判断成功状态
+                    if (response.isSuccess()) {
+                        System.out.println("注册成功");
+                        Log.d("success", "注册成功: ");
+                    } else {
+                        System.out.println("注册失败: " + response.getMessage());
+                        Log.d("fail", "注册失败: " + response.getMessage());
+                    }
+                },
+                error -> {
+                    // 网络错误等异常
+                    System.err.println("请求失败: " + error.getMessage());
+                    Log.e("error", "请求失败: " + error.getMessage());
+                }
+        );
+        assertNull(t);
+    }
 }
