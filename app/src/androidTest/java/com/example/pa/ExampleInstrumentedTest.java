@@ -28,6 +28,7 @@ import com.example.pa.data.Daos.SearchHistoryDao;
 import com.example.pa.data.Daos.TagDao;
 import com.example.pa.data.Daos.UserDao;
 import com.example.pa.data.cloudRepository.UserRepository;
+import com.example.pa.data.model.user.LoginResponse;
 import com.example.pa.data.model.user.RegisterResponse;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -157,24 +158,57 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void test_registerRx(){
-        Observable<RegisterResponse> t= userRepository.registerRx("wang","123@qq.com","123456");
-        t.subscribe(
-                response -> {
-                    // 只判断成功状态
-                    if (response.isSuccess()) {
-                        System.out.println("注册成功");
-                        Log.d("success", "注册成功: ");
-                    } else {
-                        System.out.println("注册失败: " + response.getMessage());
-                        Log.d("fail", "注册失败: " + response.getMessage());
-                    }
-                },
-                error -> {
-                    // 网络错误等异常
-                    System.err.println("请求失败: " + error.getMessage());
-                    Log.e("error", "请求失败: " + error.getMessage());
-                }
-        );
-        assertNull(t);
+        userRepository.registerRx("wang","123@qq.com","123456");
     }
+
+    @Test
+    public void test_register(){
+        userRepository.register("wang", "123@qq.com", "123456",
+                new UserRepository.UserCallback<RegisterResponse>() {
+                    @Override
+                    public void onSuccess(RegisterResponse result) {
+                        // 只判断成功状态
+                        if (result.isSuccess()) {
+                            System.out.println("注册成功");
+                            Log.d("success", "注册成功: ");
+                        } else {
+                            System.out.println("注册失败: " + result.getMessage());
+                            Log.d("fail", "注册失败: " + result.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // 网络错误等异常
+                        System.err.println("请求失败: " + errorMessage);
+                        Log.e("error", "请求失败: " + errorMessage);
+                    }
+                });
+    }
+
+    @Test
+    public void test_login() throws InterruptedException {
+        // 测试登录功能
+        userRepository.login("wang", "123456",
+                new UserRepository.UserCallback<>() {
+                    @Override
+                    public void onSuccess(LoginResponse result) {
+                        if (result.isSuccess()) {
+                            System.out.println("登录成功");
+                            Log.d("success", "登录成功: ");
+                        } else {
+                            System.out.println("登录失败: " + result.getMessage());
+                            Log.d("fail", "登录失败: " + result.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        System.err.println("请求失败: " + errorMessage);
+                        Log.e("error", "请求失败: " + errorMessage);
+                    }
+                });
+        Thread.sleep(5000);
+    }
+
 }
