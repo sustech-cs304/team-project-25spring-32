@@ -2,11 +2,15 @@ package com.example.pa;
 
 import static com.example.pa.util.PasswordUtil.sha256;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 import com.example.pa.data.Daos.*;
+import com.example.pa.data.cloudRepository.UserRepository;
+import com.example.pa.data.network.RetrofitClient;
+import com.example.pa.data.network.UserApiService;
 
 import java.security.NoSuchAlgorithmException;
 
@@ -16,6 +20,13 @@ import java.security.NoSuchAlgorithmException;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
+    @Before
+    public void setUp() {
+        // 初始化数据库或其他必要的设置
+        // 例如：DatabaseHelper.init();
+        // 这里可以添加任何需要在测试前执行的代码
+    }
     @Test
     public void addition_isCorrect() {
         assertEquals(4, 2 + 2);
