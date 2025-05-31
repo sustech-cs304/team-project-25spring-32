@@ -37,11 +37,9 @@ public class AlbumViewModel extends ViewModel {
 
     public static class DeleteEvent {
         public final List<Uri> uris;
-        public final String albumName;
 
-        public DeleteEvent(List<Uri> uris, String albumName) {
+        public DeleteEvent(List<Uri> uris) {
             this.uris = uris;
-            this.albumName = albumName;
         }
     }
 
@@ -146,7 +144,7 @@ public class AlbumViewModel extends ViewModel {
         if (result) {
             List<Uri> albumUris = fileRepository.getAlbumImages(name);
             Log.d("Delete", "找到图片" + albumUris);
-            deleteEvent.postValue(new DeleteEvent(albumUris, name));
+            deleteEvent.postValue(new DeleteEvent(albumUris));
             loadAlbums(); // 重新加载相册列表
             event.setValue("Album deleted successfully");
         } else {

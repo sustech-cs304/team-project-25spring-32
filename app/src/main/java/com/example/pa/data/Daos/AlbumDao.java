@@ -144,6 +144,20 @@ public class AlbumDao {
         }
     }
 
+    @SuppressLint("Range")
+    public String getAlbumNameById(int albumId) {
+        @SuppressLint("Recycle") Cursor result = db.query(TABLE_NAME,
+                new String[]{COLUMN_NAME}, COLUMN_ID + " = ? ",
+                new String[]{String.valueOf(albumId)},
+                null, null, null);
+        if (result != null && result.moveToFirst()) {
+            return result.getString(result.getColumnIndex(COLUMN_NAME));
+        } else {
+            Log.w("AlbumPhotoDao", "Album ID not found: " + albumId);
+            return null;
+        }
+    }
+
     public static class Album {
         public final int id;
         public final String name;

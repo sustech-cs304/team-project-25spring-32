@@ -3,7 +3,9 @@ package com.example.pa.ui.album;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,12 +17,14 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pa.MyApplication;
 import com.example.pa.R;
 import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.example.pa.data.model.Photo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapter.OnPhotoClickListener {
 
@@ -69,28 +73,44 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
             photoinAlbumAdapter.updateData(images);
         });
 
+        observeViewModel();
 
         return root;
     }
 
-    // 实现点击事件回调，处理图片点击后跳转到大图展示页面
-//    @Override
-//    public void onPhotoClick(Photo imageItem) {
-//        Context context = getContext();
-//        if (context != null) {
-//            Intent intent = new Intent(context, PhotoDetailActivity.class);
-//            intent.putExtra("image_url", imageItem.fileUrl);
-//            startActivity(intent);
-//
-//            // 添加Activity过渡动画
-//            if (getActivity() != null) {
-//                getActivity().overridePendingTransition(
-//                        android.R.anim.fade_in,
-//                        android.R.anim.fade_out
-//                );
-//            }
-//        }
-//    }
+    private void observeViewModel() {
+        photoinAlbumViewModel.getDeleteEvent().observe(getViewLifecycleOwner(), event -> {
+            if (event != null) {
+                Log.d("Delete", "成功观察");
+                handleDeleteEvent(event.uris);
+            }
+        });
+    }
+
+    private void handleDeleteEvent(List<Uri> uris) {
+        MyApplication.getInstance().getFileRepository().deletePhotos(uris, deleteIntent -> {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Log.d("Delete", "版本正确");
+                    startIntentSenderForResult(
+                            deleteIntent.getIntentSender(),
+                            FileRepository.DELETE_REQUEST_CODE,
+                            null, 0, 0, 0,
+                            null
+                    );
+                } else {
+                    startIntentSenderForResult(
+                            deleteIntent.getIntentSender(),
+                            FileRepository.DELETE_REQUEST_CODE,
+                            null, 0, 0, 0,
+                            null
+                    );
+                }
+            } catch (IntentSender.SendIntentException e) {
+                Log.e("Delete", "启动删除请求失败", e);
+            }
+        });
+    }
     @Override
     public void onPhotoClick(Uri imageUri) {
         Context context = getContext();
@@ -134,13 +154,24 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
         // 实现复制照片到当前相册的逻辑
         Log.d("PhotoinAlbum", "Copying " + photos.size() + " photos to " + albumName);
         // 调用ViewModel中的方法处理复制
-        photoinAlbumViewModel.copyPhotosToAlbum(photos, albumName);
+        photoinAlbumViewModel.copyPhotosToAlbum(getNeedToChangePhotos(photos), albumName);
     }
 
     private void movePhotosToAlbum(ArrayList<Uri> photos) {
         // 实现移动照片到当前相册的逻辑
         Log.d("PhotoinAlbum", "Moving " + photos.size() + " photos to " + albumName);
         // 调用ViewModel中的方法处理移动
-        photoinAlbumViewModel.movePhotosToAlbum(photos, albumName);
+        photoinAlbumViewModel.movePhotosToAlbum(getNeedToChangePhotos(photos), albumName);
+    }
+
+    private ArrayList<Uri> getNeedToChangePhotos(ArrayList<Uri> photos) {
+        ArrayList<Uri> changedPhotos = new ArrayList<>();
+        for (Uri photo: photos) {
+            Log.d("getNeedToChangePhotos", "getNeedToChangePhotos: " + MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()));
+            if (!albumName.equals(MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()))){
+                changedPhotos.add(photo);
+            }
+        }
+        return changedPhotos;
     }
 }

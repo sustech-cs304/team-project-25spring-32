@@ -1,12 +1,12 @@
 package com.example.pa.data;
 
-import android.app.Activity;
+import static com.example.pa.util.UriToPathHelper.getRealPathFromUri;
+
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -20,12 +20,11 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.system.Os;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.pa.MainActivity;
 import com.example.pa.MyApplication;
 import com.example.pa.data.model.Photo;
 import com.example.pa.util.ai.ImageClassifier;
@@ -35,7 +34,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +66,7 @@ public class FileRepository {
     private volatile boolean isIncrementalSyncing = false;
     private final ReentrantLock syncLock = new ReentrantLock(true); // 使用公平锁
     private ContentObserver mediaObserver;
+    private Map<String, File> albumDirCache = new HashMap<>();
 
     // 新增同步时间记录
     private static final String SYNC_PREFS = "sync_prefs";
@@ -327,7 +326,7 @@ public class FileRepository {
         void provideDeleteRequest(PendingIntent deleteIntent);
     }
 
-    public void deleteAlbum(List<Uri> uris, DeleteRequestProvider provider) {
+    public void deletePhotos(List<Uri> uris, DeleteRequestProvider provider) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 PendingIntent deleteIntent = MediaStore.createDeleteRequest(
@@ -504,9 +503,9 @@ public class FileRepository {
 //        }
 //    }
     //=== 复制照片 ===//
-    public boolean copyImages(List<Uri> sourceUris, String targetAlbumName) {
+    public boolean copyPhotos(List<Uri> sourceUris, String targetAlbumName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return copyImagesWithMediaStore(sourceUris, targetAlbumName);
+            return copyPhotosWithMediaStore(sourceUris, targetAlbumName);
         } else {
             // Android 9及以下实现（使用传统文件操作）
             // 注意需要处理运行时权限
@@ -515,7 +514,7 @@ public class FileRepository {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
-    public boolean copyImagesWithMediaStore(List<Uri> sourceUris, String targetAlbumName) {
+    public boolean copyPhotosWithMediaStore(List<Uri> sourceUris, String targetAlbumName) {
         ContentResolver resolver = context.getContentResolver();
         boolean allSuccess = true;
 
@@ -582,13 +581,63 @@ public class FileRepository {
     }
 
     //=== 移动照片 ===//
-//    public boolean moveImage(Uri sourceUri, String targetAlbumName) {
-//        if (copyImage(sourceUri, targetAlbumName)) {
-//            return deleteImages(sourceUri);
-//        }
-//        return false;
-//    }
-//
+    public boolean movePhotos(List<Uri> sourceUris, String targetAlbumName, DeleteRequestProvider provider) {
+        boolean copySuccess = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            copySuccess = copyPhotosWithMediaStore(sourceUris, targetAlbumName);
+        }
+        if (!copySuccess) {
+            Log.e("Move", "复制失败，终止移动操作");
+            return false;
+        }
+
+        deletePhotos(sourceUris, provider);
+        return true;
+    }
+
+    private File getAlbumDir(String albumName) {
+        if (albumDirCache.containsKey(albumName)) {
+            return albumDirCache.get(albumName);
+        }
+
+        File albumDir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+                albumName
+        );
+
+        if (!albumDir.exists()) {
+            if (!albumDir.mkdirs()) return null;
+        }
+
+        albumDirCache.put(albumName, albumDir);
+        return albumDir;
+    }
+
+    // 核心重命名方法
+    private boolean renameFile(File source, File dest) {
+        try {
+            // 使用 Linux 级别的重命名（最快最有效）
+            Os.rename(source.getAbsolutePath(), dest.getAbsolutePath());
+            return true;
+        } catch (Exception e) {
+            Log.e("FileMove", "重命名失败", e);
+            return false;
+        }
+    }
+
+    // 更新媒体库路径
+    private void updateMediaStorePath(Uri originalUri, File newFile) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DATA, newFile.getAbsolutePath());
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, newFile.getName());
+
+        context.getContentResolver().update(
+                originalUri,
+                values,
+                null,
+                null
+        );
+    }
     //=== 辅助方法 ===//
     private ContentValues getMediaInfo(Uri uri) {
         ContentResolver resolver = context.getContentResolver();

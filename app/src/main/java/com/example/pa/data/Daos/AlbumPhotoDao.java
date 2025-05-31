@@ -128,4 +128,20 @@ public class AlbumPhotoDao {
             db.endTransaction();
         }
     }
+
+    @SuppressLint("Range")
+    public int getAlbumOfPhoto(int photoId) {
+        @SuppressLint("Recycle") Cursor result = db.query(TABLE_NAME,
+                new String[]{COLUMN_ALBUM_ID},
+                COLUMN_PHOTO_ID + " = ?",
+                new String[]{String.valueOf(photoId)},
+                null, null, null);
+        if (result != null && result.moveToFirst()) {
+            Log.d("AlbumPhotoDao", "do");
+            return result.getInt(result.getColumnIndex(COLUMN_ALBUM_ID));
+        } else {
+            Log.e("AlbumPhotoDao", "Cursor is invalid for photoId: " + photoId);
+            return -1;
+        }
+    }
 }

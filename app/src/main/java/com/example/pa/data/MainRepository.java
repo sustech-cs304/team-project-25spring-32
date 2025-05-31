@@ -136,4 +136,12 @@ public class MainRepository {
         return true;
     }
 
+    public String getAlbumNameOfPhoto(String photoUri) {
+        int photoId = photoDao.getPhotoIdByPath(photoUri);
+        Log.d("getAlbumNameOfPhoto", "photoId: " + photoId);
+        int albumId = albumPhotoDao.getAlbumOfPhoto(photoId);
+        Log.d("getAlbumNameOfPhoto", "albumId: " + albumId);
+        return albumDao.getAlbumNameById(albumId);
+    }
+
 }
