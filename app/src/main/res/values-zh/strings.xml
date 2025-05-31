@@ -121,4 +121,16 @@
     <string name="move">移动</string>
     <string name="hint">请输入内容</string>
     <string name="confirm">确认</string>
+
+
+    <string name="app_logo">应用Logo</string>
+    <string name="login_title">用户登录</string>
+    <string name="username_hint">用户名/邮箱</string>
+    <string name="password_hint">密码</string>
+    <string name="remember_me">记住我</string>
+    <string name="login_button">登 录</string>
+    <string name="forgot_password">忘记密码?</string>
+    <string name="no_account">没有账号?</string>
+    <string name="register_now">立即注册</string>
+
 </resources>

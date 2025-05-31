@@ -132,4 +132,14 @@
     <string name="hint">Please enter content</string>
     <string name="confirm">Confirm</string>
 
+    <string name="app_logo">app Logo</string>
+    <string name="login_title">User Login</string>
+    <string name="username_hint">username</string>
+    <string name="password_hint">password</string>
+    <string name="remember_me">Remember me</string>
+    <string name="login_button">Login</string>
+    <string name="forgot_password">forgot password?</string>
+    <string name="no_account">No account?</string>
+    <string name="register_now">Register now</string>
+
 </resources>

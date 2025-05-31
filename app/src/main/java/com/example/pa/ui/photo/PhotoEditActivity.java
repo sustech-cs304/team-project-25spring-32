@@ -31,11 +31,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.FrameLayout;
+import android.app.ProgressDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pa.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,6 +45,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Header;
+import retrofit2.http.Multipart;
+import retrofit2.http.POST;
+import retrofit2.http.Part;
 
 public class PhotoEditActivity extends AppCompatActivity {
     private ImageView editImageView;
@@ -84,6 +100,10 @@ public class PhotoEditActivity extends AppCompatActivity {
             this.rotation = rotation;
         }
     }
+
+    private Button btnRemoveBg;
+    private static final String REMOVE_BG_API_KEY = "qoEzXEJ75R9se3ReMsenyWWo"; // 请替换为您的API密钥
+    private static final String REMOVE_BG_API_URL = "https://api.remove.bg/v1.0/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +147,8 @@ public class PhotoEditActivity extends AppCompatActivity {
 
         btnCropCancel = findViewById(R.id.btnCropCancel);
         btnCropApply = findViewById(R.id.btnCropApply);
+
+        btnRemoveBg = findViewById(R.id.btnRemoveBg);
     }
 
     private void loadImage() {
@@ -228,6 +250,8 @@ public class PhotoEditActivity extends AppCompatActivity {
 
             }
         });
+
+        btnRemoveBg.setOnClickListener(v -> removeBackground());
     }
 
     private void render() {
@@ -508,6 +532,72 @@ public class PhotoEditActivity extends AppCompatActivity {
             Log.e("PhotoEdit", "保存错误", e);
         }
     }
+
+    private void removeBackground() {
+        if (currentBitmap == null) {
+            Toast.makeText(this, "没有可处理的图片", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 显示加载对话框
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("正在移除背景...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        // 将Bitmap转换为字节数组
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        currentBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] imageBytes = stream.toByteArray();
+
+        // 创建Retrofit实例
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(REMOVE_BG_API_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        RemoveBgService service = retrofit.create(RemoveBgService.class);
+
+        // 创建请求体
+        RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageBytes);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("image_file", "image.jpg", requestFile);
+
+        // 发送请求
+        Call<ResponseBody> call = service.removeBackground(REMOVE_BG_API_KEY, body);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                progressDialog.dismiss();
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        // 将响应转换为Bitmap
+                        byte[] responseBytes = response.body().bytes();
+                        Bitmap resultBitmap = BitmapFactory.decodeByteArray(responseBytes, 0, responseBytes.length);
+                        
+                        // 更新UI
+                        currentBitmap = resultBitmap;
+                        editImageView.setImageBitmap(currentBitmap);
+                        
+                        // 添加到历史记录
+                        addNewState();
+                        
+                        Toast.makeText(PhotoEditActivity.this, "背景移除成功", Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Toast.makeText(PhotoEditActivity.this, "处理图片失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(PhotoEditActivity.this, "移除背景失败: " + response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                Toast.makeText(PhotoEditActivity.this, "网络请求失败: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -589,4 +679,14 @@ public class PhotoEditActivity extends AppCompatActivity {
         }
         return null;
     }
+}
+
+// Remove.bg API接口定义
+interface RemoveBgService {
+    @Multipart
+    @POST("removebg")
+    Call<ResponseBody> removeBackground(
+        @Header("X-Api-Key") String apiKey,
+        @Part MultipartBody.Part image
+    );
 }

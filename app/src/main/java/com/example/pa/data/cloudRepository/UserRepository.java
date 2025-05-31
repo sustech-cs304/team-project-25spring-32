@@ -61,6 +61,42 @@ public class UserRepository {
                 .doOnNext(response -> saveAuthToken(response.getToken()))
                 .subscribeOn(Schedulers.io());
     }
+    /**
+     * 用户登录（回调方式）
+     */
+
+    public void login(String username, String password, UserCallback<LoginResponse> callback) {
+        LoginRequest request = new LoginRequest(username, password);
+        apiService.login(request).enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    saveAuthToken(response.body().getToken());
+                    saveUserInfo(response.body().getUser());
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("登录失败: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                callback.onError("网络错误: " + t.getMessage());
+            }
+        });
+
+    }
+    /**
+     * 用户登录（RxJava方式）
+     */
+    public Observable<LoginResponse> loginRx(String username, String password) {
+        return apiService.loginRx(new LoginRequest(username, password))
+                .doOnNext(response -> {
+                    saveAuthToken(response.getToken());
+                    saveUserInfo(response.getUser());
+                })
+                .subscribeOn(Schedulers.io());
+    }
 
     /**
      * 退出登录（清除本地凭证）
@@ -102,38 +138,6 @@ public class UserRepository {
     public Observable<UserInfoResponse> fetchUserInfoRx() {
         return apiService.getUserInfoRx()
                 .doOnNext(response -> saveUserInfo(response.getUser()))
-                .subscribeOn(Schedulers.io());
-    }
-
-    /**
-     * 更新用户信息（回调方式）
-     */
-    public void updateUserInfo(String newUsername, String newEmail, UserCallback<UpdateUserResponse> callback) {
-        UpdateUserRequest request = new UpdateUserRequest(newUsername, newEmail);
-        apiService.updateUserInfo(request).enqueue(new Callback<UpdateUserResponse>() {
-            @Override
-            public void onResponse(Call<UpdateUserResponse> call, Response<UpdateUserResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    saveUserInfo(response.body().getUpdatedUser());
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError("更新失败: " + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UpdateUserResponse> call, Throwable t) {
-                callback.onError("网络错误: " + t.getMessage());
-            }
-        });
-    }
-
-    /**
-     * 更新用户信息（RxJava方式）
-     */
-    public Observable<UpdateUserResponse> updateUserInfoRx(String newUsername, String newEmail) {
-        return apiService.updateUserInfoRx(new UpdateUserRequest(newUsername, newEmail))
-                .doOnNext(response -> saveUserInfo(response.getUpdatedUser()))
                 .subscribeOn(Schedulers.io());
     }
 

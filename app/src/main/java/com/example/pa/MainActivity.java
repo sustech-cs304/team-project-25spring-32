@@ -32,6 +32,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 //import com.example.pa.auth.LoginActivity;
+import com.example.pa.auth.LoginActivity;
 import com.example.pa.data.model.Photo;
 
 import com.example.pa.data.Daos.*;
@@ -222,7 +223,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
             if (id == R.id.nav_login) {
                 // 处理登录/注册
-                //startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, LoginActivity.class));
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             }
