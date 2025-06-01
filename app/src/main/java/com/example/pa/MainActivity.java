@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                     }
 
                     if (allGranted) {
-                        performInitialMediaScan();
+                        performInitialMediaScan(() -> fileRepository.triggerIncrementalSync());
                         Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "部分权限被拒绝", Toast.LENGTH_SHORT).show();
@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         // 首次启动时请求权限
         requestNecessaryPermissions();
 
-        fileRepository.triggerIncrementalSync();
         // 测试数据库操作 (仅用于开发环境)
 
 
@@ -285,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     }
 
 
-    private void performInitialMediaScan() {
+    private void performInitialMediaScan(Runnable onScanComplete) {
         Log.d("MediaScan", "开始初始化扫描...");
         try {
             File dcimDir = Environment.getExternalStoragePublicDirectory(
@@ -298,11 +297,13 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                 @Override
                 public void onScanCompleted(Uri uri) {
                     Log.i("MediaScan", "扫描完成: " + uri);
+                    if (onScanComplete != null) onScanComplete.run();
                 }
 
                 @Override
                 public void onScanFailed(String error) {
                     Log.e("MediaScan", "扫描失败: " + error);
+                    if (onScanComplete != null) onScanComplete.run();
                 }
             });
         } catch (SecurityException e) {
@@ -357,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
             requestPermissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
         } else {
             Log.d("Permission", "所有权限已授予");
-            performInitialMediaScan();
+            performInitialMediaScan(() -> fileRepository.triggerIncrementalSync());
         }
     }
 

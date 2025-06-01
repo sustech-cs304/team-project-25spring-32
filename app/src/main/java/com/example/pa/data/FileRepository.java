@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -381,106 +382,7 @@ public class FileRepository {
         }
         return false;
     }
-    // 在FileRepository类中添加以下方法
 
-    //=== 删除照片 ===//
-//    public boolean deleteImages(List<Uri> imageUri, Activity activity) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            return deleteImagesWithMediaStore(imageUri, activity);
-//        } else {
-//            // Android 9及以下实现
-//            try {
-////                return context.getContentResolver().delete(imageUri, null, null) > 0;
-//                Log.e("Delete", "版本低于Android10");
-//                return false;
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                return false;
-//            }
-//        }
-//    }
-
-//    @RequiresApi(api = Build.VERSION_CODES.Q)
-//    private boolean deleteImagesWithMediaStore(List<Uri> imageUri) {
-//        try {
-//            // 处理需要用户确认的删除请求
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                List<Uri> uris = new ArrayList<>(imageUri);
-//
-//                PendingIntent deleteIntent = MediaStore.createDeleteRequest(
-//                        context.getContentResolver(),
-//                        uris
-//                );
-//
-//                if (context instanceof Activity) {
-//                    ((Activity) context).startIntentSenderForResult(
-//                            deleteIntent.getIntentSender(),
-//                            DELETE_REQUEST_CODE,
-//                            null, 0, 0, 0
-//                    );
-//                    return true;
-//                }
-//                return false;
-//            } else {
-//                Log.e("Delete", "版本低于Android10");
-//                return false;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//    }
-//private static final String TAG = "FileRepoDelete"; // 统一定义日志标签
-//
-//    // 修改方法签名，添加Activity参数
-//    public interface DeleteRequestLauncher {
-//        void launchDeleteIntent(PendingIntent deleteIntent) throws IntentSender.SendIntentException;
-//    }
-//
-//    private boolean deleteImagesWithMediaStore(List<Uri> imageUris, Activity activity) {
-//        Log.d(TAG, "开始删除操作 | URIs数量: " + imageUris.size());
-//
-//        try {
-//            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-//                Log.e(TAG, "系统版本过低 (API " + Build.VERSION.SDK_INT + ")");
-//                return false;
-//            }
-//
-//            // 检查URI有效性（同上个回答）
-//            for (Uri uri : imageUris) {
-//                if (!isValidMediaUri(uri)) return false;
-//            }
-//
-//            ContentResolver resolver = activity.getContentResolver();
-//            PendingIntent deleteIntent = MediaStore.createDeleteRequest(
-//                    resolver,
-//                    imageUris// Android 12+需要
-//            );
-//
-//            // 通过回调启动删除请求
-//            launcher.launchDeleteIntent(deleteIntent);
-//            return true;
-//        } catch (Exception e) {
-//            Log.e(TAG, "删除操作异常: " + e.getMessage());
-//            return false;
-//        }
-//    }
-//
-//    // 新增URI有效性检查方法
-//    private boolean isValidMediaUri(Uri uri) {
-//        try {
-//            ContentResolver resolver = context.getContentResolver();
-//            try (Cursor cursor = resolver.query(uri, null, null, null, null)) {
-//                return cursor != null && cursor.getCount() > 0;
-//            }
-//        } catch (SecurityException e) {
-//            Log.e(TAG, "无权限访问URI: " + uri, e);
-//            return false;
-//        } catch (Exception e) {
-//            Log.e(TAG, "URI检查失败: " + uri, e);
-//            return false;
-//        }
-//    }
     //=== 复制照片 ===//
     public boolean copyPhotos(List<Uri> sourceUris, String targetAlbumName) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -789,36 +691,53 @@ public class FileRepository {
 //            callback.onScanFailed(e.getMessage());
 //        }
 //    }
-    public void triggerMediaScanForDirectory(File directory, MediaScanCallback callback) {
-        // 扫描当前目录
-        scanSingleDirectory(directory, callback);
+public void triggerMediaScanForDirectory(File rootDir, MediaScanCallback callback) {
+    List<File> allDirs = new ArrayList<>();
+    collectAllDirectories(rootDir, allDirs);
 
-        // 递归扫描子目录
-        scanSubdirectories(directory);
+    if (allDirs.isEmpty()) {
+        callback.onScanFailed("没有可扫描的目录");
+        return;
     }
 
-    private void scanSingleDirectory(File dir, MediaScanCallback callback) {
+    AtomicInteger remaining = new AtomicInteger(allDirs.size());
+    AtomicBoolean anyFailed = new AtomicBoolean(false);
+
+    for (File dir : allDirs) {
         MediaScannerConnection.scanFile(
                 context,
                 new String[]{dir.getAbsolutePath()},
                 new String[]{"image/*", "video/*"},
                 (path, uri) -> {
-                    if (uri != null) {
-                        Log.d("MediaScan", "Scanned: " + path);
+                    Log.d("MediaScan", "Scanned: " + path);
+                    if (uri == null) {
+                        anyFailed.set(true);
+                    }
+
+                    if (remaining.decrementAndGet() == 0) {
+                        if (anyFailed.get()) {
+                            callback.onScanFailed("部分或全部扫描失败");
+                        } else {
+                            callback.onScanCompleted(Uri.EMPTY); // 表示全部完成
+                        }
                     }
                 }
         );
     }
+}
 
-    private void scanSubdirectories(File parentDir) {
-        File[] subDirs = parentDir.listFiles(File::isDirectory);
-        if (subDirs == null) return;
-
-        for (File dir : subDirs) {
-            scanSingleDirectory(dir, null); // 不需要回调
-            scanSubdirectories(dir); // 继续递归
+    private void collectAllDirectories(File dir, List<File> allDirs) {
+        if (dir != null && dir.exists() && dir.isDirectory()) {
+            allDirs.add(dir);
+            File[] subDirs = dir.listFiles(File::isDirectory);
+            if (subDirs != null) {
+                for (File sub : subDirs) {
+                    collectAllDirectories(sub, allDirs);
+                }
+            }
         }
     }
+
     private String classifyImage(Uri imageUri) {
         String TAG = "ImageClassifier";
         //assert fileRepository!=null;
