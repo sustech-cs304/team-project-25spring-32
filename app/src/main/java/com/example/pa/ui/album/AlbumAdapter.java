@@ -35,16 +35,18 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     private final FileRepository fileRepository;
     private final SparseArray<Long> positionTimestamps = new SparseArray<>();
     private boolean isManageMode = false;  // 控制删除图标显示
+    private AlbumFragment.AlbumType albumType;
 
     public interface OnAlbumClickListener {
         void onAlbumClick(String albumName);
         void onDeleteAlbum(Album album);
     }
 
-    public AlbumAdapter(List<Album> albumList, OnAlbumClickListener listener) {
+    public AlbumAdapter(List<Album> albumList, OnAlbumClickListener listener, AlbumFragment.AlbumType albumType) {
         this.albumList = albumList;
         this.listener = listener;
         this.fileRepository = MyApplication.getInstance().getFileRepository();
+        this.albumType = albumType;
     }
 
     @Override
@@ -70,6 +72,26 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         Album album = albumList.get(position);
         holder.textView.setText(album.name);
         Log.d("AlbumAdapter", "onBindViewHolder: " + album.name);
+
+//        // 根据相册类型设置样式
+//        switch (albumType) {
+//            case CUSTOM:
+//                holder.typeBadge.setVisibility(View.VISIBLE);
+//                holder.typeBadge.setText("自定义");
+//                holder.typeBadge.setBackgroundResource(R.drawable.bg_custom_badge);
+//                break;
+//            case TIME:
+//                holder.typeBadge.setVisibility(View.VISIBLE);
+//                holder.typeBadge.setText("时间");
+//                holder.typeBadge.setBackgroundResource(R.drawable.bg_time_badge);
+//                break;
+//            case LOCATION:
+//                holder.typeBadge.setVisibility(View.VISIBLE);
+//                holder.typeBadge.setText("地点");
+//                holder.typeBadge.setBackgroundResource(R.drawable.bg_location_badge);
+//                break;
+//        }
+
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
                 .load(fileRepository.getAlbumCover(album.name))
@@ -131,9 +153,16 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         return isManageMode;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateAlbums(List<Album> newAlbums) {
+        this.albumList = newAlbums;
+        notifyDataSetChanged();
+    }
+
     public static class AlbumViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView textView;
+//        TextView typeBadge; // 新增类型标识
         ImageView deleteIcon;
 
         public AlbumViewHolder(View itemView) {
@@ -141,6 +170,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
             // 引用布局中的 ImageView 和 TextView
             imageView = itemView.findViewById(R.id.imageView);
             textView = itemView.findViewById(R.id.image_text);
+//            typeBadge = itemView.findViewById(R.id.type_badge); // 新增视图
             deleteIcon = itemView.findViewById(R.id.delete_icon);
         }
     }
