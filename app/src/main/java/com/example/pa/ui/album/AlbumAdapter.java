@@ -94,7 +94,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
         // 你可以使用 Glide 或 Picasso 来加载图片
         Glide.with(holder.itemView.getContext())
-                .load(fileRepository.getAlbumCover(album.name))
+                .load(getAlbumCover(album))
                 .into(holder.imageView);
 
         // 带回调的扫描
@@ -104,7 +104,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
                 // 验证视图是否仍然有效
                 if (positionTimestamps.get(position, -1L) != timestamp) return;
 
-                Uri coverUri = fileRepository.getAlbumCover(album.name);
+                Uri coverUri = getAlbumCover(album);
                 if (coverUri != null) {
                     Glide.with(holder.itemView.getContext())
                             .load(coverUri)
@@ -136,6 +136,10 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         } else {
             holder.deleteIcon.setVisibility(View.GONE);
         }
+    }
+
+    private Uri getAlbumCover(Album album) {
+        return album.cover != null ? Uri.parse(album.cover) : fileRepository.getAlbumCover(album.name);
     }
 
     @Override
