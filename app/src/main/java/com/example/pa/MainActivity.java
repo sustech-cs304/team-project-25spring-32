@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -167,27 +168,37 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
     private void handleDeleteEvent(List<Uri> uris) {
         fileRepository.deletePhotos(uris, deleteIntent -> {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Log.d("Delete", "版本正确");
-                startIntentSenderForResult(
-                            deleteIntent.getIntentSender(),
-                            FileRepository.DELETE_REQUEST_CODE,
-                            null, 0, 0, 0,
-                            null
-                    );
-                } else {
-                    startIntentSenderForResult(
-                            deleteIntent.getIntentSender(),
-                            FileRepository.DELETE_REQUEST_CODE,
-                            null, 0, 0, 0
-                    );
-                }
-            } catch (IntentSender.SendIntentException e) {
-                Log.e("Delete", "启动删除请求失败", e);
-            }
+            // 创建自定义Intent携带数据
+            Intent fillInIntent = new Intent();
+            fillInIntent.putParcelableArrayListExtra("DELETE_URIS", new ArrayList<>(uris));
+
+            // 构建请求
+            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                    deleteIntent.getIntentSender())
+                    .setFillInIntent(fillInIntent) // 附加数据
+                    .build();
+
+            deleteLauncher.launch(request);
         });
     }
+
+    private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Intent data = result.getData();
+                    if (data != null) {
+                        ArrayList<Uri> deletedUris = data.getParcelableArrayListExtra("DELETE_URIS");
+                        if (deletedUris!=null){
+                            ArrayList<String> uris = new ArrayList<>();
+                            for (Uri deletedUri: deletedUris) {
+                                uris.add(deletedUri.toString());
+                            }
+                            MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                        }
+                    }
+                    viewModel.loadAlbums();
+                }
+            });
 
 
     private void setupNavHeader() {

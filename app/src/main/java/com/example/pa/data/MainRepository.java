@@ -125,6 +125,13 @@ public class MainRepository {
                 && photoDao.deletePhoto(photoId);
     }
 
+    public void deletePhotosByUri(List<String> photoUris) {
+        for (String uri: photoUris) {
+            int photoId = photoDao.getPhotoIdByPath(uri);
+            deletePhoto(photoId);
+        }
+    }
+
     public boolean deleteAlbum(int albumId) {
         List<Integer> photoIds = albumPhotoDao.getPhotoIdsInAlbum(albumId);
         for (int photoId : photoIds) {

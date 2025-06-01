@@ -140,15 +140,9 @@ public class AlbumViewModel extends ViewModel {
 
     // 删除相册
     public void deleteAlbum(int albumId, String name) {
-        boolean result = mainRepository.deleteAlbum(albumId);
-        if (result) {
-            List<Uri> albumUris = fileRepository.getAlbumImages(name);
-            Log.d("Delete", "找到图片" + albumUris);
-            deleteEvent.postValue(new DeleteEvent(albumUris));
-            loadAlbums(); // 重新加载相册列表
-            event.setValue("Album deleted successfully");
-        } else {
-            event.setValue("Failed to delete album");
-        }
+        List<Uri> albumUris = fileRepository.getAlbumImages(name);
+        Log.d("Delete", "找到图片" + albumUris);
+        deleteEvent.postValue(new DeleteEvent(albumUris));
+        event.setValue("Album deleted successfully");
     }
 }
