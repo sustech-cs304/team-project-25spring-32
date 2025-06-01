@@ -27,6 +27,7 @@ import com.example.pa.R;
 import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.example.pa.data.model.Photo;
+import com.example.pa.util.UriToPathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,10 +116,7 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
             registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     Log.d("Delete", "成功返回 ");
-                    ArrayList<String> uris = new ArrayList<>();
-                    for (Uri deletedUri: pendingDeleteUris) {
-                        uris.add(deletedUri.toString());
-                    }
+                    List<String> uris = UriToPathHelper.uriToString(pendingDeleteUris);
                     MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
                     MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
                 }

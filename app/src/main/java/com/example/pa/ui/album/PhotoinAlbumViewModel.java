@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.pa.MyApplication;
 import com.example.pa.data.FileRepository;
+import com.example.pa.util.UriToPathHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,17 +51,20 @@ public class PhotoinAlbumViewModel extends ViewModel {
     }
 
     public void copyPhotosToAlbum(ArrayList<Uri> photos, String albumName) {
-        fileRepository.copyPhotos(photos, albumName);
+        boolean result = fileRepository.copyPhotos(photos, albumName);
+        if (result) {
+            List<String> photoUris = UriToPathHelper.uriToString(photos);
+            MyApplication.getInstance().getMainRepository().copyPhotosToAlbum(photoUris, albumName);
+        }
         loadAlbumPhotos(albumName);
     }
 
     public void movePhotosToAlbum(ArrayList<Uri> photos, String albumName) {
         Log.d("Move", "movePhotosToAlbum: " + albumName);
-        fileRepository.copyPhotos(photos, albumName);
+        copyPhotosToAlbum(photos, albumName);
 
         Log.d("Move", "Copy finished.");
         deletePhotos(photos, albumName);
-        loadAlbumPhotos(albumName);
     }
 
     public LiveData<AlbumViewModel.DeleteEvent> getDeleteEvent() {

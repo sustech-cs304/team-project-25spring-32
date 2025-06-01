@@ -120,7 +120,6 @@ public class MainRepository {
     }
 
     public boolean deletePhoto(int photoId) {
-        Log.d("Delete", "deletePhoto: " + photoId);
         return albumPhotoDao.removePhotoFromAlbumByPhoto(photoId)
                 && photoTagDao.removeTagFromPhotoByPhoto(photoId)
                 && photoDao.deletePhoto(photoId);
@@ -150,6 +149,29 @@ public class MainRepository {
         int albumId = albumPhotoDao.getAlbumOfPhoto(photoId);
         Log.d("getAlbumNameOfPhoto", "albumId: " + albumId);
         return albumDao.getAlbumNameById(albumId);
+    }
+
+    public void copyPhotosToAlbum(List<String> photoUris, String albumName) {
+        int albumId = albumDao.getAlbumIdByName(albumName);
+        if (albumId != -1) {
+            for (String uri: photoUris) {
+                int photoId = photoDao.getPhotoIdByPath(uri);
+                if (photoId != -1) {
+                    Photo photo = photoDao.getPhotoById(photoId);
+                    int newPhotoId = (int) photoDao.addFullPhoto(photo);
+                    albumPhotoDao.addPhotoToAlbum(albumId, newPhotoId);
+                    List<Integer> tagIds = photoTagDao.getTagsForPhoto(photoId);
+                    for (int tagId: tagIds) {
+                        photoTagDao.addTagToPhoto(newPhotoId, tagId);
+                    }
+                }
+            }
+        }
+    }
+
+    public void movePhotosToAlbum(List<String> photoUris, String albumName) {
+        copyPhotosToAlbum(photoUris, albumName);
+        deletePhotosByUri(photoUris);
     }
 
 }

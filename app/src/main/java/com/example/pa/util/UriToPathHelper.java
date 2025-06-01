@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UriToPathHelper {
@@ -108,5 +110,14 @@ public class UriToPathHelper {
             result = UUID.randomUUID().toString(); // 备用文件名
         }
         return result;
+    }
+
+    // 批量URI转换为String
+    public static List<String> uriToString(List<Uri> uris) {
+        List<String> uriStrings = new ArrayList<>();
+        for (Uri uri: uris) {
+            uriStrings.add(uri.toString());
+        }
+        return uriStrings;
     }
 }

@@ -55,12 +55,22 @@ public class PhotoTagDao {
         }
     }
 
-    public Cursor getTagsForPhoto(int photoId) {
-        return db.query(TABLE_NAME,
-                null,
+    @SuppressLint("Range")
+    public List<Integer> getTagsForPhoto(int photoId) {
+        List<Integer> tagIds = new ArrayList<>();
+        @SuppressLint("Recycle") Cursor result = db.query(TABLE_NAME,
+                new String[]{COLUMN_TAG_ID},
                 COLUMN_PHOTO_ID + " = ?",
                 new String[]{String.valueOf(photoId)},
                 null, null, null);
+
+        if (result != null) {
+            while (result.moveToNext()) {
+                tagIds.add(result.getInt(result.getColumnIndex(COLUMN_TAG_ID)));
+            }
+            result.close();
+        }
+        return tagIds;
     }
 
     @SuppressLint("Range")

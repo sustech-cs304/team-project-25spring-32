@@ -42,6 +42,7 @@ import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
+import com.example.pa.util.UriToPathHelper;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
@@ -194,10 +195,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
             registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     Log.d("Delete", "成功返回 ");
-                    ArrayList<String> uris = new ArrayList<>();
-                    for (Uri deletedUri: pendingDeleteUris) {
-                        uris.add(deletedUri.toString());
-                    }
+                    List<String> uris = UriToPathHelper.uriToString(pendingDeleteUris);
                     MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
                     MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
                 }
