@@ -140,10 +140,11 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
         fileRepository=MyApplication.getInstance().getFileRepository();
         fileRepository.setDeleteCallback(this);
-        fileRepository.registerMediaStoreObserver();
 
         // 首次启动时请求权限
         requestNecessaryPermissions();
+
+        fileRepository.triggerIncrementalSync();
         // 测试数据库操作 (仅用于开发环境)
 
 

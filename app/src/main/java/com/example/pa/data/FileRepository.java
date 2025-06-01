@@ -80,28 +80,8 @@ public class FileRepository {
         this.myApplication = (MyApplication) context.getApplicationContext();
     }
 
-    // 注册 MediaStore 观察者
-    public void registerMediaStoreObserver() {
-        if (mediaObserver != null) return;
-
-        mediaObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
-            @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                if (!selfChange) { // 排除自身操作触发的通知
-                    triggerIncrementalSync();
-                }
-            }
-        };
-
-        context.getContentResolver().registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                true,
-                mediaObserver
-        );
-    }
-
     // 触发增量同步（带防抖）
-    private void triggerIncrementalSync() {
+    public void triggerIncrementalSync() {
         new Thread(() -> {
             if (!syncLock.tryLock()) {
                 Log.d("Sync", "同步已在进行中，跳过");
@@ -123,7 +103,6 @@ public class FileRepository {
             }
         }).start();
     }
-
 
     private void performIncrementalSync() {
         // 获取当前用户ID（根据实际登录状态获取）
@@ -190,7 +169,7 @@ public class FileRepository {
                         cursor.getDouble(5),
                         null, null, null
                 );
-                Log.d("TAG", "addPhotos: " + id);
+                Log.d("Sync", "addPhotos: " + id);
                 photos.add(photo);
             }
         }
