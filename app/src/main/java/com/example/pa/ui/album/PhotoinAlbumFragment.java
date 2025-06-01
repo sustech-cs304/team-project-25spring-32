@@ -1,5 +1,7 @@
 package com.example.pa.ui.album;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -33,6 +38,8 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     private RecyclerView recyclerView;
     private PhotoinAlbumAdapter photoinAlbumAdapter;
     private PhotoinAlbumViewModel photoinAlbumViewModel;
+    private List<Uri> pendingDeleteUris;
+
 
 
     public static PhotoinAlbumFragment newInstance(String albumName) {
@@ -88,29 +95,36 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     }
 
     private void handleDeleteEvent(List<Uri> uris) {
+        pendingDeleteUris = uris;
         MyApplication.getInstance().getFileRepository().deletePhotos(uris, deleteIntent -> {
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Log.d("Delete", "版本正确");
-                    startIntentSenderForResult(
-                            deleteIntent.getIntentSender(),
-                            FileRepository.DELETE_REQUEST_CODE,
-                            null, 0, 0, 0,
-                            null
-                    );
-                } else {
-                    startIntentSenderForResult(
-                            deleteIntent.getIntentSender(),
-                            FileRepository.DELETE_REQUEST_CODE,
-                            null, 0, 0, 0,
-                            null
-                    );
-                }
-            } catch (IntentSender.SendIntentException e) {
-                Log.e("Delete", "启动删除请求失败", e);
-            }
+            // 创建自定义Intent携带数据
+            Intent fillInIntent = new Intent();
+            fillInIntent.putParcelableArrayListExtra("DELETE_URIS", new ArrayList<>(uris));
+
+            // 构建请求
+            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                    deleteIntent.getIntentSender())
+                    .setFillInIntent(fillInIntent) // 附加数据
+                    .build();
+
+            deleteLauncher.launch(request);
         });
     }
+
+    private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Log.d("Delete", "成功返回 ");
+                    ArrayList<String> uris = new ArrayList<>();
+                    for (Uri deletedUri: pendingDeleteUris) {
+                        uris.add(deletedUri.toString());
+                    }
+                    MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                    MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
+                }
+                photoinAlbumViewModel.loadAlbumPhotos(albumName);
+            });
+
     @Override
     public void onPhotoClick(Uri imageUri) {
         Context context = getContext();

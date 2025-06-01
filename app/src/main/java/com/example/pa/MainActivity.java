@@ -57,10 +57,10 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
     private AppBarConfiguration appBarConfiguration;
     private FileRepository fileRepository;
-
     private AlbumViewModel viewModel;
     //检查是否处于登录状态
     private boolean isLoggedIn = false;
+    private List<Uri> pendingDeleteUris;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     }
 
     private void handleDeleteEvent(List<Uri> uris) {
+        pendingDeleteUris = uris;
         fileRepository.deletePhotos(uris, deleteIntent -> {
             // 创建自定义Intent携带数据
             Intent fillInIntent = new Intent();
@@ -179,26 +180,28 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                     .setFillInIntent(fillInIntent) // 附加数据
                     .build();
 
-            deleteLauncher.launch(request);
+//            deleteLauncher.launch(request);
+            Log.d("Delete", "准备启动 deleteLauncher");
+            try {
+                deleteLauncher.launch(request);
+            } catch (Exception e) {
+                Log.e("Delete", "启动 deleteLauncher 失败", e);
+            }
         });
     }
 
     private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
             registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK) {
-                    Intent data = result.getData();
-                    if (data != null) {
-                        ArrayList<Uri> deletedUris = data.getParcelableArrayListExtra("DELETE_URIS");
-                        if (deletedUris!=null){
-                            ArrayList<String> uris = new ArrayList<>();
-                            for (Uri deletedUri: deletedUris) {
-                                uris.add(deletedUri.toString());
-                            }
-                            MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
-                        }
+                    Log.d("Delete", "成功返回 ");
+                    ArrayList<String> uris = new ArrayList<>();
+                    for (Uri deletedUri: pendingDeleteUris) {
+                        uris.add(deletedUri.toString());
                     }
-                    viewModel.loadAlbums();
+                    MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                    MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
                 }
+                viewModel.loadAlbums();
             });
 
 

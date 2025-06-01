@@ -120,6 +120,7 @@ public class MainRepository {
     }
 
     public boolean deletePhoto(int photoId) {
+        Log.d("Delete", "deletePhoto: " + photoId);
         return albumPhotoDao.removePhotoFromAlbumByPhoto(photoId)
                 && photoTagDao.removeTagFromPhotoByPhoto(photoId)
                 && photoDao.deletePhoto(photoId);
