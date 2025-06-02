@@ -141,5 +141,13 @@
     <string name="forgot_password">forgot password?</string>
     <string name="no_account">No account?</string>
     <string name="register_now">Register now</string>
+    <string name="register_title">User Register</string>
+    <string name="register">register</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="confirm_password">confirm password</string>
+    <string name="have_account_login_now">Have account? Login now</string>
+    <string name="registering">Registering...</string>
+
 
 </resources>

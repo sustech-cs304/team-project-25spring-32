@@ -34,6 +34,7 @@ import androidx.navigation.ui.NavigationUI;
 
 //import com.example.pa.auth.LoginActivity;
 import com.example.pa.auth.LoginActivity;
+import com.example.pa.data.cloudRepository.UserRepository;
 import com.example.pa.data.model.Photo;
 
 import com.example.pa.data.Daos.*;
@@ -43,6 +44,7 @@ import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
 import com.example.pa.util.UriToPathHelper;
+import com.example.pa.util.removeLogin;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
@@ -209,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         View headerView = binding.navigationDrawer.getHeaderView(0);
         ImageView imageView = headerView.findViewById(R.id.imageView);
         TextView usernameTextView = headerView.findViewById(R.id.username);
-        TextView emailTextView = headerView.findViewById(R.id.email);
+        //TextView emailTextView = headerView.findViewById(R.id.email);
 
         // 使用Glide加载头像,由于Url未实现，头像部分注释
 //        Glide.with(this)
@@ -222,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         // 设置用户名和邮箱
 //        usernameTextView.setText(getUsername());
 //        emailTextView.setText(getEmail());
-          usernameTextView.setText("getUsername()");
-          emailTextView.setText("getEmail()");
+          usernameTextView.setText(UserRepository.getUsername());
+          //emailTextView.setText("getEmail()");
     }
     private void setupNavigationDrawerMenu() {
         // 根据登录状态加载不同的菜单
@@ -278,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
                     // 可选：跳转到登录页面
                     //startActivity(new Intent(this, LoginActivity.class));
-                    finish();
+                    recreate();
                 })
                 .setNegativeButton(getString(R.string.negative_button), null)
                 .show();
@@ -563,13 +565,21 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         app.getPhotoDao().clearTable();
         app.getUserDao().clearTable();
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 每次返回时重新检查登录状态
+        isLoggedIn = checkLoginStatus(this);
+        setupNavigationDrawerMenu();
+        setupNavHeader();
+    }
 
     @Override
     protected void onDestroy() {
 
-        clearAllTables((MyApplication) getApplication());
-        Log.d("Database", "Cleaned up all test data");
-
+        //clearAllTables((MyApplication) getApplication());
+        //Log.d("Database", "Cleaned up all test data");
+        removeLogin.removeLoginStatus(this);
         super.onDestroy();
     }
 

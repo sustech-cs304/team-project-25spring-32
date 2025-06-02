@@ -16,6 +16,7 @@ import com.example.pa.data.Daos.UserDao;
 import com.example.pa.data.DatabaseHelper;
 import com.example.pa.data.FileRepository;
 import com.example.pa.data.MainRepository;
+import com.example.pa.data.cloudRepository.UserRepository;
 
 import org.tensorflow.lite.support.common.FileUtil;
 
@@ -29,6 +30,7 @@ public class MyApplication extends Application {
     // 但是getInstance方法之后是直接执行了onCreate
     private MainRepository mainRepository;
     private FileRepository fileRepository;
+    private UserRepository userRepository;
     private UserDao userDao;
     private PhotoDao photoDao;
     private AlbumDao albumDao;
@@ -44,6 +46,10 @@ public class MyApplication extends Application {
 
     public static Context getAppContext() {
         return appContext;
+    }
+
+    public UserRepository getUserRepository() {
+        return userRepository;
     }
 
     @Override
@@ -75,6 +81,7 @@ public class MyApplication extends Application {
         }
 
         fileRepository = new FileRepository(this);
+        userRepository = new UserRepository(this);
 
         Log.d("MyApplication", "Application and DAOs initialized");
     }

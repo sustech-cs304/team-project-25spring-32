@@ -7,21 +7,29 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.pa.MyApplication;
 import com.example.pa.R;
+import com.example.pa.data.cloudRepository.UserRepository;
+import com.example.pa.data.model.user.LoginResponse;
 import com.example.pa.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
+    private UserRepository userRepository;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        userRepository = MyApplication.getInstance().getUserRepository(); // 初始化用户仓库
         setContentView(binding.getRoot());
 
         // 设置登录按钮点击事件
         binding.loginButton.setOnClickListener(v -> attemptLogin());
+        // 设置返回按钮点击事件
+        binding.backButton.setOnClickListener(view -> finish());
 
         // 设置注册文本点击事件
         binding.registerLink.setOnClickListener(v -> {
@@ -60,30 +68,30 @@ public class LoginActivity extends AppCompatActivity {
         binding.loginButton.setEnabled(false);
         binding.loginButton.setText("登录中...");
 
-        // 模拟网络请求
-        new Handler().postDelayed(() -> {
-            boolean loginSuccess = true; // 模拟登录成功
+        userRepository.login(username, password, new UserRepository.UserCallback<LoginResponse>() {
+            @Override
+            public void onSuccess(LoginResponse response) {
+                // 登录成功，保存Token
+                SharedPreferences sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("auth_token", response.getToken());
+                editor.putBoolean("is_logged_in", true);
+                editor.apply();
 
-            if (loginSuccess) {
-                // 保存登录状态
-                SharedPreferences prefs = getSharedPreferences("auth_prefs", MODE_PRIVATE);
-                prefs.edit()
-                        .putBoolean("is_logged_in", true)
-                        .putString("username", username)
-                        .apply();
-
-                // 返回成功结果
-                Intent result = new Intent();
-                result.putExtra("username", username);
-                setResult(RESULT_OK, result);
+                // 显示成功消息并跳转到主界面
+                Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
                 finish();
-            } else {
-                // 登录失败
-                binding.loginButton.setEnabled(true);
-                binding.loginButton.setText("登 录");
-                Toast.makeText(LoginActivity.this, "登录失败，请检查凭证", Toast.LENGTH_SHORT).show();
             }
-        }, 1500);
+
+            @Override
+            public void onError(String errorMessage) {
+                // 登录失败，显示错误消息
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                binding.loginButton.setEnabled(true);
+                binding.loginButton.setText("登录");
+            }
+        });
     }
 
     @Override

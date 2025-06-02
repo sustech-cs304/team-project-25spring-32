@@ -17,10 +17,15 @@ import retrofit2.Response;
 public class UserRepository {
     private final UserApiService apiService;
     private final SharedPreferences sharedPreferences;
+    private static String username;
 
     public UserRepository(Context context) {
         this.apiService = RetrofitClient.getInstance().getUserApiService();
-        this.sharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        this.sharedPreferences = context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE);
+    }
+
+    public static String getUsername() {
+        return username;
     }
 
     public interface UserCallback<T> {
@@ -73,9 +78,16 @@ public class UserRepository {
                 if (response.isSuccessful() && response.body() != null) {
                     saveAuthToken(response.body().getToken());
                     saveUserInfo(response.body().getUser());
+                    UserRepository.username=username;
                     callback.onSuccess(response.body());
                 } else {
-                    callback.onError("登录失败: " + response.code());
+                    if (response.code() == 401) {
+                        callback.onError("登录失败: 用户名或密码错误");
+                    } else if (response.code() == 400) {
+                        callback.onError("登录失败: 需要账户和密码");
+                    } else {
+                        callback.onError("登录失败: " + response.code());
+                    }
                 }
             }
 

@@ -125,6 +125,7 @@
 
     <string name="app_logo">应用Logo</string>
     <string name="login_title">用户登录</string>
+    <string name="register_title">用户注册</string>
     <string name="username_hint">用户名/邮箱</string>
     <string name="password_hint">密码</string>
     <string name="remember_me">记住我</string>
