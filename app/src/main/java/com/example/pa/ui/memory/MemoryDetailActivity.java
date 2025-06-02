@@ -15,11 +15,11 @@ public class MemoryDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_memory_detail);
 
         // 获取传递的记忆相册ID
-        String memoryId = getIntent().getStringExtra("memory_id");
+        String memoryName = getIntent().getStringExtra("memory_name");
 
         // 加载Fragment
         if (savedInstanceState == null) {
-            Fragment fragment = MemoryDetailFragment.newInstance(memoryId);
+            Fragment fragment = MemoryDetailFragment.newInstance(memoryName);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .commit();

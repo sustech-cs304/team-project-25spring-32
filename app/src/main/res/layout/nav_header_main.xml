@@ -9,7 +9,7 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.MaterialComponents.Dark">
 
-    <ImageView
+    <!--<ImageView
         android:id="@+id/imageView"
         android:layout_width="72dp"
         android:layout_height="72dp"
@@ -17,7 +17,7 @@
         android:contentDescription="@string/profile_image_desc"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_default_profile"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.CircleImageView" />
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.CircleImageView" />-->
 
     <TextView
         android:id="@+id/username"
@@ -28,7 +28,7 @@
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
         android:textColor="@android:color/white" />
 
-    <TextView
+    <!--<TextView
         android:id="@+id/email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
         android:layout_marginBottom="8dp"
         android:text="@string/default_email"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white" />-->
 
     <View
         android:layout_width="match_parent"
