@@ -152,6 +152,10 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/icon_crop"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@android:color/white"
+                    android:gravity="center"
                     android:text="@string/crop"
                     android:textColor="#FFFFFF"/>
             </LinearLayout>
@@ -235,6 +239,10 @@
                 android:id="@+id/btnCropCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawableTop="@drawable/icon_delete"
+                android:drawablePadding="8dp"
+                android:drawableTint="@android:color/white"
+                android:gravity="center"
                 android:text="@string/cancel"
                 android:textColor="#FFFFFF"
                 android:layout_marginEnd="16dp"/>
@@ -252,11 +260,10 @@
         android:id="@+id/btnRemoveBg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="166dp"
-        android:layout_marginStart="84dp"
-        android:layout_marginTop="64dp"
-        android:text="AI抠图"
+        android:layout_marginBottom="16dp"
+        android:text="remove background"
+        app:layout_constraintBottom_toTopOf="@id/editToolsLayout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
