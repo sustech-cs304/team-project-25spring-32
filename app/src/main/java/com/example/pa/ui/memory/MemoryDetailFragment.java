@@ -25,7 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
 import com.example.pa.ui.photo.PhotoDetailActivity;
+import com.example.pa.ui.select.PhotoSelectActivity;
 import com.example.pa.util.VideoPlayerManager;
+
+import java.util.ArrayList;
 
 public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter.OnPhotoClickListener {
 
@@ -34,6 +37,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     private RecyclerView recyclerView;
     private MemoryPhotoAdapter adapter;
     private MemoryDetailViewModel viewModel;
+    private ActivityResultLauncher<Intent> addPhotosLauncher;
     private ActivityResultLauncher<Intent> customizeVideoLauncher; // 添加启动器
     private ImageButton btnBack;
     private ImageButton btnAdd;
@@ -59,6 +63,25 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         videoPlayerManager = new VideoPlayerManager(requireContext());
         // ViewModel 的创建应该在这里，但不应该直接初始化 FFmpegVideoCreationService
         // FFmpegVideoCreationService 应该由 ViewModel 自身管理
+        // 初始化用于添加照片的 ActivityResultLauncher
+        addPhotosLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        ArrayList<Uri> selectedPhotos = data.getParcelableArrayListExtra("selected_photos");
+                        // String operationType = data.getStringExtra("operation_type"); // "copy" or "move"
+
+                        if (selectedPhotos != null && !selectedPhotos.isEmpty()) {
+                            // 调用 ViewModel 处理添加照片的逻辑
+                            viewModel.addPhotosToCurrentMemory(selectedPhotos);
+                            Log.d(TAG, "Received " + selectedPhotos.size() + " photos to add.");
+                        }
+                    } else {
+                        Log.d(TAG, "Photo selection cancelled or failed.");
+                    }
+                }
+        );
     }
 
     @Override
@@ -157,7 +180,13 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         btnExport = rootView.findViewById(R.id.btn_export);
 
         btnBack.setOnClickListener(v -> onBackPressed());
-        btnAdd.setOnClickListener(v -> Toast.makeText(getContext(), "添加照片 (TODO)", Toast.LENGTH_SHORT).show());
+        btnAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), PhotoSelectActivity.class);
+            // 可以传递额外的信息给 PhotoSelectActivity
+            // intent.putExtra("selection_mode", "add_to_album");
+            // intent.putExtra("current_album_name", viewModel.getCurrentMemoryIdentifier()); // 如果需要过滤已存在照片
+            addPhotosLauncher.launch(intent);
+        });
         btnDelete.setOnClickListener(v -> Toast.makeText(getContext(), "批量删除 (TODO)", Toast.LENGTH_SHORT).show());
         // Fragment 触发 ViewModel 的导出逻辑
         btnExport.setOnClickListener(v -> {

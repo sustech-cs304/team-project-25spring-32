@@ -348,4 +348,38 @@ public class MemoryDetailViewModel extends ViewModel {
         loadPhotos(memoryIdentifier);       // 加载相册图片
         loadLastVideoUriInternal(); // 加载该相册对应的上次播放的视频 URI
     }
+
+    public void addPhotosToCurrentMemory(List<Uri> newPhotoUris) {
+        if (newPhotoUris == null || newPhotoUris.isEmpty()) {
+            return;
+        }
+
+        List<Uri> currentPhotos = photoUris.getValue();
+        List<Uri> updatedPhotos;
+
+        if (currentPhotos == null) {
+            updatedPhotos = new ArrayList<>(newPhotoUris);
+        } else {
+            updatedPhotos = new ArrayList<>(currentPhotos);
+            // 添加新照片，可以考虑去重
+            for (Uri newUri : newPhotoUris) {
+                if (!updatedPhotos.contains(newUri)) { // 简单去重
+                    updatedPhotos.add(newUri);
+                }
+            }
+        }
+        photoUris.setValue(updatedPhotos); // 更新 LiveData，UI 会自动刷新
+        _toastMessage.setValue(newPhotoUris.size() + " 张照片已添加");
+
+        // TODO: 如果需要持久化这个照片列表 (例如更新数据库或文件)，在这里处理
+        // 例如: fileRepository.updateAlbumPhotos(currentMemoryIdentifier, updatedPhotos);
+        // 目前的 FileRepository 似乎只提供 getAlbumImages，没有更新/保存的接口。
+        // 这部分的实现取决于你的应用如何存储相册的照片列表。
+        // 对于视频生成，它使用的是 photoUris.getValue()，所以UI更新后，新生成的视频会包含这些照片。
+    }
+
+    // 你可能需要一个获取当前相册标识符的方法，如果其他地方需要
+    public String getCurrentMemoryIdentifier() {
+        return currentMemoryIdentifier;
+    }
 }
