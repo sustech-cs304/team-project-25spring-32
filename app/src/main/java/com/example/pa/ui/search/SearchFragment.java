@@ -49,7 +49,7 @@ public class SearchFragment extends Fragment {
     private FragmentSearchBinding binding;
     private SearchViewModel searchViewModel;
     private ImageAdapter imageAdapter;
-    private List<String> suggestions;
+    private List<String> suggestions;//这个是一点就有的那个推荐词，随机刷的
     private ArrayAdapter<String> suggestionAdapter;
     private FlexboxLayout flexboxRecommendations;
 
@@ -73,7 +73,7 @@ public class SearchFragment extends Fragment {
 
         final EditText searchBox = binding.searchBox;
         //updateClearButtonVisibility(false);
-        final ListView suggestionList = binding.suggestionList;
+        final ListView suggestionList = binding.suggestionList;//这个是一点就有的那个推荐词，随机刷的
         final RecyclerView imageRecyclerView = binding.imageRecyclerView;
         //final ImageView defaultImage = binding.defaultImage;
         //这个是初始默认图片的展示，改成文字描述了

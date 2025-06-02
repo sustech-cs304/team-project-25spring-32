@@ -125,7 +125,6 @@
     <string name="positive_button">yes</string>
     <string name="negative_button">no</string>
 
-    <string name="help_content">This is a sample help text. You can replace it with your own content.</string>
     <string name="return_">return</string>
     <string name="copy">Copy</string>
     <string name="move">Move</string>
@@ -148,6 +147,12 @@
     <string name="confirm_password">confirm password</string>
     <string name="have_account_login_now">Have account? Login now</string>
     <string name="registering">Registering...</string>
+    <string name="login_failed">Login failed</string>
+    <string name="register_failed">Register failed</string>
+    <string name="login_success">Login success</string>
+    <string name="register_success">Register success</string>
+    <string name="login">login</string>
+    <string name="logging_in">logging in...</string>
 
 
 </resources>
