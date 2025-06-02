@@ -2,6 +2,7 @@ package com.example.pa.ui.memory;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,10 +47,11 @@ public class MemoryFragment extends Fragment {
         memoryViewModel.getMemoryVideos().observe(getViewLifecycleOwner(), memoryVideos -> {
             memoryAdapter = new MemoryAdapter(memoryVideos, new MemoryAdapter.OnMemoryClickListener() {
                 @Override
-                public void onMemoryClick(int memoryId) { // 参数类型需一致
+                public void onMemoryClick(String memoryName) { // 参数类型需一致
                     // 处理点击逻辑
                     Intent intent = new Intent(getContext(), MemoryDetailActivity.class);
-                    intent.putExtra("memory_id", memoryId);
+                    intent.putExtra("memory_name", memoryName);
+                    Log.d("Put memory name",memoryName);
                     startActivity(intent);
                 }
             });

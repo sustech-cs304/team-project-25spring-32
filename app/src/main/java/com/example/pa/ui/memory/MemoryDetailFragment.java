@@ -27,18 +27,6 @@ import com.example.pa.R;
 import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.example.pa.util.VideoPlayerManager;
 
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
-
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
-import android.os.Handler;
-import android.os.Looper;
-
-import java.util.List;
-
 public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter.OnPhotoClickListener {
 
     private static final String TAG = "MemoryDetailFragment";
@@ -57,10 +45,10 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     private PlayerView playerView;
 
 
-    public static MemoryDetailFragment newInstance(String memoryId) {
+    public static MemoryDetailFragment newInstance(String memoryName) {
         MemoryDetailFragment fragment = new MemoryDetailFragment();
         Bundle args = new Bundle();
-        args.putString("memory_id", memoryId);
+        args.putString("memory_name", memoryName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -107,9 +95,9 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MemoryDetailViewModel.class);
 
-        String memoryId = null;
+        String memoryName = null;
         if (getArguments() != null) {
-            memoryId = getArguments().getString("memory_id");
+            memoryName = getArguments().getString("memory_name");
         }
 
         // 初始化视频播放器
@@ -141,7 +129,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         });
 
         // 加载数据
-        viewModel.loadPhotos(memoryId);
+        viewModel.loadPhotos(memoryName);
     }
 
     private void initToolbar(View rootView) {

@@ -63,12 +63,12 @@ public class MemoryDetailViewModel extends ViewModel {
         return photoUris;
     }
 
-    public void loadPhotos(String memoryId) {
-        List<Uri> sampleUris = fileRepository.getAlbumImages("Camera");
-        int numImagesToTest = 5;
-        if (sampleUris != null && sampleUris.size() > numImagesToTest) {
-            sampleUris = sampleUris.subList(0, numImagesToTest);
-        }
+    public void loadPhotos(String memoryName) {
+        List<Uri> sampleUris = fileRepository.getAlbumImages(memoryName);
+//        int numImagesToTest = 5;
+//        if (sampleUris != null && sampleUris.size() > numImagesToTest) {
+//            sampleUris = sampleUris.subList(0, numImagesToTest);
+//        }
         photoUris.setValue(sampleUris);
     }
 

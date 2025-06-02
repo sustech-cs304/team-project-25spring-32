@@ -17,7 +17,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
     private final OnMemoryClickListener listener;
 
     public interface OnMemoryClickListener {
-        void onMemoryClick(int memoryId); // 根据实际类型调整
+        void onMemoryClick(String memoryName); // 根据实际类型调整
     }
 
     public MemoryAdapter(List<MemoryVideo> memoryList, OnMemoryClickListener listener) {
@@ -42,7 +42,7 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onMemoryClick(memory.id);
+                listener.onMemoryClick(memory.name);
             }
         });
     }
