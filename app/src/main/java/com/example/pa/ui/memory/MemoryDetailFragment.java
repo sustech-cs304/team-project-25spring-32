@@ -55,11 +55,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     // 播放器使用的组件
     private VideoPlayerManager videoPlayerManager;
     private PlayerView playerView;
-    private ImageButton btnPlayPause;
-    private SeekBar seekBar;
-    private TextView timeCurrent, timeTotal;
-    private Spinner spinnerSpeed;
-    private View customControlsView;
+
 
     public static MemoryDetailFragment newInstance(String memoryId) {
         MemoryDetailFragment fragment = new MemoryDetailFragment();
@@ -86,12 +82,6 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         // 视频预览区
 //        View videoPreview = view.findViewById(R.id.video_preview);
         playerView = view.findViewById(R.id.player_view);
-        btnPlayPause = view.findViewById(R.id.btn_play_pause);
-        seekBar = view.findViewById(R.id.seek_bar);
-        timeCurrent = view.findViewById(R.id.time_current);
-        timeTotal = view.findViewById(R.id.time_total);
-        spinnerSpeed = view.findViewById(R.id.spinner_speed);
-        customControlsView = view.findViewById(R.id.custom_controls); // 假设这是你想长按的区域
 
         // 图片展示区
         recyclerView = view.findViewById(R.id.photo_recycler_view);
@@ -123,16 +113,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         }
 
         // 初始化视频播放器
-        videoPlayerManager.initialize(
-                playerView,
-                btnPlayPause,
-                seekBar,
-                timeCurrent,
-                timeTotal,
-                spinnerSpeed,
-                playerView, // 将 PlayerView 作为长按区域
-                customControlsView
-        );
+        videoPlayerManager.initialize(playerView);
 
         viewModel.getPhotoUris().observe(getViewLifecycleOwner(), uris -> {
             adapter = new MemoryPhotoAdapter(uris, this);
@@ -212,27 +193,38 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         // videoPlayerManager.start();
         // 如果是从 Stop 状态回来，需要重新加载或初始化
         Uri currentUri = viewModel.currentVideoUri.getValue();
-        if (currentUri != null) {
-            videoPlayerManager.loadVideo(currentUri); // 确保从 Stop 返回时能播放
+        if (currentUri != null && playerView != null) { // 确保 playerView 已被初始化
+            Log.d(TAG, "onStart: Reloading video for URI: " + currentUri);
+            videoPlayerManager.loadVideo(currentUri);
+        } else if (playerView == null) {
+            Log.w(TAG, "onStart: playerView is null, cannot reload video.");
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        videoPlayerManager.pause();
+        if (videoPlayerManager != null) {
+            videoPlayerManager.pause();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        videoPlayerManager.release();
+        if (videoPlayerManager != null) {
+            videoPlayerManager.release();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        videoPlayerManager.release(); // 确保销毁时释放
+        // 确保在 View 销毁时也释放，以防 onStop 未被充分调用（例如 Fragment 被替换但未停止）
+        if (videoPlayerManager != null) {
+            videoPlayerManager.release();
+        }
+        playerView = null; // 清除对 View 的引用
     }
     // ======== Fragment 生命周期管理 ========
 

@@ -84,8 +84,8 @@
     <string name="music_peaceful_moments">宁静时刻</string>
 
     <string name="error_must_be_number">请输入数字</string>
-    <string name="error_width_range">宽度必须在 360 到 1280 之间</string>
-    <string name="error_height_range">高度必须在 360 到 1280 之间</string>
+    <string name="error_width_range">宽度必须是 360 到 1280 之间的偶数</string>
+    <string name="error_height_range">高度必须是 360 到 1280 之间的偶数</string>
     <string name="error_duration_range">时长必须在 2 到 10 秒之间</string>
     <string name="error_select_transition">请选择转场效果</string>
     <string name="error_select_framerate">请选择帧率</string>
