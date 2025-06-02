@@ -88,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
         userRepository.register(username, email, password, new UserRepository.UserCallback<RegisterResponse>() {
             @Override
             public void onSuccess(RegisterResponse result) {
-                Toast.makeText(RegisterActivity.this, "register success", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, R.string.register_success, Toast.LENGTH_SHORT).show();
                 binding.registerButton.setEnabled(true);
                 binding.registerButton.setText(R.string.register);
                 finish();
