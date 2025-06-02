@@ -101,7 +101,7 @@ public class SearchViewModel extends ViewModel {
     public void loadRecommendations() {
         // 模拟从数据库获取推荐词
         List<String> recommendations = new ArrayList<>();
-        Cursor cursor=tagDao.getAllTags();
+        Cursor cursor=tagDao.getNonAiRecognizedTags();
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 @SuppressLint("Range") String tagName = cursor.getString(cursor.getColumnIndex("name"));

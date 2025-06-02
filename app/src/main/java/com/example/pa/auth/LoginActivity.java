@@ -66,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 显示加载中
         binding.loginButton.setEnabled(false);
-        binding.loginButton.setText("登录中...");
+        binding.loginButton.setText(R.string.logging_in);
 
         userRepository.login(username, password, new UserRepository.UserCallback<LoginResponse>() {
             @Override
@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
                 editor.apply();
 
                 // 显示成功消息并跳转到主界面
-                Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, R.string.login_success, Toast.LENGTH_SHORT).show();
                 setResult(RESULT_OK);
                 finish();
             }
@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                 // 登录失败，显示错误消息
                 Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 binding.loginButton.setEnabled(true);
-                binding.loginButton.setText("登录");
+                binding.loginButton.setText(R.string.login);
             }
         });
     }
