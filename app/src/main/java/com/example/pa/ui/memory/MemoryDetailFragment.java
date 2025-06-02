@@ -125,11 +125,29 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
 
         // 观察视频 Uri变化并调用 Manager
         viewModel.currentVideoUri.observe(getViewLifecycleOwner(), uri -> {
-            videoPlayerManager.loadVideo(uri); // 只调用 loadVideo
+            // 如果 URI 为 null，确保播放器停止并清除旧的媒体项
+            if (uri == null && videoPlayerManager.getPlayer() != null && videoPlayerManager.getPlayer().getMediaItemCount() > 0) {
+                videoPlayerManager.release(); // 或者 videoPlayerManager.loadVideo(null);
+            } else if (uri != null) {
+                videoPlayerManager.loadVideo(uri);
+            }
         });
 
         // 加载数据
-        viewModel.loadPhotos(memoryName);
+        if (memoryName != null && !memoryName.isEmpty()) {
+            viewModel.loadMemoryDetails(memoryName);
+        } else {
+            Log.e(TAG, "Memory name is null or empty, cannot load details.");
+            // 可以显示一个错误提示或者一个空状态
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "无法加载相册详情", Toast.LENGTH_SHORT).show();
+            }
+            // 清理播放器（如果 viewModel.currentVideoUri 已经是 null，上面的 observe 会处理）
+            if (viewModel.currentVideoUri.getValue() == null) {
+                videoPlayerManager.loadVideo(null);
+            }
+        }
+
     }
 
     private void initToolbar(View rootView) {
@@ -176,16 +194,24 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     @Override
     public void onStart() {
         super.onStart();
-        // Manager 内部会处理播放逻辑，但如果需要，可以调用 start()
-        // 但由于我们 loadVideo 时就自动播放，这里可能不需要额外调用
-        // videoPlayerManager.start();
-        // 如果是从 Stop 状态回来，需要重新加载或初始化
-        Uri currentUri = viewModel.currentVideoUri.getValue();
-        if (currentUri != null && playerView != null) { // 确保 playerView 已被初始化
-            Log.d(TAG, "onStart: Reloading video for URI: " + currentUri);
-            videoPlayerManager.loadVideo(currentUri);
+        // viewModel.currentVideoUri 会被 loadMemoryDetails 更新
+        // 当它更新时，其观察者会调用 videoPlayerManager.loadVideo(uri)
+        // 所以这里的关键是确保 loadMemoryDetails 被合适的时机调用（例如 onViewCreated）
+        // 如果 Fragment 只是从 onPause 状态返回，通常不需要重新 loadMemoryDetails，
+        // 除非 memoryName 可能会改变。
+        // 但如果 Fragment 是从 onStop 状态返回，播放器已被 release，需要重新加载。
+        // 此时，如果 viewModel.currentVideoUri.getValue() 仍然是上次的 URI，
+        // 并且 videoPlayerManager 已被初始化，那么 loadVideo 仍然需要被调用。
+
+        Uri currentVideoFromViewModel = viewModel.currentVideoUri.getValue();
+        if (currentVideoFromViewModel != null && playerView != null) {
+            Log.d(TAG, "onStart: URI from ViewModel is " + currentVideoFromViewModel + ". Reloading video.");
+            videoPlayerManager.loadVideo(currentVideoFromViewModel);
         } else if (playerView == null) {
-            Log.w(TAG, "onStart: playerView is null, cannot reload video.");
+            Log.w(TAG, "onStart: playerView is null.");
+        } else {
+            Log.d(TAG, "onStart: No current video URI in ViewModel or playerView not ready.");
+            videoPlayerManager.loadVideo(null); // 确保清除旧视频
         }
     }
 

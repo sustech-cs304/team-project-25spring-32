@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID; // 用于生成临时文件名
 import java.util.concurrent.ExecutorService;
@@ -46,6 +47,7 @@ public class MemoryDetailViewModel extends ViewModel {
     // 用于文件操作的线程池，避免阻塞 ViewModel
     private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
     private final Context appContext; // 保存 Context
+    private String currentMemoryIdentifier;
     private final SharedPreferences prefs; // SharedPreferences 实例
     private final MutableLiveData<Uri> _currentVideoUri = new MutableLiveData<>(null);
     public final LiveData<Uri> currentVideoUri = _currentVideoUri;
@@ -56,7 +58,7 @@ public class MemoryDetailViewModel extends ViewModel {
         this.videoCreationService = new FFmpegVideoCreationService(appContext);
         this.uriToPathHelper = new UriToPathHelper();
         this.prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); // 初始化 SharedPreferences
-        loadLastVideoUri(); // 初始化时加载上次的 Uri
+//        loadLastVideoUri(); // 初始化时加载上次的 Uri
     }
 
     public LiveData<List<Uri>> getPhotoUris() {
@@ -299,25 +301,51 @@ public class MemoryDetailViewModel extends ViewModel {
     }
 
     // 将上次保存的视频 Uri导出
-    private void loadLastVideoUri() {
-        String uriString = prefs.getString(KEY_LAST_VIDEO_URI, null);
+    private void loadLastVideoUriInternal() { // 改为内部方法
+        if (currentMemoryIdentifier == null || currentMemoryIdentifier.isEmpty()) {
+            Log.w(TAG, "Cannot load last video URI, memory identifier is not set.");
+            _currentVideoUri.postValue(null); // 没有标识符则不加载，或设置为null
+            return;
+        }
+        String dynamicKey = KEY_LAST_VIDEO_URI + "_" + currentMemoryIdentifier; // 动态生成键名
+        String uriString = prefs.getString(dynamicKey, null);
         if (uriString != null) {
             _currentVideoUri.postValue(Uri.parse(uriString));
-            Log.d(TAG, "Loaded last video URI: " + uriString);
+            Log.d(TAG, "Loaded last video URI for " + currentMemoryIdentifier + ": " + uriString);
         } else {
-            Log.d(TAG, "No last video URI found.");
-            // 在这里可以触发默认视频生成逻辑（如果需要）
-            // generateDefaultVideoIfNeeded();
+            _currentVideoUri.postValue(null); // 确保 LiveData 更新为 null
+            Log.d(TAG, "No last video URI found for " + currentMemoryIdentifier);
         }
     }
 
     // 在生成视频之后，将最新的 Uri保存至 prefs
     private void saveLastVideoUri(Uri videoUri) {
-        if (videoUri != null) {
-            prefs.edit().putString(KEY_LAST_VIDEO_URI, videoUri.toString()).apply();
-            Log.d(TAG, "Saved last video URI: " + videoUri.toString());
-        } else {
-            prefs.edit().remove(KEY_LAST_VIDEO_URI).apply();
+        if (currentMemoryIdentifier == null || currentMemoryIdentifier.isEmpty()) {
+            Log.w(TAG, "Cannot save last video URI, memory identifier is not set.");
+            return;
         }
+        String dynamicKey = KEY_LAST_VIDEO_URI + "_" + currentMemoryIdentifier; // 动态生成键名
+        if (videoUri != null) {
+            prefs.edit().putString(dynamicKey, videoUri.toString()).apply();
+            Log.d(TAG, "Saved last video URI for " + currentMemoryIdentifier + ": " + videoUri.toString());
+        } else {
+            prefs.edit().remove(dynamicKey).apply();
+            Log.d(TAG, "Removed last video URI for " + currentMemoryIdentifier);
+        }
+    }
+
+    // 新增一个初始化方法或修改现有加载方法来设置标识符并加载数据
+    public void loadMemoryDetails(String memoryIdentifier) {
+        if (memoryIdentifier == null || memoryIdentifier.isEmpty()) {
+            Log.e(TAG, "Memory identifier cannot be null or empty.");
+            // 可以清除旧数据或显示错误
+            photoUris.setValue(new ArrayList<>()); // 清空图片
+            _currentVideoUri.setValue(null);       // 清空视频 URI
+            return;
+        }
+        this.currentMemoryIdentifier = memoryIdentifier;
+        Log.d(TAG, "Loading details for memory: " + memoryIdentifier);
+        loadPhotos(memoryIdentifier);       // 加载相册图片
+        loadLastVideoUriInternal(); // 加载该相册对应的上次播放的视频 URI
     }
 }
