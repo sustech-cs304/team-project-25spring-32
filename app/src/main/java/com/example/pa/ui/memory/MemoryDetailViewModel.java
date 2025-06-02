@@ -19,6 +19,7 @@ import com.example.pa.MyApplication;
 import com.example.pa.data.FileRepository;
 import com.example.pa.util.SingleLiveEvent; // 引入 SingleLiveEvent
 import com.example.pa.util.UriToPathHelper;
+import com.example.pa.ui.album.PhotoinAlbumViewModel;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +38,7 @@ public class MemoryDetailViewModel extends ViewModel {
     private static final String KEY_LAST_VIDEO_URI = "LastVideoUri"; // SharedPreferences Key
     private final MutableLiveData<List<Uri>> photoUris = new MutableLiveData<>();
     private final FileRepository fileRepository;
+    private final PhotoinAlbumViewModel photoinAlbumViewModel;
     private final FFmpegVideoCreationService videoCreationService;
     private final UriToPathHelper uriToPathHelper; // 用于 MediaStore 保存时的路径处理
     private final MutableLiveData<Boolean> _isCreatingVideo = new MutableLiveData<>(false);
@@ -58,6 +60,7 @@ public class MemoryDetailViewModel extends ViewModel {
         this.videoCreationService = new FFmpegVideoCreationService(appContext);
         this.uriToPathHelper = new UriToPathHelper();
         this.prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); // 初始化 SharedPreferences
+        this.photoinAlbumViewModel = new PhotoinAlbumViewModel();
 //        loadLastVideoUri(); // 初始化时加载上次的 Uri
     }
 
@@ -349,7 +352,7 @@ public class MemoryDetailViewModel extends ViewModel {
         loadLastVideoUriInternal(); // 加载该相册对应的上次播放的视频 URI
     }
 
-    public void addPhotosToCurrentMemory(List<Uri> newPhotoUris) {
+    public void addPhotosToCurrentMemory(ArrayList<Uri> newPhotoUris) {
         if (newPhotoUris == null || newPhotoUris.isEmpty()) {
             return;
         }
@@ -362,20 +365,12 @@ public class MemoryDetailViewModel extends ViewModel {
         } else {
             updatedPhotos = new ArrayList<>(currentPhotos);
             // 添加新照片，可以考虑去重
-            for (Uri newUri : newPhotoUris) {
-                if (!updatedPhotos.contains(newUri)) { // 简单去重
-                    updatedPhotos.add(newUri);
-                }
-            }
+            updatedPhotos.addAll(newPhotoUris);
         }
         photoUris.setValue(updatedPhotos); // 更新 LiveData，UI 会自动刷新
         _toastMessage.setValue(newPhotoUris.size() + " 张照片已添加");
 
-        // TODO: 如果需要持久化这个照片列表 (例如更新数据库或文件)，在这里处理
-        // 例如: fileRepository.updateAlbumPhotos(currentMemoryIdentifier, updatedPhotos);
-        // 目前的 FileRepository 似乎只提供 getAlbumImages，没有更新/保存的接口。
-        // 这部分的实现取决于你的应用如何存储相册的照片列表。
-        // 对于视频生成，它使用的是 photoUris.getValue()，所以UI更新后，新生成的视频会包含这些照片。
+        photoinAlbumViewModel.copyPhotosToAlbum(newPhotoUris, currentMemoryIdentifier);
     }
 
     // 你可能需要一个获取当前相册标识符的方法，如果其他地方需要
