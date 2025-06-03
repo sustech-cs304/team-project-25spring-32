@@ -18,24 +18,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.pa.R;
-
-import java.io.IOException;
 
 public class PostCreateFragment extends Fragment {
 
-    private static final int REQUEST_IMAGE_PICK = 1001;
-
     private EditText editTextContent;
-    private Button buttonSelectImage;
-    private ImageView imagePreview;
     private Button buttonPost;
-
+    private ImageView imagePreview;
     private Uri selectedImageUri = null;
-
-    public PostCreateFragment() {
-        // Required empty public constructor
-    }
 
     @Nullable
     @Override
@@ -45,33 +36,25 @@ public class PostCreateFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post_create, container, false);
 
         editTextContent = view.findViewById(R.id.editTextContent);
-        buttonSelectImage = view.findViewById(R.id.buttonSelectImage);
-        imagePreview = view.findViewById(R.id.imagePreview);
         buttonPost = view.findViewById(R.id.buttonPost);
+        imagePreview = view.findViewById(R.id.imagePreview);
 
-        buttonSelectImage.setOnClickListener(v -> openImagePicker());
+        // 获取传入的图片 URI
+        Bundle args = getArguments();
+        if (args != null) {
+            selectedImageUri = args.getParcelable("imageUri");
+            if (selectedImageUri != null) {
+                // 显示图片预览
+                Glide.with(this)
+                    .load(selectedImageUri)
+                    .into(imagePreview);
+                imagePreview.setVisibility(View.VISIBLE);
+            }
+        }
 
         buttonPost.setOnClickListener(v -> publishPost());
 
         return view;
-    }
-
-    private void openImagePicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_IMAGE_PICK);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_IMAGE_PICK && resultCode == Activity.RESULT_OK && data != null) {
-            selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-                imagePreview.setImageURI(selectedImageUri);
-                imagePreview.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     private void publishPost() {
@@ -82,8 +65,8 @@ public class PostCreateFragment extends Fragment {
             return;
         }
 
-        // 这里你可以添加上传逻辑，比如上传图片到服务器，发布内容到数据库
-        // 先简单Toast提示模拟发布成功
+        // TODO: 实现发布帖子的逻辑
+        // 这里可以调用 API 上传图片和内容
         Toast.makeText(getContext(), "发布成功！", Toast.LENGTH_SHORT).show();
 
         // 清空内容和图片
@@ -91,5 +74,10 @@ public class PostCreateFragment extends Fragment {
         imagePreview.setImageDrawable(null);
         imagePreview.setVisibility(View.GONE);
         selectedImageUri = null;
+
+        // 关闭当前页面
+        if (getActivity() != null) {
+            getActivity().finish();
+        }
     }
 }

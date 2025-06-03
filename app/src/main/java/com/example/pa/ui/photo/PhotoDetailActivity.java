@@ -25,7 +25,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.pa.MyApplication;
 import com.example.pa.R;
+import com.example.pa.ui.post.PostCreateActivity;
 import com.example.pa.util.UriToPathHelper;
+import com.example.pa.data.model.group.GroupInfo;
+import com.example.pa.data.cloudRepository.GroupRepository;
+import com.example.pa.data.model.UploadResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -124,39 +128,64 @@ public class PhotoDetailActivity extends AppCompatActivity {
         //TODO: 实现share按钮
         Button btnShare = findViewById(R.id.btn_share);
         btnShare.setOnClickListener(v -> {
-            // 获取当前图片路径
-            if (imagePath != null) {
-                // 将文件路径转换为 Uri
-                File imageFile = new File(imagePath);
-
-                // 调用 ViewModel 的上传方法
-                photoViewModel.uploadPhoto(imageUri, this);
-
-                // 显示上传中提示
-                Toast.makeText(this, "正在上传中...", Toast.LENGTH_SHORT).show();
-
-                // 监听上传结果
-                photoViewModel.getError().observe(this, errorMsg -> {
-                    if (errorMsg != null) {
-                        Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+            // 创建 GroupRepository 实例
+            GroupRepository groupRepository = new GroupRepository();
+            
+            // 获取用户已加入的群组
+            groupRepository.getJoinedGroups(new GroupRepository.GroupCallback<List<GroupInfo>>() {
+                @Override
+                public void onSuccess(List<GroupInfo> groups) {
+                    if (groups.isEmpty()) {
+                        Toast.makeText(PhotoDetailActivity.this, "您还没有加入任何群组", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
 
-                photoViewModel.getIsLoading().observe(this, isLoading -> {
-                    if (isLoading != null && !isLoading) {
-                        // 上传完成且无错误，说明上传成功
-                        if (photoViewModel.getError().getValue() == null) {
-                            Toast.makeText(this, "上传成功", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            } else {
-                Toast.makeText(this, "无法获取图片路径", Toast.LENGTH_SHORT).show();
-            }
+                    // 创建群组选择对话框
+                    String[] groupNames = groups.stream()
+                            .map(GroupInfo::getName)
+                            .toArray(String[]::new);
+
+                    new AlertDialog.Builder(PhotoDetailActivity.this)
+                            .setTitle("选择要分享到的群组")
+                            .setItems(groupNames, (dialog, which) -> {
+                                GroupInfo selectedGroup = groups.get(which);
+                                // 上传照片到选中的群组
+                                groupRepository.uploadGroupPhoto(
+                                    selectedGroup.getId(),
+                                    imageUri,
+                                    PhotoDetailActivity.this,
+                                    new GroupRepository.GroupCallback<UploadResponse>() {
+                                        @Override
+                                        public void onSuccess(UploadResponse response) {
+                                            Toast.makeText(PhotoDetailActivity.this, 
+                                                "照片已成功分享到群组: " + selectedGroup.getName(), 
+                                                Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        @Override
+                                        public void onError(String errorMessage) {
+                                            Toast.makeText(PhotoDetailActivity.this, 
+                                                "分享失败: " + errorMessage, 
+                                                Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                );
+                            })
+                            .setNegativeButton("取消", null)
+                            .show();
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    Toast.makeText(PhotoDetailActivity.this, 
+                        "获取群组列表失败: " + errorMessage, 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
 
-        // 点击图片切换工具栏可见性s
+        // 点击图片切换工具栏可见性
         ivDetail.setOnClickListener(v -> toggleToolbar());
 
         // 返回按钮点击事件
