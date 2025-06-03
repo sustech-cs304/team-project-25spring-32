@@ -68,6 +68,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.flexbox)
     implementation(libs.room.common)
+    testImplementation(libs.ext.junit)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)

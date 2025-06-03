@@ -46,6 +46,10 @@ public class AlbumViewModel extends ViewModel {
     private final MutableLiveData<DeleteEvent> deleteEvent = new MutableLiveData<>();
     private MutableLiveData<List<Album>> albumList = new MutableLiveData<>();
     private MutableLiveData<String> event = new MutableLiveData<>();
+    // 测试辅助
+    public MutableLiveData<String> getEvent() {
+        return event;
+    }
     private MainRepository mainRepository;
     private AlbumDao albumDao;
     private final FileRepository fileRepository;

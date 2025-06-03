@@ -114,6 +114,15 @@ public class AlbumDao {
                 null, null, COLUMN_CREATED_TIME + " DESC");
     }
 
+    // 辅助测试
+    public Cursor getAlbumById(int albumId) {
+        return db.query(TABLE_NAME,
+                null,
+                COLUMN_ID + " = ?",
+                new String[]{String.valueOf(albumId)},
+                null, null, COLUMN_CREATED_TIME + " DESC");
+    }
+
     // 获取或创建相册
     public int getOrCreateAlbum(String albumName, int userId, Map<String, Integer> cache) {
         if (cache.containsKey(albumName)) {

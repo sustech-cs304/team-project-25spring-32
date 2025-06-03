@@ -69,6 +69,13 @@ public class FileRepository {
     private ContentObserver mediaObserver;
     private Map<String, File> albumDirCache = new HashMap<>();
 
+    public void setAlbumDirCache(Map<String, File> albumDirCache) {
+        this.albumDirCache = albumDirCache;
+    }
+    public Map<String, File> getAlbumDirCache() {
+        return albumDirCache;
+    }
+
     // 新增同步时间记录
     private static final String SYNC_PREFS = "sync_prefs";
     private static final String KEY_LAST_SYNC = "last_sync_time";
@@ -236,7 +243,7 @@ public class FileRepository {
     }
 
     // 更新数据库
-    private void updateLocalDatabase(List<Photo> changedPhotos, List<String> deletedUris, int userId) {
+    public void updateLocalDatabase(List<Photo> changedPhotos, List<String> deletedUris, int userId) {
 
         // 处理照片新增/修改
         Map<String, Integer> albumCache = new HashMap<>(); // 相册名 -> albumId
@@ -279,12 +286,12 @@ public class FileRepository {
         myApplication.getMainRepository().cleanEmptyAlbums();
     }
 
-    private long getLastSyncTime() {
+    public long getLastSyncTime() {
         SharedPreferences prefs = context.getSharedPreferences(SYNC_PREFS, Context.MODE_PRIVATE);
         return prefs.getLong(KEY_LAST_SYNC, 0);
     }
 
-    private void saveLastSyncTime(long time) {
+    public void saveLastSyncTime(long time) {
         SharedPreferences.Editor editor = context.getSharedPreferences(SYNC_PREFS, Context.MODE_PRIVATE).edit();
         editor.putLong(KEY_LAST_SYNC, time);
         editor.apply();
@@ -476,7 +483,7 @@ public class FileRepository {
         return true;
     }
 
-    private File getAlbumDir(String albumName) {
+    public File getAlbumDir(String albumName) {
         if (albumDirCache.containsKey(albumName)) {
             return albumDirCache.get(albumName);
         }
@@ -545,7 +552,7 @@ public class FileRepository {
         return null;
     }
 
-    private String generateUniqueFileName(String originalName) {
+    public String generateUniqueFileName(String originalName) {
         if (originalName == null) return System.currentTimeMillis() + ".jpg";
 
         int dotIndex = originalName.lastIndexOf('.');
