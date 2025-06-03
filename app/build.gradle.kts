@@ -1,6 +1,10 @@
+import com.android.build.api.dsl.AndroidResources
+import org.gradle.internal.classpath.Instrumented.systemProperty
+
 plugins {
     alias(libs.plugins.android.application)
     id("org.sonarqube") version "4.4.1.3373"
+    id("jacoco")
 }
 //sonarqube plugin configuration, 应当在依赖安装之后解析
 sonarqube {
@@ -43,6 +47,7 @@ android {
         debug {
             enableAndroidTestCoverage = true
             enableUnitTestCoverage = true
+            isTestCoverageEnabled = true
         }
     }
     compileOptions {
@@ -54,6 +59,47 @@ android {
         dataBinding = true
     }
 }
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("connectedDebugAndroidTest")
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val excludes = listOf(
+        "**/R.class",
+        "**/R\$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "**/di/**",
+        "**/MainActivity.*",
+        "**/com/example/pa/ui/search/SearchFragment.*",
+        // 你想排除的类或包，如：
+        "**/com/example/pa/irrelevant/**",
+        "**/com/example/pa/ui/unwanted/**"
+    )
+
+    val debugTree = fileTree("${buildDir}/intermediates/javac/debug/classes") {
+        exclude(excludes)
+    }
+
+    classDirectories.setFrom(files(debugTree))
+
+    sourceDirectories.setFrom(files("${project.projectDir}/src/main/java"))
+
+    executionData.setFrom(
+        fileTree(buildDir) {
+            include(
+                "jacoco/testDebugUnitTest.exec",
+                "outputs/code-coverage/connected/*coverage.ec"
+            )
+        }
+    )
+}
+
+
 
 dependencies {
     //noinspection UseTomlInstead
@@ -68,6 +114,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.flexbox)
     implementation(libs.room.common)
+    testImplementation(libs.ext.junit)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)

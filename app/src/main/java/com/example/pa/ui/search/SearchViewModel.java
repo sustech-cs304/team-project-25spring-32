@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.pa.MainActivity;
 import com.example.pa.MyApplication;
 import com.example.pa.data.Daos.PhotoDao;
 import com.example.pa.data.Daos.PhotoTagDao;
@@ -34,6 +33,9 @@ public class SearchViewModel extends ViewModel {
     private final MutableLiveData<List<String>> mRecommendations = new MutableLiveData<>();
     private final MutableLiveData<Boolean> hasSearchHistory = new MutableLiveData<>();
     private final MutableLiveData<List<String>> searchHistory = new MutableLiveData<>();
+
+
+
     private PhotoTagDao photoTagDao;
     private PhotoDao photoDao;
     private TagDao tagDao;
@@ -67,10 +69,6 @@ public class SearchViewModel extends ViewModel {
 
     public LiveData<List<String>> getRecommendations() {
         return mRecommendations;
-    }
-
-    public LiveData<Boolean> getHasSearchHistory() {
-        return hasSearchHistory;
     }
 
     public void updateSuggestions(String query) {

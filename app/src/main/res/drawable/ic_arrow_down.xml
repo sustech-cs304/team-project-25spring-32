@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/rounded_dropdown_arrow.xml -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 圆角倒三角形 -->
+    <path
+        android:fillColor="#333333"
+        android:pathData="M6,9 L12,15 L18,9 Q17.5,9.5 17,10 Q12,15 7,10 Q6.5,9.5 6,9 Z"/>
+</vector>

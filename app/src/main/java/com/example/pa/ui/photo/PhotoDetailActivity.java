@@ -15,11 +15,15 @@ import android.widget.LinearLayout;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.example.pa.MyApplication;
 import com.example.pa.R;
 import com.example.pa.ui.post.PostCreateActivity;
 import com.example.pa.util.UriToPathHelper;
@@ -32,6 +36,7 @@ import com.example.pa.data.model.post.Post;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -43,6 +48,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
     private boolean isToolbarVisible = true; // 工具栏和返回键是否可见
     private Button btn_edit;
     private PhotoViewModel photoViewModel;
+    private List<Uri> pendingDeleteUris;
 
     // 验证 Uri 有效性
     private boolean isUriValid(Uri uri) {
@@ -88,6 +94,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         // 正确获取 Uri 对象
         Uri imageUri = getIntent().getParcelableExtra("Uri");
+        String albumName = getIntent().getStringExtra("albumName");
         String imagePath = UriToPathHelper.getPathFromUri(getApplicationContext(), imageUri);
 
         // 添加 Uri 有效性检查
@@ -116,8 +123,9 @@ public class PhotoDetailActivity extends AppCompatActivity {
         Button btnDelete = findViewById(R.id.btn_delete);
         btnDelete.setOnClickListener(v -> {
             // 获取当前图片路径
-            //String imagePath = getIntent().getStringExtra("image_path");
-            showDeleteConfirmDialog(imagePath);
+            ArrayList<Uri> imageUris = new ArrayList<>();
+            imageUris.add(imageUri);
+            photoViewModel.deletePhotos(imageUris, albumName);
         });
 
         //TODO: 实现share按钮
@@ -245,6 +253,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         // 初始显示工具栏
         showToolbar(true);
+        observeViewModel();
     }
 
     private void toggleToolbar() {
@@ -274,26 +283,42 @@ public class PhotoDetailActivity extends AppCompatActivity {
     }
 
 
-    private void showDeleteConfirmDialog(String imagePath) {
-        new AlertDialog.Builder(this)
-                .setTitle("Confirm Delete")
-                .setMessage("the operation cannot be undone, are you sure you want to delete this photo?")
-                .setPositiveButton("delete", (dialog, which) -> {
-                    // 从文件路径获取文件名
-                    String filename = new File(imagePath).getName();
-
-                    // 调用 ViewModel 的删除方法
-                    Log.d("DDDDDDelete", filename);
-                    photoViewModel.deletePhoto(filename);
-
-                    // 设置结果并关闭页面
-                    setResult(RESULT_OK);
-                    finish();
-
-                    // 显示删除成功提示
-                    Toast.makeText(this, "deleted", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("cancel", null)
-                .show();
+    private void observeViewModel() {
+        photoViewModel.getDeleteEvent().observe(this, event -> {
+            if (event != null) {
+                Log.d("Delete", "成功观察");
+                handleDeleteEvent(event.uris);
+            }
+        });
     }
+
+    private void handleDeleteEvent(List<Uri> uris) {
+        pendingDeleteUris = uris;
+        MyApplication.getInstance().getFileRepository().deletePhotos(uris, deleteIntent -> {
+            // 创建自定义Intent携带数据
+            Intent fillInIntent = new Intent();
+            fillInIntent.putParcelableArrayListExtra("DELETE_URIS", new ArrayList<>(uris));
+
+            // 构建请求
+            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                    deleteIntent.getIntentSender())
+                    .setFillInIntent(fillInIntent) // 附加数据
+                    .build();
+
+            deleteLauncher.launch(request);
+        });
+    }
+
+    private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Log.d("Delete", "成功返回 ");
+                    List<String> uris = UriToPathHelper.uriToString(pendingDeleteUris);
+                    MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                    MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
+                    finish();
+                }
+            });
+
+
 }
