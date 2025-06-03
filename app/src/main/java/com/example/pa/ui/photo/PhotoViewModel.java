@@ -26,10 +26,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 import com.example.pa.data.model.Photo;
 import com.example.pa.data.cloudRepository.PhotoRepository;
 import com.example.pa.data.model.UploadResponse;
@@ -39,9 +35,6 @@ public class PhotoViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Photo>> photos = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> error = new MutableLiveData<>(null);
-
-    // 用于RxJava的调度和清理
-    private final CompositeDisposable disposables = new CompositeDisposable();
 
     private PhotoDao photoDao; // 添加 PhotoDao 引用
     private FileRepository fileRepository;
@@ -107,30 +100,6 @@ public class PhotoViewModel extends AndroidViewModel {
         });
     }
 
-    // 使用RxJava加载照片
-    public void loadPhotosRx() {
-        isLoading.setValue(true);
-        error.setValue(null);
-
-        disposables.add(repository.getPhotosRx()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        result -> {
-                            photos.setValue(result);
-                            isLoading.setValue(false);
-                            // 同步到本地数据库
-                            syncPhotosToDatabase(result);
-                        },
-                        throwable -> {
-                            error.setValue("加载图片失败: " + throwable.getMessage());
-                            isLoading.setValue(false);
-                            // 加载失败时从本地数据库获取
-                            loadPhotosFromDatabase();
-                        }
-                ));
-    }
-
     // 上传照片 (标准回调)
     public void uploadPhoto(Uri imageUri, Context context) {
         isLoading.setValue(true);
@@ -151,22 +120,6 @@ public class PhotoViewModel extends AndroidViewModel {
         });
     }
 
-    // 上传照片 (RxJava)
-    public void uploadPhotoRx(Uri imageUri, Context context) {
-        isLoading.setValue(true);
-        error.setValue(null);
-
-        disposables.add(repository.uploadPhotoRx(imageUri, context)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        result -> loadPhotosRx(), // 上传成功后重新加载图片
-                        throwable -> {
-                            error.setValue("上传图片失败: " + throwable.getMessage());
-                            isLoading.setValue(false);
-                        }
-                ));
-    }
 
     // 删除照片 (标准回调)
     public void deletePhoto(String filename) {
@@ -190,25 +143,6 @@ public class PhotoViewModel extends AndroidViewModel {
         });
     }
 
-    // 删除照片 (RxJava)
-    public void deletePhotoRx(String filename) {
-        isLoading.setValue(true);
-        error.setValue(null);
-
-        disposables.add(repository.deletePhotoRx(filename)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        result -> {
-                            loadPhotosRx();  // 删除成功后重新加载图片
-                            deletePhotoFromDatabase(filename); // 本地数据库也删除
-                        },
-                        throwable -> {
-                            error.setValue("Deletion Failed: " + throwable.getMessage());
-                            isLoading.setValue(false);
-                        }
-                ));
-    }
 
     // ====== 本地数据库相关方法 ======
 

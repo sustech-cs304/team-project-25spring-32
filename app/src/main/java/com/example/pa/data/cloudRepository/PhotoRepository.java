@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.rxjava3.core.Observable;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -60,11 +59,6 @@ public class PhotoRepository {
         });
     }
 
-    // 使用RxJava方式获取照片
-    public Observable<List<Photo>> getPhotosRx() {
-        return apiService.getPhotosRx();
-    }
-
     // 上传照片 (标准回调)
     public void uploadPhoto(Uri imageUri, Context context, final PhotoCallback<UploadResponse> callback) {
         try {
@@ -89,16 +83,6 @@ public class PhotoRepository {
         }
     }
 
-    // 上传照片 (RxJava)
-    public Observable<UploadResponse> uploadPhotoRx(Uri imageUri, Context context) {
-        try {
-            MultipartBody.Part photoPart = prepareFilePart("photo", imageUri, context);
-            return apiService.uploadPhotoRx(photoPart);
-        } catch (IOException e) {
-            return Observable.error(e);
-        }
-    }
-
     // 删除照片 (标准回调)
     public void deletePhoto(String filename, final PhotoCallback<Map<String, String>> callback) {
         apiService.deletePhoto(filename).enqueue(new Callback<Map<String, String>>() {
@@ -118,13 +102,9 @@ public class PhotoRepository {
         });
     }
 
-    // 删除照片 (RxJava)
-    public Observable<Map<String, String>> deletePhotoRx(String filename) {
-        return apiService.deletePhotoRx(filename);
-    }
 
     // 工具方法: 准备文件上传
-    private MultipartBody.Part prepareFilePart(String partName, Uri fileUri, Context context) throws IOException {
+    public MultipartBody.Part prepareFilePart(String partName, Uri fileUri, Context context) throws IOException {
         String mimeType = context.getContentResolver().getType(fileUri);
         if (mimeType == null) {
             mimeType = "image/jpeg";
