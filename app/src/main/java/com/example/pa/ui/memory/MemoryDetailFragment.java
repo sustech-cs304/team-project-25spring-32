@@ -176,7 +176,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     private void initToolbar(View rootView) {
         btnBack = rootView.findViewById(R.id.btn_back);
         btnAdd = rootView.findViewById(R.id.btn_add);
-        btnDelete = rootView.findViewById(R.id.btn_delete);
+//        btnDelete = rootView.findViewById(R.id.btn_delete);
         btnExport = rootView.findViewById(R.id.btn_export);
 
         btnBack.setOnClickListener(v -> onBackPressed());
@@ -187,7 +187,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
             // intent.putExtra("current_album_name", viewModel.getCurrentMemoryIdentifier()); // 如果需要过滤已存在照片
             addPhotosLauncher.launch(intent);
         });
-        btnDelete.setOnClickListener(v -> Toast.makeText(getContext(), "批量删除 (TODO)", Toast.LENGTH_SHORT).show());
+//        btnDelete.setOnClickListener(v -> Toast.makeText(getContext(), "批量删除 (TODO)", Toast.LENGTH_SHORT).show());
         // Fragment 触发 ViewModel 的导出逻辑
         btnExport.setOnClickListener(v -> {
             // 启动 CustomizeVideoActivity
