@@ -25,6 +25,7 @@ public class RetrofitClient {
     private PhotoApiService photoApiService;
     private UserApiService userApiService;
     private PostApiService postApiService;
+    private GroupApiService groupApiService;
 
     private RetrofitClient() {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -70,11 +71,20 @@ public class RetrofitClient {
         return userApiService;
     }
 
+<<<<<<< HEAD
     public PostApiService getPostApiService() {
         if (postApiService == null) {
             postApiService = retrofit.create(PostApiService.class);
         }
         return postApiService;
+=======
+    // 新增获取GroupApiService实例的方法
+    public GroupApiService getGroupApiService() {
+        if (groupApiService == null) {
+            groupApiService = retrofit.create(GroupApiService.class);
+        }
+        return groupApiService;
+>>>>>>> d2619837ce5732a0486c6a0323b7ead94d899765
     }
 
     public static String getBaseUrl() {

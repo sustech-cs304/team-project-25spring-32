@@ -5,9 +5,18 @@ public class GroupInfo {
     private String id;
     private String name;
     private String description;
-    private String avatarUrl;
+    private String groupPath;
     private int memberCount;
-    private boolean isPublic;
+
+    public GroupInfo() {
+        // 空构造函数用于Gson反序列化
+    }
+
+    public GroupInfo(String name, String description) {
+        this.name = name;
+        this.description = description;
+        this.memberCount = 1; // 默认创建者为第一个成员
+    }
 
     // Getters and Setters
     public String getId() { return id; }
@@ -37,19 +46,12 @@ public class GroupInfo {
         this.memberCount = memberCount;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public String getGroupPath() {
+        return groupPath;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public void setGroupPath(String groupPath) {
+        this.groupPath = groupPath;
     }
 
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    public void setPublic(boolean aPublic) {
-        isPublic = aPublic;
-    }
 }

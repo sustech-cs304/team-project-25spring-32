@@ -1,25 +1,43 @@
 package com.example.pa.data.network;
 
+import android.database.Observable;
+
+import com.example.pa.data.model.UploadResponse;
 import com.example.pa.data.model.group.GroupInfo;
 import com.example.pa.data.model.group.GroupOperationResponse;
 import com.example.pa.data.model.group.JoinGroupRequest;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.core.Observable;
+//import io.reactivex.rxjava3.core.Observable;
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface GroupApiService {
-    /***
-     * 加入群组
-     * <p>
-     *
-     */
+
+    @POST("groups")
+    Call<GroupInfo> createGroup(
+            @Body GroupInfo groupInfo
+    );
+
+    // 添加群组照片上传接口
+    @Multipart
+    @POST("groups/{groupId}/photos")
+    Call<UploadResponse> uploadGroupPhoto(
+            @Path("groupId") String groupId,
+            @Part MultipartBody.Part photo
+    );
+
+    // 获取群组照片列表
+    @GET("groups/{groupId}/photos")
+    Call<List<String>> getGroupPhotos(@Path("groupId") String groupId);
 
     @POST("groups/{groupId}/join")
     Call<GroupOperationResponse> joinGroup(
