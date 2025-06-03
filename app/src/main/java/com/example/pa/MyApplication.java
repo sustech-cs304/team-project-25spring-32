@@ -48,6 +48,17 @@ public class MyApplication extends Application {
         return appContext;
     }
 
+
+    //测试专用
+    public static void setTestDaoProviders(PhotoTagDao pt, PhotoDao p, TagDao t, SearchHistoryDao sh, MainRepository mr) {
+        instance.photoTagDao = pt;
+        instance.photoDao = p;
+        instance.tagDao = t;
+        instance.searchHistoryDao = sh;
+        instance.mainRepository = mr;
+    }
+
+
     public UserRepository getUserRepository() {
         return userRepository;
     }

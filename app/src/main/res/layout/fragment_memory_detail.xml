@@ -46,14 +46,14 @@
                         android:src="@drawable/ic_add"
                         tools:ignore="SpeakableTextPresentCheck" />
 
-                    <ImageButton
-                        android:id="@+id/btn_delete"
-                        android:layout_width="50dp"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="12dp"
-                        android:src="@drawable/delete"
-                        tools:ignore="SpeakableTextPresentCheck" />
+<!--                    <ImageButton-->
+<!--                        android:id="@+id/btn_delete"-->
+<!--                        android:layout_width="50dp"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                        android:padding="12dp"-->
+<!--                        android:src="@drawable/delete"-->
+<!--                        tools:ignore="SpeakableTextPresentCheck" />-->
 
                     <ImageButton
                         android:id="@+id/btn_export"
@@ -61,7 +61,8 @@
                         android:layout_height="match_parent"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:padding="12dp"
-                        android:src="@drawable/export"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_generate_video"
                         tools:ignore="SpeakableTextPresentCheck" />
                 </LinearLayout>
             </RelativeLayout>
