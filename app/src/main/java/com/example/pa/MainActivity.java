@@ -40,6 +40,7 @@ import com.example.pa.data.model.Photo;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
+import com.example.pa.ui.group.myGroup.MyGroupActivity;
 import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
@@ -252,6 +253,12 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
             if (id==R.id.nav_help){
                 // 处理帮助
                 Intent intent = new Intent(this, HelpActivity.class);
+                startActivity(intent);
+                return true;
+            }
+
+            if (id==R.id.nav_group){
+                Intent intent = new Intent(this, MyGroupActivity.class);
                 startActivity(intent);
                 return true;
             }

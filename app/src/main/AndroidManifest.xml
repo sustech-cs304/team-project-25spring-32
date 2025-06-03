@@ -80,6 +80,12 @@
         <activity
             android:name=".auth.RegisterActivity"
             android:theme="@style/Theme.PA"/>
+        <activity
+            android:name=".ui.group.myGroup.MyGroupActivity"
+            android:theme="@style/Theme.PA"/>
+        <activity
+            android:name=".ui.group.joinGroup.JoinGroupActivity"
+            android:theme="@style/Theme.PA"/>
     </application>
 
 </manifest>
