@@ -2,6 +2,7 @@ package com.example.pa.ui.help;
 
 import android.os.Bundle;
 import android.webkit.WebView;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,6 +13,8 @@ public class HelpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
+        Button button=findViewById(R.id.back_button);
+        button.setOnClickListener(v -> finish());
 
         WebView webView = findViewById(R.id.webview);
 
