@@ -153,6 +153,7 @@
     <string name="register_success">Register success</string>
     <string name="login">login</string>
     <string name="logging_in">logging in...</string>
+    <string name="exit_group">exit gruop</string>
 
 
 </resources>

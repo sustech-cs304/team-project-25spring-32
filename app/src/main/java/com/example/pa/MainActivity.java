@@ -40,6 +40,7 @@ import com.example.pa.data.model.Photo;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
+import com.example.pa.ui.group.myGroup.MyGroupActivity;
 import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
@@ -131,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                     }
 
                     if (allGranted) {
-                        performInitialMediaScan();
+                        performInitialMediaScan(() -> fileRepository.triggerIncrementalSync());
                         Toast.makeText(this, "权限已授予", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(this, "部分权限被拒绝", Toast.LENGTH_SHORT).show();
@@ -144,14 +145,24 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         fileRepository=MyApplication.getInstance().getFileRepository();
         fileRepository.setDeleteCallback(this);
 
+
+        String pwdHash1 = null;
+        try {
+            pwdHash1 = PasswordUtil.sha256("123456");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        UserDao userDao = MyApplication.getInstance().getUserDao();
+        long userId1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
+
+
         // 首次启动时请求权限
         requestNecessaryPermissions();
 
-        fileRepository.triggerIncrementalSync();
         // 测试数据库操作 (仅用于开发环境)
 
 
-        testDatabaseOperations();
 //        fileRepository=MyApplication.getInstance().getFileRepository();
 
 
@@ -256,6 +267,12 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                 return true;
             }
 
+            if (id==R.id.nav_group){
+                Intent intent = new Intent(this, MyGroupActivity.class);
+                startActivity(intent);
+                return true;
+            }
+
 
 //            if (id == R.id.nav_settings) {
 //                navController.navigate(R.id.navigation_settings);
@@ -287,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     }
 
 
-    private void performInitialMediaScan() {
+    private void performInitialMediaScan(Runnable onScanComplete) {
         Log.d("MediaScan", "开始初始化扫描...");
         try {
             File dcimDir = Environment.getExternalStoragePublicDirectory(
@@ -300,11 +317,13 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
                 @Override
                 public void onScanCompleted(Uri uri) {
                     Log.i("MediaScan", "扫描完成: " + uri);
+                    if (onScanComplete != null) onScanComplete.run();
                 }
 
                 @Override
                 public void onScanFailed(String error) {
                     Log.e("MediaScan", "扫描失败: " + error);
+                    if (onScanComplete != null) onScanComplete.run();
                 }
             });
         } catch (SecurityException e) {
@@ -359,212 +378,12 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
             requestPermissionLauncher.launch(permissionsToRequest.toArray(new String[0]));
         } else {
             Log.d("Permission", "所有权限已授予");
-            performInitialMediaScan();
+            performInitialMediaScan(() -> fileRepository.triggerIncrementalSync());
         }
     }
 
 
 
-    @SuppressLint("Range")
-    private void testDatabaseOperations() {
-        try {
-            // 获取 Application 中的 DAO 实例
-            MyApplication app = (MyApplication) getApplication();
-
-            // ========== 用户测试 ==========
-            testUserOperations(app.getUserDao());
-
-            // ========== 照片测试 ==========
-            testPhotoOperations(app.getPhotoDao());
-
-            // ========== 相册测试 ==========
-            //testAlbumOperations(app.getAlbumDao());
-
-            // ========== 标签测试 ==========
-            testTagOperations(app.getTagDao());
-
-            // ========== 搜索历史测试 ==========
-            testSearchHistoryOperations(app.getSearchHistoryDao());
-
-            // ========== 记忆视频测试 ==========
-            //testMemoryVideoOperations(app.getMemoryVideoDao());
-
-            // ========== 照片标签测试 ==========
-            testPhotoTagOperations(app.getPhotoTagDao());
-
-            // 测试搜索
-            Cursor cursor = app.getAlbumDao().getAlbumsByUser(1);
-            if (cursor.moveToFirst()) {
-                do {
-                    Log.d("testSEARCH", "Album name: " +
-                            cursor.getString(cursor.getColumnIndex(AlbumDao.COLUMN_NAME)));
-                } while (cursor.moveToNext());
-                cursor.close();
-            }
-
-            // 测试标签
-            Cursor cursor2 = app.getTagDao().getRandomTags(3);
-            if (cursor2.moveToFirst()) {
-                do {
-                    Log.d("testTAG", "Tag name: " +
-                            cursor2.getString(cursor2.getColumnIndex(TagDao.COLUMN_NAME)));
-                } while (cursor2.moveToNext());
-                cursor2.close();
-            }
-
-            Log.d("Database", "All database tests completed successfully");
-
-        } catch (NoSuchAlgorithmException e) {
-            Log.e("Database", "Password hashing failed", e);
-        } catch (Exception e) {
-            Log.e("Database", "Database test exception", e);
-        }
-    }
-
-    private void testUserOperations(UserDao userDao) throws NoSuchAlgorithmException {
-        String pwdHash1 = PasswordUtil.sha256("123456");
-        String pwdHash2 = PasswordUtil.sha256("654321");
-
-        long userId1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
-        long userId2 = userDao.addUser("李四", "lisi@example.com", pwdHash2);
-
-        boolean valid = userDao.validateUser("张三", pwdHash1);
-        Log.d("UserDB", "User validation result: " + (valid ? "Success" : "Failed"));
-    }
-
-    private void testPhotoOperations(PhotoDao photoDao) {
-        long userId1 = 1;
-        long userId2 = 2;
-
-        long photoId1 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/ic_launcher.png");
-        //long photoId2 = photoDao.addPhoto((int) userId1, "video", "/storage/emulated/0/DCIM/video1.mp4");
-        // 假设 userId1 是已定义的有效用户ID
-        long photoId3 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/girl.jpeg");
-        long photoId4 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/boy.jpeg");
-        long photoId5 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/pig.jpg");
-        long photoId6 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/hehua.jpeg");
-        long photoId7 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/bird.jpeg");
-        long photoId8 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId9 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId10 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId11 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId12 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId13 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId14 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId15 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId16 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId17 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId18 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId19 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId20 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId21 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId22 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-        long photoId23 = photoDao.addPhoto((int) userId1, "photo", "/storage/emulated/0/DCIM/juhua.png");
-
-        Photo fullPhoto = new Photo(
-                0, (int) userId2, "photo", "/storage/emulated/0/DCIM/ic_launcher.png",
-                "https://gd-hbimg.huaban.com/758e7de9f82dc52f2c8840915a5acfa9458fa15c50d3e-Bv5Tcc_fw480webp",
-                new Date().toString(), "2023-01-01 12:00:00",
-                116.404, 39.915, "北京市天安门", "测试照片描述",
-                Arrays.asList("person", "building", "sky"));
-        photoDao.addFullPhoto(fullPhoto);
-    }
-
-    private void testAlbumOperations(AlbumDao albumDao) {
-        long userId1 = 1;
-        long albumId1 = albumDao.addAlbum("旅行相册", (int) userId1, false, false, "private");
-        albumDao.updateAlbumVisibility((int) albumId1, "public");
-    }
-
-    private void testTagOperations(TagDao tagDao) {
-        long tagId1 = tagDao.addTag("风景", false);
-        long tagId2 = tagDao.addTag("人物", false);
-        long tagId3 = tagDao.addTag("建筑", false);
-        long tagId4 = tagDao.addTag("天空", false);
-        long tagId5 = tagDao.addTag("动物", false);
-        long tagId6 = tagDao.addTag("植物", false);
-    }
-
-    private void testPhotoTagOperations(PhotoTagDao photoTagDao) {
-        long photoId1 = 1;
-        // 假设以下 photoId 已通过 addPhoto 生成（对应之前的照片3-8）
-        long photoId3 = 3; // girl.jpeg
-        long photoId4 = 4; // boy.jpeg
-        long photoId5 = 5; // pig.jpg
-        long photoId6 = 6; // hehua.jpeg
-        long photoId7 = 7; // bird.jpeg
-        long photoId8 = 8; // juhua.png
-
-        // 假设已通过 testTagOperations 生成的标签ID
-        long tagId1 = 1; // 风景
-        long tagId2 = 2; // 人物
-        long tagId3 = 3; // 建筑
-        long tagId4 = 4; // 天空
-        long tagId5 = 5; // 动物
-
-        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId1);
-        photoTagDao.addTagToPhoto((int) photoId1, (int) tagId2);
-
-        // 为每张照片添加标签（根据内容模拟逻辑）
-        // 1. girl.jpeg → 人物 + 风景
-        boolean success1 = photoTagDao.addTagToPhoto((int) photoId3, (int) tagId2); // 人物
-        boolean success11 = photoTagDao.addTagToPhoto((int) photoId3, (int) tagId1); // 人物
-
-        // 2. boy.jpeg → 人物
-        boolean success2 = photoTagDao.addTagToPhoto((int) photoId4, (int) tagId2);
-        boolean success21 = photoTagDao.addTagToPhoto((int) photoId4, (int) tagId1);
-
-
-        // 3. pig.jpg → 动物
-        boolean success3 = photoTagDao.addTagToPhoto((int) photoId5, (int) tagId5);
-        boolean success31 = photoTagDao.addTagToPhoto((int) photoId5, (int) tagId1);
-
-
-        // 4. hehua.jpeg → 风景 + 植物（若存在植物标签）
-        boolean success4 = photoTagDao.addTagToPhoto((int) photoId6, (int) tagId1); // 风景
-
-        // 5. bird.jpeg → 动物 + 天空
-        boolean success5 = photoTagDao.addTagToPhoto((int) photoId7, (int) tagId4); // 天空
-        boolean success6 = photoTagDao.addTagToPhoto((int) photoId7, (int) tagId5); // 动物
-        photoTagDao.addTagToPhoto((int) photoId7, (int) tagId1);
-
-        // 6. juhua.png → 建筑（假设菊花是建筑装饰）
-        boolean success7 = photoTagDao.addTagToPhoto((int) photoId8, (int) tagId3);
-        photoTagDao.addTagToPhoto((int) photoId8, (int) tagId1);
-
-        // 可添加日志验证结果
-        Log.d("Test", "标签添加结果: " + success1 + ", " + success2 + ", " + success3 + ", "
-                + success4 + ", " + success5 + ", " + success6 + ", " + success7);
-
-// 遍历为每个 photoId 添加 tag1
-        for (long photoId = 9; photoId <= 23; photoId++) {
-            boolean success = photoTagDao.addTagToPhoto((int) photoId, (int) tagId1);
-            Log.d("TagTest", "照片 " + photoId + " 添加标签1结果: " + (success ? "成功" : "失败"));
-        }
-    }
-
-    private void testSearchHistoryOperations(SearchHistoryDao searchHistoryDao) {
-        long userId1 = 1;
-        searchHistoryDao.addSearchHistory((int) userId1, "北京");
-    }
-
-    private void testMemoryVideoOperations(MemoryVideoDao memoryVideoDao) {
-        long userId1 = 1;
-        long videoId1 = memoryVideoDao.addMemoryVideo((int) userId1, "2023回忆", "温馨", "music1.mp3");
-        memoryVideoDao.updateVideoUrl((int) videoId1, "video1.mp4");
-    }
-
-    private void clearAllTables(MyApplication app) {
-        app.getMemoryVideoPhotoDao().clearTable();
-        app.getMemoryVideoDao().clearTable();
-        app.getSearchHistoryDao().clearTable();
-        app.getPhotoTagDao().clearTable();
-        app.getTagDao().clearTable();
-        app.getAlbumPhotoDao().clearTable();
-        app.getAlbumDao().clearTable();
-        app.getPhotoDao().clearTable();
-        app.getUserDao().clearTable();
-    }
     @Override
     protected void onResume() {
         super.onResume();

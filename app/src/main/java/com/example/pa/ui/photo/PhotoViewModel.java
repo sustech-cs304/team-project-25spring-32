@@ -29,6 +29,7 @@ import java.util.concurrent.Executors;
 import com.example.pa.data.model.Photo;
 import com.example.pa.data.cloudRepository.PhotoRepository;
 import com.example.pa.data.model.UploadResponse;
+import com.example.pa.ui.album.AlbumViewModel;
 
 public class PhotoViewModel extends AndroidViewModel {
     private final PhotoRepository repository;
@@ -44,6 +45,12 @@ public class PhotoViewModel extends AndroidViewModel {
     private final MutableLiveData<List<Uri>> URiList = new MutableLiveData<>(new ArrayList<>());
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+    public MutableLiveData<AlbumViewModel.DeleteEvent> getDeleteEvent() {
+        return deleteEvent;
+    }
+
+    private final MutableLiveData<AlbumViewModel.DeleteEvent> deleteEvent = new MutableLiveData<>();
 
     public LiveData<List<Uri>> getURiList() {
         return URiList;
@@ -122,6 +129,11 @@ public class PhotoViewModel extends AndroidViewModel {
 
 
     // 删除照片 (标准回调)
+    public void deletePhotos(ArrayList<Uri> photos,String albumName) {
+        Log.d("Delete", "找到图片" + photos.size());
+        deleteEvent.postValue(new AlbumViewModel.DeleteEvent(photos));
+    }
+
     public void deletePhoto(String filename) {
         isLoading.setValue(true);
         error.setValue(null);

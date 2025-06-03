@@ -1,49 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <EditText
+        android:id="@+id/editTextContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:hint="写下你的想法..."
+        android:minLines="3"
+        android:gravity="top"
+        android:padding="8dp"
+        android:background="@android:drawable/editbox_background" />
 
-        <!-- 发布内容文字 -->
-        <EditText
-            android:id="@+id/editTextContent"
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:hint="说点什么..."
-            android:gravity="top"
-            android:inputType="textMultiLine"
-            android:background="@android:drawable/edit_text"
-            android:padding="8dp" />
+    <ImageView
+        android:id="@+id/imagePreview"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
 
-        <!-- 选择照片按钮 -->
-        <Button
-            android:id="@+id/buttonSelectImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="选择照片"
-            android:layout_marginTop="12dp" />
+    <Button
+        android:id="@+id/buttonPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="发布" />
 
-        <!-- 预览选中图片 -->
-        <ImageView
-            android:id="@+id/imagePreview"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="12dp"
-            android:scaleType="centerCrop"
-            android:visibility="gone" />
-
-        <!-- 发布按钮 -->
-        <Button
-            android:id="@+id/buttonPost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="发布"
-            android:layout_marginTop="20dp" />
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
