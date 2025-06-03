@@ -1,4 +1,4 @@
-```markdown
+
 # Smart Album - Developer Guide
 
 ## Project Overview
@@ -90,5 +90,5 @@ Feel free to submit issues or pull requests to help improve the project!
 ---
 
 For more detailed guides, API documentation, or module extension instructions, see `design-32.md` or contact the project maintainers.
-```
+
 
