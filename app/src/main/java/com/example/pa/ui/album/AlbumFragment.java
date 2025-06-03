@@ -54,6 +54,17 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
     private Button confirm;
     private Button cancel;
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (checkPermissions()) {
+            albumViewModel.loadAlbums();
+        } else {
+            Toast.makeText(getContext(), "需要权限才能创建相册", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,12 +94,6 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
 
         // 获取 ViewModel
         albumViewModel = new ViewModelProvider(requireActivity()).get(AlbumViewModel.class);
-
-        if (checkPermissions()) {
-            albumViewModel.addAlbum("所有照片",1,false,false,"private");
-        } else {
-            Toast.makeText(getContext(), "需要权限才能创建相册", Toast.LENGTH_SHORT).show();
-        }
 
         // 观察图片列表变化
         albumViewModel.getAlbumList().observe(getViewLifecycleOwner(), albums -> {

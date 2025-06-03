@@ -1,25 +1,36 @@
 package com.example.pa.ui.album;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pa.MyApplication;
 import com.example.pa.R;
 import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
 import com.example.pa.data.model.Photo;
+import com.example.pa.util.UriToPathHelper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapter.OnPhotoClickListener {
 
@@ -28,6 +39,8 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     private RecyclerView recyclerView;
     private PhotoinAlbumAdapter photoinAlbumAdapter;
     private PhotoinAlbumViewModel photoinAlbumViewModel;
+    private List<Uri> pendingDeleteUris;
+
 
 
     public static PhotoinAlbumFragment newInstance(String albumName) {
@@ -68,28 +81,48 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
             photoinAlbumAdapter.updateData(images);
         });
 
+        observeViewModel();
 
         return root;
     }
 
-    // 实现点击事件回调，处理图片点击后跳转到大图展示页面
-//    @Override
-//    public void onPhotoClick(Photo imageItem) {
-//        Context context = getContext();
-//        if (context != null) {
-//            Intent intent = new Intent(context, PhotoDetailActivity.class);
-//            intent.putExtra("image_url", imageItem.fileUrl);
-//            startActivity(intent);
-//
-//            // 添加Activity过渡动画
-//            if (getActivity() != null) {
-//                getActivity().overridePendingTransition(
-//                        android.R.anim.fade_in,
-//                        android.R.anim.fade_out
-//                );
-//            }
-//        }
-//    }
+    private void observeViewModel() {
+        photoinAlbumViewModel.getDeleteEvent().observe(getViewLifecycleOwner(), event -> {
+            if (event != null) {
+                Log.d("Delete", "成功观察");
+                handleDeleteEvent(event.uris);
+            }
+        });
+    }
+
+    private void handleDeleteEvent(List<Uri> uris) {
+        pendingDeleteUris = uris;
+        MyApplication.getInstance().getFileRepository().deletePhotos(uris, deleteIntent -> {
+            // 创建自定义Intent携带数据
+            Intent fillInIntent = new Intent();
+            fillInIntent.putParcelableArrayListExtra("DELETE_URIS", new ArrayList<>(uris));
+
+            // 构建请求
+            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                    deleteIntent.getIntentSender())
+                    .setFillInIntent(fillInIntent) // 附加数据
+                    .build();
+
+            deleteLauncher.launch(request);
+        });
+    }
+
+    private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Log.d("Delete", "成功返回 ");
+                    List<String> uris = UriToPathHelper.uriToString(pendingDeleteUris);
+                    MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                    MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
+                }
+                photoinAlbumViewModel.loadAlbumPhotos(albumName);
+            });
+
     @Override
     public void onPhotoClick(Uri imageUri) {
         Context context = getContext();
@@ -106,5 +139,51 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
                 );
             }
         }
+    }
+
+    public void handlePhotoSelectionResult(ArrayList<Uri> selectedPhotos, String operationType) {
+        if (photoinAlbumViewModel != null) {
+            // 设置操作类型
+            photoinAlbumViewModel.setOperationType(operationType);
+
+            // 处理选中的照片
+            if (selectedPhotos != null && !selectedPhotos.isEmpty()) {
+                processSelectedPhotos(selectedPhotos, operationType);
+            }
+        }
+    }
+
+    private void processSelectedPhotos(ArrayList<Uri> selectedPhotos, String operationType) {
+        // 根据操作类型执行不同操作
+        if ("copy".equals(operationType)) {
+            copyPhotosToAlbum(selectedPhotos);
+        } else if ("move".equals(operationType)) {
+            movePhotosToAlbum(selectedPhotos);
+        }
+    }
+
+    private void copyPhotosToAlbum(ArrayList<Uri> photos) {
+        // 实现复制照片到当前相册的逻辑
+        Log.d("PhotoinAlbum", "Copying " + photos.size() + " photos to " + albumName);
+        // 调用ViewModel中的方法处理复制
+        photoinAlbumViewModel.copyPhotosToAlbum(getNeedToChangePhotos(photos), albumName);
+    }
+
+    private void movePhotosToAlbum(ArrayList<Uri> photos) {
+        // 实现移动照片到当前相册的逻辑
+        Log.d("PhotoinAlbum", "Moving " + photos.size() + " photos to " + albumName);
+        // 调用ViewModel中的方法处理移动
+        photoinAlbumViewModel.movePhotosToAlbum(getNeedToChangePhotos(photos), albumName);
+    }
+
+    private ArrayList<Uri> getNeedToChangePhotos(ArrayList<Uri> photos) {
+        ArrayList<Uri> changedPhotos = new ArrayList<>();
+        for (Uri photo: photos) {
+            Log.d("getNeedToChangePhotos", "getNeedToChangePhotos: " + MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()));
+            if (!albumName.equals(MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()))){
+                changedPhotos.add(photo);
+            }
+        }
+        return changedPhotos;
     }
 }

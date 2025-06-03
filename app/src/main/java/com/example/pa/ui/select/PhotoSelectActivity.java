@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -34,7 +35,9 @@ public class PhotoSelectActivity extends AppCompatActivity {
 
         // 初始化点击监听
         binding.backButton.setOnClickListener(v -> finish());
-        binding.btnDone.setOnClickListener(v -> returnResult());
+        binding.btnDone.setOnClickListener(v -> OnDoneClicked());
+        binding.btnCopy.setOnClickListener(v -> OnCopyClicked());
+        binding.btnMove.setOnClickListener(v -> OnMoveClicked());
 
         // 初始化 RecyclerView
         setupRecyclerView();
@@ -45,6 +48,29 @@ public class PhotoSelectActivity extends AppCompatActivity {
         // 加载数据（示例使用固定值，实际应从 Intent 获取）
         viewModel.loadPhotos("所有照片");
     }
+
+    private void OnDoneClicked() {
+        showChoiceLayer();
+    }
+
+    private void showChoiceLayer() {
+        binding.maskLayer.setVisibility(View.VISIBLE);
+        binding.operationPanel.setVisibility(View.VISIBLE);
+    }
+
+    private void hideChoiceLayer() {
+        binding.maskLayer.setVisibility(View.GONE);
+        binding.operationPanel.setVisibility(View.GONE);
+    }
+
+    private void OnCopyClicked() {
+        returnResult("copy");
+    }
+
+    private void OnMoveClicked() {
+        returnResult("move");
+    }
+
 
     private void setupRecyclerView() {
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
@@ -84,11 +110,12 @@ public class PhotoSelectActivity extends AppCompatActivity {
         });
     }
 
-    private void returnResult() {
+    private void returnResult(String operationType) {
         Intent result = new Intent();
         if (viewModel.getSelectedCount().getValue() != null && viewModel.getSelectedCount().getValue() > 0) {
             result.putParcelableArrayListExtra("selected_photos",
                     new ArrayList<>(adapter.getSelectedUris()));
+            result.putExtra("operation_type", operationType);
         }
         setResult(RESULT_OK, result);
         finish();

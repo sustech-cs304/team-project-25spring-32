@@ -1,20 +1,22 @@
 package com.example.pa.ui.album;
 
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.IntentSender;
 import android.net.Uri;
+import android.os.Build;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.pa.MyApplication;
-import com.example.pa.data.model.Photo;
 import com.example.pa.data.FileRepository;
+import com.example.pa.util.UriToPathHelper;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class PhotoinAlbumViewModel extends ViewModel {
 
@@ -22,6 +24,8 @@ public class PhotoinAlbumViewModel extends ViewModel {
 //    private final Map<String, MutableLiveData<List<Photo>>> albumImages = new HashMap<>();
     private final FileRepository fileRepository;
     private final MutableLiveData<List<Uri>> photos = new MutableLiveData<>();
+    private final MutableLiveData<String> operationType = new MutableLiveData<>("");
+    private final MutableLiveData<AlbumViewModel.DeleteEvent> deleteEvent = new MutableLiveData<>();
 
     public PhotoinAlbumViewModel() {
         // 初始化每个相册的默认图片
@@ -38,6 +42,40 @@ public class PhotoinAlbumViewModel extends ViewModel {
     public void loadAlbumPhotos(String albumName) {
         List<Uri> result = fileRepository.getAlbumImages(albumName);
         photos.postValue(result);
+    }
+
+    public void deletePhotos(ArrayList<Uri> photos, String albumName) {
+        Log.d("Delete", "找到图片" + photos.size());
+        deleteEvent.postValue(new AlbumViewModel.DeleteEvent(photos));
+        loadAlbumPhotos(albumName); // 重新加载相册列表
+    }
+
+    public void copyPhotosToAlbum(ArrayList<Uri> photos, String albumName) {
+        boolean result = fileRepository.copyPhotos(photos, albumName);
+        if (result) {
+            List<String> photoUris = UriToPathHelper.uriToString(photos);
+            MyApplication.getInstance().getMainRepository().copyPhotosToAlbum(photoUris, albumName);
+        }
+        loadAlbumPhotos(albumName);
+    }
+
+    public void movePhotosToAlbum(ArrayList<Uri> photos, String albumName) {
+        Log.d("Move", "movePhotosToAlbum: " + albumName);
+        copyPhotosToAlbum(photos, albumName);
+
+        Log.d("Move", "Copy finished.");
+        deletePhotos(photos, albumName);
+    }
+
+    public LiveData<AlbumViewModel.DeleteEvent> getDeleteEvent() {
+        return deleteEvent;
+    }
+    public void setOperationType(String type) {
+        operationType.setValue(type);
+    }
+
+    public LiveData<String> getOperationType() {
+        return operationType;
     }
 
 //    public LiveData<List<Photo>> getImagesByAlbum(String albumName) {

@@ -1,12 +1,12 @@
 package com.example.pa.data;
 
-import android.app.Activity;
+import static com.example.pa.util.UriToPathHelper.getRealPathFromUri;
+
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -20,12 +20,11 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
+import android.system.Os;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.pa.MainActivity;
 import com.example.pa.MyApplication;
 import com.example.pa.data.model.Photo;
 import com.example.pa.util.ai.ImageClassifier;
@@ -35,7 +34,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +66,7 @@ public class FileRepository {
     private volatile boolean isIncrementalSyncing = false;
     private final ReentrantLock syncLock = new ReentrantLock(true); // 使用公平锁
     private ContentObserver mediaObserver;
+    private Map<String, File> albumDirCache = new HashMap<>();
 
     // 新增同步时间记录
     private static final String SYNC_PREFS = "sync_prefs";
@@ -81,28 +80,8 @@ public class FileRepository {
         this.myApplication = (MyApplication) context.getApplicationContext();
     }
 
-    // 注册 MediaStore 观察者
-    public void registerMediaStoreObserver() {
-        if (mediaObserver != null) return;
-
-        mediaObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
-            @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                if (!selfChange) { // 排除自身操作触发的通知
-                    triggerIncrementalSync();
-                }
-            }
-        };
-
-        context.getContentResolver().registerContentObserver(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                true,
-                mediaObserver
-        );
-    }
-
     // 触发增量同步（带防抖）
-    private void triggerIncrementalSync() {
+    public void triggerIncrementalSync() {
         new Thread(() -> {
             if (!syncLock.tryLock()) {
                 Log.d("Sync", "同步已在进行中，跳过");
@@ -124,7 +103,6 @@ public class FileRepository {
             }
         }).start();
     }
-
 
     private void performIncrementalSync() {
         // 获取当前用户ID（根据实际登录状态获取）
@@ -191,7 +169,7 @@ public class FileRepository {
                         cursor.getDouble(5),
                         null, null, null
                 );
-                Log.d("TAG", "addPhotos: " + id);
+                Log.d("Sync", "addPhotos: " + id);
                 photos.add(photo);
             }
         }
@@ -327,7 +305,7 @@ public class FileRepository {
         void provideDeleteRequest(PendingIntent deleteIntent);
     }
 
-    public void deleteAlbum(List<Uri> uris, DeleteRequestProvider provider) {
+    public void deletePhotos(List<Uri> uris, DeleteRequestProvider provider) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 PendingIntent deleteIntent = MediaStore.createDeleteRequest(
@@ -504,112 +482,176 @@ public class FileRepository {
 //        }
 //    }
     //=== 复制照片 ===//
-//    public boolean copyImage(Uri sourceUri, String targetAlbumName) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//            return copyImageWithMediaStore(sourceUri, targetAlbumName);
-//        } else {
-//            // Android 9及以下实现（使用传统文件操作）
-//            // 注意需要处理运行时权限
-//            return false;
-//        }
-//    }
-//
-//    @RequiresApi(api = Build.VERSION_CODES.Q)
-//    private boolean copyImageWithMediaStore(Uri sourceUri, String targetAlbumName) {
-//        ContentResolver resolver = context.getContentResolver();
-//
-//        try {
-//            // 1. 获取源文件信息
-//            ContentValues sourceValues = getMediaInfo(sourceUri);
-//            if (sourceValues == null) return false;
-//
-//            // 2. 创建目标相册（如果不存在）
-//            if (!createAlbum(targetAlbumName)) {
-//                Log.e("Copy", "目标相册创建失败");
-//                return false;
-//            }
-//
-//            // 3. 创建目标文件元数据
-//            ContentValues targetValues = new ContentValues();
-//            targetValues.put(MediaStore.Images.Media.DISPLAY_NAME,
-//                    generateUniqueFileName(sourceValues.getAsString(MediaStore.Images.Media.DISPLAY_NAME)));
-//            targetValues.put(MediaStore.Images.Media.MIME_TYPE,
-//                    sourceValues.getAsString(MediaStore.Images.Media.MIME_TYPE));
-//            targetValues.put(MediaStore.Images.Media.RELATIVE_PATH,
-//                    Environment.DIRECTORY_DCIM + "/" + targetAlbumName);
-//
-//            // 4. 插入目标文件
-//            Uri targetUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, targetValues);
-//            if (targetUri == null) return false;
-//
-//            // 5. 执行文件拷贝
-//            try (InputStream in = resolver.openInputStream(sourceUri);
-//                 OutputStream out = resolver.openOutputStream(targetUri)) {
-//                if (in == null || out == null) return false;
-//
-//                byte[] buffer = new byte[4096];
-//                int bytesRead;
-//                while ((bytesRead = in.read(buffer)) != -1) {
-//                    out.write(buffer, 0, bytesRead);
-//                }
-//            }
-//
-//            // 6. 更新媒体库
-//            triggerMediaScanForAlbum(targetAlbumName, new MediaScanCallback() {
-//                @Override public void onScanCompleted(Uri uri) {}
-//                @Override public void onScanFailed(String error) {}
-//            });
-//
-//            return true;
-//        } catch (Exception e) {
-//            Log.e("Copy", "复制失败", e);
-//            return false;
-//        }
-//    }
-//
-//    //=== 移动照片 ===//
-//    public boolean moveImage(Uri sourceUri, String targetAlbumName) {
-//        if (copyImage(sourceUri, targetAlbumName)) {
-//            return deleteImages(sourceUri);
-//        }
-//        return false;
-//    }
-//
-//    //=== 辅助方法 ===//
-//    private ContentValues getMediaInfo(Uri uri) {
-//        ContentResolver resolver = context.getContentResolver();
-//        String[] projection = new String[]{
-//                MediaStore.Images.Media.DISPLAY_NAME,
-//                MediaStore.Images.Media.MIME_TYPE,
-//                MediaStore.Images.Media.RELATIVE_PATH
-//        };
-//
-//        try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
-//            if (cursor != null && cursor.moveToFirst()) {
-//                ContentValues values = new ContentValues();
-//                values.put(MediaStore.Images.Media.DISPLAY_NAME,
-//                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)));
-//                values.put(MediaStore.Images.Media.MIME_TYPE,
-//                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE)));
-//                values.put(MediaStore.Images.Media.RELATIVE_PATH,
-//                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH)));
-//                return values;
-//            }
-//        } catch (Exception e) {
-//            Log.e("MediaInfo", "获取文件信息失败", e);
-//        }
-//        return null;
-//    }
-//
-//    private String generateUniqueFileName(String originalName) {
-//        if (originalName == null) return System.currentTimeMillis() + ".jpg";
-//
-//        int dotIndex = originalName.lastIndexOf('.');
-//        String name = (dotIndex != -1) ? originalName.substring(0, dotIndex) : originalName;
-//        String ext = (dotIndex != -1) ? originalName.substring(dotIndex) : ".jpg";
-//
-//        return name + "_" + System.currentTimeMillis() + ext;
-//    }
+    public boolean copyPhotos(List<Uri> sourceUris, String targetAlbumName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return copyPhotosWithMediaStore(sourceUris, targetAlbumName);
+        } else {
+            // Android 9及以下实现（使用传统文件操作）
+            // 注意需要处理运行时权限
+            return false;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    public boolean copyPhotosWithMediaStore(List<Uri> sourceUris, String targetAlbumName) {
+        ContentResolver resolver = context.getContentResolver();
+        boolean allSuccess = true;
+
+        for (Uri sourceUri : sourceUris) {
+            try {
+                // 1. 获取源文件信息
+                ContentValues sourceValues = getMediaInfo(sourceUri);
+                if (sourceValues == null) {
+                    allSuccess = false;
+                    continue;
+                }
+
+                // 2. 创建目标相册（如果不存在）
+                if (!createAlbum(targetAlbumName)) {
+                    Log.e("Copy", "目标相册创建失败");
+                    allSuccess = false;
+                    continue;
+                }
+
+                // 3. 创建目标文件元数据
+                ContentValues targetValues = new ContentValues();
+                targetValues.put(MediaStore.Images.Media.DISPLAY_NAME,
+                        generateUniqueFileName(sourceValues.getAsString(MediaStore.Images.Media.DISPLAY_NAME)));
+                targetValues.put(MediaStore.Images.Media.MIME_TYPE,
+                        sourceValues.getAsString(MediaStore.Images.Media.MIME_TYPE));
+                targetValues.put(MediaStore.Images.Media.RELATIVE_PATH,
+                        Environment.DIRECTORY_DCIM + "/" + targetAlbumName);
+
+                // 4. 插入目标文件
+                Uri targetUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, targetValues);
+                if (targetUri == null) {
+                    allSuccess = false;
+                    continue;
+                }
+
+                // 5. 执行文件拷贝
+                try (InputStream in = resolver.openInputStream(sourceUri);
+                     OutputStream out = resolver.openOutputStream(targetUri)) {
+                    if (in == null || out == null) {
+                        allSuccess = false;
+                        continue;
+                    }
+
+                    byte[] buffer = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, bytesRead);
+                    }
+                }
+
+                // 6. 更新媒体库
+                triggerMediaScanForAlbum(targetAlbumName, new MediaScanCallback() {
+                    @Override public void onScanCompleted(Uri uri) {}
+                    @Override public void onScanFailed(String error) {}
+                });
+
+            } catch (Exception e) {
+                Log.e("Copy", "复制失败: " + sourceUri, e);
+                allSuccess = false;
+            }
+        }
+
+        return allSuccess;
+    }
+
+    //=== 移动照片 ===//
+    public boolean movePhotos(List<Uri> sourceUris, String targetAlbumName, DeleteRequestProvider provider) {
+        boolean copySuccess = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            copySuccess = copyPhotosWithMediaStore(sourceUris, targetAlbumName);
+        }
+        if (!copySuccess) {
+            Log.e("Move", "复制失败，终止移动操作");
+            return false;
+        }
+
+        deletePhotos(sourceUris, provider);
+        return true;
+    }
+
+    private File getAlbumDir(String albumName) {
+        if (albumDirCache.containsKey(albumName)) {
+            return albumDirCache.get(albumName);
+        }
+
+        File albumDir = new File(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
+                albumName
+        );
+
+        if (!albumDir.exists()) {
+            if (!albumDir.mkdirs()) return null;
+        }
+
+        albumDirCache.put(albumName, albumDir);
+        return albumDir;
+    }
+
+    // 核心重命名方法
+    private boolean renameFile(File source, File dest) {
+        try {
+            // 使用 Linux 级别的重命名（最快最有效）
+            Os.rename(source.getAbsolutePath(), dest.getAbsolutePath());
+            return true;
+        } catch (Exception e) {
+            Log.e("FileMove", "重命名失败", e);
+            return false;
+        }
+    }
+
+    // 更新媒体库路径
+    private void updateMediaStorePath(Uri originalUri, File newFile) {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DATA, newFile.getAbsolutePath());
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, newFile.getName());
+
+        context.getContentResolver().update(
+                originalUri,
+                values,
+                null,
+                null
+        );
+    }
+    //=== 辅助方法 ===//
+    private ContentValues getMediaInfo(Uri uri) {
+        ContentResolver resolver = context.getContentResolver();
+        String[] projection = new String[]{
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.MIME_TYPE,
+                MediaStore.Images.Media.RELATIVE_PATH
+        };
+
+        try (Cursor cursor = resolver.query(uri, projection, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.DISPLAY_NAME,
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)));
+                values.put(MediaStore.Images.Media.MIME_TYPE,
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE)));
+                values.put(MediaStore.Images.Media.RELATIVE_PATH,
+                        cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.RELATIVE_PATH)));
+                return values;
+            }
+        } catch (Exception e) {
+            Log.e("MediaInfo", "获取文件信息失败", e);
+        }
+        return null;
+    }
+
+    private String generateUniqueFileName(String originalName) {
+        if (originalName == null) return System.currentTimeMillis() + ".jpg";
+
+        int dotIndex = originalName.lastIndexOf('.');
+        String name = (dotIndex != -1) ? originalName.substring(0, dotIndex) : originalName;
+        String ext = (dotIndex != -1) ? originalName.substring(dotIndex) : ".jpg";
+
+        return name + "_" + System.currentTimeMillis() + ext;
+    }
 
 
     /**

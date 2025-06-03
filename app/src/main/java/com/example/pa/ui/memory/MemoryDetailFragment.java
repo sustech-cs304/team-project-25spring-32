@@ -25,19 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.R;
 import com.example.pa.ui.photo.PhotoDetailActivity;
+import com.example.pa.ui.select.PhotoSelectActivity;
 import com.example.pa.util.VideoPlayerManager;
 
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
-
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
-
-import android.os.Handler;
-import android.os.Looper;
-
-import java.util.List;
+import java.util.ArrayList;
 
 public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter.OnPhotoClickListener {
 
@@ -46,6 +37,7 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     private RecyclerView recyclerView;
     private MemoryPhotoAdapter adapter;
     private MemoryDetailViewModel viewModel;
+    private ActivityResultLauncher<Intent> addPhotosLauncher;
     private ActivityResultLauncher<Intent> customizeVideoLauncher; // 添加启动器
     private ImageButton btnBack;
     private ImageButton btnAdd;
@@ -55,16 +47,12 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     // 播放器使用的组件
     private VideoPlayerManager videoPlayerManager;
     private PlayerView playerView;
-    private ImageButton btnPlayPause;
-    private SeekBar seekBar;
-    private TextView timeCurrent, timeTotal;
-    private Spinner spinnerSpeed;
-    private View customControlsView;
 
-    public static MemoryDetailFragment newInstance(String memoryId) {
+
+    public static MemoryDetailFragment newInstance(String memoryName) {
         MemoryDetailFragment fragment = new MemoryDetailFragment();
         Bundle args = new Bundle();
-        args.putString("memory_id", memoryId);
+        args.putString("memory_name", memoryName);
         fragment.setArguments(args);
         return fragment;
     }
@@ -75,6 +63,25 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         videoPlayerManager = new VideoPlayerManager(requireContext());
         // ViewModel 的创建应该在这里，但不应该直接初始化 FFmpegVideoCreationService
         // FFmpegVideoCreationService 应该由 ViewModel 自身管理
+        // 初始化用于添加照片的 ActivityResultLauncher
+        addPhotosLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == AppCompatActivity.RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+                        ArrayList<Uri> selectedPhotos = data.getParcelableArrayListExtra("selected_photos");
+                        // String operationType = data.getStringExtra("operation_type"); // "copy" or "move"
+
+                        if (selectedPhotos != null && !selectedPhotos.isEmpty()) {
+                            // 调用 ViewModel 处理添加照片的逻辑
+                            viewModel.addPhotosToCurrentMemory(selectedPhotos);
+                            Log.d(TAG, "Received " + selectedPhotos.size() + " photos to add.");
+                        }
+                    } else {
+                        Log.d(TAG, "Photo selection cancelled or failed.");
+                    }
+                }
+        );
     }
 
     @Override
@@ -86,12 +93,6 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         // 视频预览区
 //        View videoPreview = view.findViewById(R.id.video_preview);
         playerView = view.findViewById(R.id.player_view);
-        btnPlayPause = view.findViewById(R.id.btn_play_pause);
-        seekBar = view.findViewById(R.id.seek_bar);
-        timeCurrent = view.findViewById(R.id.time_current);
-        timeTotal = view.findViewById(R.id.time_total);
-        spinnerSpeed = view.findViewById(R.id.spinner_speed);
-        customControlsView = view.findViewById(R.id.custom_controls); // 假设这是你想长按的区域
 
         // 图片展示区
         recyclerView = view.findViewById(R.id.photo_recycler_view);
@@ -117,22 +118,13 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(this).get(MemoryDetailViewModel.class);
 
-        String memoryId = null;
+        String memoryName = null;
         if (getArguments() != null) {
-            memoryId = getArguments().getString("memory_id");
+            memoryName = getArguments().getString("memory_name");
         }
 
         // 初始化视频播放器
-        videoPlayerManager.initialize(
-                playerView,
-                btnPlayPause,
-                seekBar,
-                timeCurrent,
-                timeTotal,
-                spinnerSpeed,
-                playerView, // 将 PlayerView 作为长按区域
-                customControlsView
-        );
+        videoPlayerManager.initialize(playerView);
 
         viewModel.getPhotoUris().observe(getViewLifecycleOwner(), uris -> {
             adapter = new MemoryPhotoAdapter(uris, this);
@@ -156,22 +148,46 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
 
         // 观察视频 Uri变化并调用 Manager
         viewModel.currentVideoUri.observe(getViewLifecycleOwner(), uri -> {
-            videoPlayerManager.loadVideo(uri); // 只调用 loadVideo
+            // 如果 URI 为 null，确保播放器停止并清除旧的媒体项
+            if (uri == null && videoPlayerManager.getPlayer() != null && videoPlayerManager.getPlayer().getMediaItemCount() > 0) {
+                videoPlayerManager.release(); // 或者 videoPlayerManager.loadVideo(null);
+            } else if (uri != null) {
+                videoPlayerManager.loadVideo(uri);
+            }
         });
 
         // 加载数据
-        viewModel.loadPhotos(memoryId);
+        if (memoryName != null && !memoryName.isEmpty()) {
+            viewModel.loadMemoryDetails(memoryName);
+        } else {
+            Log.e(TAG, "Memory name is null or empty, cannot load details.");
+            // 可以显示一个错误提示或者一个空状态
+            if (getContext() != null) {
+                Toast.makeText(getContext(), "无法加载相册详情", Toast.LENGTH_SHORT).show();
+            }
+            // 清理播放器（如果 viewModel.currentVideoUri 已经是 null，上面的 observe 会处理）
+            if (viewModel.currentVideoUri.getValue() == null) {
+                videoPlayerManager.loadVideo(null);
+            }
+        }
+
     }
 
     private void initToolbar(View rootView) {
         btnBack = rootView.findViewById(R.id.btn_back);
         btnAdd = rootView.findViewById(R.id.btn_add);
-        btnDelete = rootView.findViewById(R.id.btn_delete);
+//        btnDelete = rootView.findViewById(R.id.btn_delete);
         btnExport = rootView.findViewById(R.id.btn_export);
 
         btnBack.setOnClickListener(v -> onBackPressed());
-        btnAdd.setOnClickListener(v -> Toast.makeText(getContext(), "添加照片 (TODO)", Toast.LENGTH_SHORT).show());
-        btnDelete.setOnClickListener(v -> Toast.makeText(getContext(), "批量删除 (TODO)", Toast.LENGTH_SHORT).show());
+        btnAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), PhotoSelectActivity.class);
+            // 可以传递额外的信息给 PhotoSelectActivity
+            // intent.putExtra("selection_mode", "add_to_album");
+            // intent.putExtra("current_album_name", viewModel.getCurrentMemoryIdentifier()); // 如果需要过滤已存在照片
+            addPhotosLauncher.launch(intent);
+        });
+//        btnDelete.setOnClickListener(v -> Toast.makeText(getContext(), "批量删除 (TODO)", Toast.LENGTH_SHORT).show());
         // Fragment 触发 ViewModel 的导出逻辑
         btnExport.setOnClickListener(v -> {
             // 启动 CustomizeVideoActivity
@@ -207,32 +223,51 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
     @Override
     public void onStart() {
         super.onStart();
-        // Manager 内部会处理播放逻辑，但如果需要，可以调用 start()
-        // 但由于我们 loadVideo 时就自动播放，这里可能不需要额外调用
-        // videoPlayerManager.start();
-        // 如果是从 Stop 状态回来，需要重新加载或初始化
-        Uri currentUri = viewModel.currentVideoUri.getValue();
-        if (currentUri != null) {
-            videoPlayerManager.loadVideo(currentUri); // 确保从 Stop 返回时能播放
+        // viewModel.currentVideoUri 会被 loadMemoryDetails 更新
+        // 当它更新时，其观察者会调用 videoPlayerManager.loadVideo(uri)
+        // 所以这里的关键是确保 loadMemoryDetails 被合适的时机调用（例如 onViewCreated）
+        // 如果 Fragment 只是从 onPause 状态返回，通常不需要重新 loadMemoryDetails，
+        // 除非 memoryName 可能会改变。
+        // 但如果 Fragment 是从 onStop 状态返回，播放器已被 release，需要重新加载。
+        // 此时，如果 viewModel.currentVideoUri.getValue() 仍然是上次的 URI，
+        // 并且 videoPlayerManager 已被初始化，那么 loadVideo 仍然需要被调用。
+
+        Uri currentVideoFromViewModel = viewModel.currentVideoUri.getValue();
+        if (currentVideoFromViewModel != null && playerView != null) {
+            Log.d(TAG, "onStart: URI from ViewModel is " + currentVideoFromViewModel + ". Reloading video.");
+            videoPlayerManager.loadVideo(currentVideoFromViewModel);
+        } else if (playerView == null) {
+            Log.w(TAG, "onStart: playerView is null.");
+        } else {
+            Log.d(TAG, "onStart: No current video URI in ViewModel or playerView not ready.");
+            videoPlayerManager.loadVideo(null); // 确保清除旧视频
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        videoPlayerManager.pause();
+        if (videoPlayerManager != null) {
+            videoPlayerManager.pause();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        videoPlayerManager.release();
+        if (videoPlayerManager != null) {
+            videoPlayerManager.release();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        videoPlayerManager.release(); // 确保销毁时释放
+        // 确保在 View 销毁时也释放，以防 onStop 未被充分调用（例如 Fragment 被替换但未停止）
+        if (videoPlayerManager != null) {
+            videoPlayerManager.release();
+        }
+        playerView = null; // 清除对 View 的引用
     }
     // ======== Fragment 生命周期管理 ========
 

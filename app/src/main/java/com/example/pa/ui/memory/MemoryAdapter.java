@@ -7,22 +7,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.example.pa.MyApplication;
 import com.example.pa.R;
 import com.example.pa.data.Daos.MemoryVideoDao.MemoryVideo;
+import com.example.pa.data.FileRepository;
+
 import java.util.List;
 
 public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryViewHolder> {
 
     private final List<MemoryVideo> memoryList;
     private final OnMemoryClickListener listener;
+    private final FileRepository fileRepository;
 
     public interface OnMemoryClickListener {
-        void onMemoryClick(int memoryId); // 根据实际类型调整
+        void onMemoryClick(String memoryName); // 根据实际类型调整
     }
 
     public MemoryAdapter(List<MemoryVideo> memoryList, OnMemoryClickListener listener) {
         this.memoryList = memoryList;
         this.listener = listener;
+        this.fileRepository = MyApplication.getInstance().getFileRepository();
     }
 
     @NonNull
@@ -40,9 +47,16 @@ public class MemoryAdapter extends RecyclerView.Adapter<MemoryAdapter.MemoryView
         holder.textAlbumName.setText(memory.name);
         holder.textAlbumDate.setText(memory.createdTime);
 
+        Glide.with(holder.itemView.getContext())
+                .load(fileRepository.getAlbumCover(memory.name)) // Glide 可以加载 Uri 字符串
+                .placeholder(R.drawable.placeholder_image) // 占位图
+                .error(R.drawable.error_image)         // 错误图
+                .centerCrop()
+                .into(holder.imageCover);
+
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onMemoryClick(memory.id);
+                listener.onMemoryClick(memory.name);
             }
         });
     }

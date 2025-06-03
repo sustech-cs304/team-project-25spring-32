@@ -63,6 +63,14 @@ public class TagDao {
                 null, null,
                 COLUMN_NAME + " ASC");
     }
+    public Cursor getNonAiRecognizedTags() {
+        return db.query(TABLE_NAME,
+                null,
+                COLUMN_IS_AI_RECOGNIZED + " = 0",
+                null,
+                null, null,
+                COLUMN_NAME + " ASC");
+    }
 
     public Cursor getAiRecognizedTags() {
         return db.query(TABLE_NAME,

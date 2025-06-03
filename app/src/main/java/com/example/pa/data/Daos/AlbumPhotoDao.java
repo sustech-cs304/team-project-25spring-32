@@ -1,5 +1,6 @@
 package com.example.pa.data.Daos;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +9,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.pa.data.DatabaseHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AlbumPhotoDao {
     /**
@@ -62,6 +66,23 @@ public class AlbumPhotoDao {
                 null, null, COLUMN_ADDED_TIME + " DESC");
     }
 
+    @SuppressLint("Range")
+    public List<Integer> getPhotoIdsInAlbum(int albumId) {
+        List<Integer> photoIds = new ArrayList<>();
+        Cursor result = db.query(TABLE_NAME,
+                new String[]{COLUMN_PHOTO_ID},
+                COLUMN_ALBUM_ID + " = ?",
+                new String[]{String.valueOf(albumId)},
+                null, null, null);
+        if (result != null) {
+            while (result.moveToNext()) {
+                photoIds.add(result.getInt(result.getColumnIndex(COLUMN_PHOTO_ID)));
+            }
+            result.close();
+        }
+        return photoIds;
+    }
+
     public boolean removePhotoFromAlbum(int albumId, int photoId) {
         try {
             int affected = db.delete(TABLE_NAME,
@@ -105,6 +126,22 @@ public class AlbumPhotoDao {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    @SuppressLint("Range")
+    public int getAlbumOfPhoto(int photoId) {
+        @SuppressLint("Recycle") Cursor result = db.query(TABLE_NAME,
+                new String[]{COLUMN_ALBUM_ID},
+                COLUMN_PHOTO_ID + " = ?",
+                new String[]{String.valueOf(photoId)},
+                null, null, null);
+        if (result != null && result.moveToFirst()) {
+            Log.d("AlbumPhotoDao", "do");
+            return result.getInt(result.getColumnIndex(COLUMN_ALBUM_ID));
+        } else {
+            Log.e("AlbumPhotoDao", "Cursor is invalid for photoId: " + photoId);
+            return -1;
         }
     }
 }

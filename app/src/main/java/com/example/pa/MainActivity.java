@@ -7,17 +7,13 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,8 +21,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -37,22 +33,20 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 //import com.example.pa.auth.LoginActivity;
+import com.example.pa.auth.LoginActivity;
+import com.example.pa.data.cloudRepository.UserRepository;
 import com.example.pa.data.model.Photo;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.data.Daos.*;
 import com.example.pa.data.FileRepository;
 import com.example.pa.databinding.ActivityMainBinding;
 import com.example.pa.ui.help.HelpActivity;
 import com.example.pa.ui.album.AlbumViewModel;
 import com.example.pa.util.PasswordUtil;
-import com.example.pa.util.ai.ImageClassifier;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.pa.util.UriToPathHelper;
+import com.example.pa.util.removeLogin;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,10 +60,10 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     private ActivityResultLauncher<String[]> requestPermissionLauncher;
     private AppBarConfiguration appBarConfiguration;
     private FileRepository fileRepository;
-
     private AlbumViewModel viewModel;
     //检查是否处于登录状态
     private boolean isLoggedIn = false;
+    private List<Uri> pendingDeleteUris;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,10 +143,11 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         viewModel = new ViewModelProvider(this).get(AlbumViewModel.class);
         fileRepository=MyApplication.getInstance().getFileRepository();
         fileRepository.setDeleteCallback(this);
-        fileRepository.registerMediaStoreObserver();
 
         // 首次启动时请求权限
         requestNecessaryPermissions();
+
+        fileRepository.triggerIncrementalSync();
         // 测试数据库操作 (仅用于开发环境)
 
 
@@ -170,37 +165,44 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         viewModel.getDeleteEvent().observe(this, event -> {
             if (event != null) {
                 Log.d("Delete", "成功观察");
-                handleDeleteEvent(event.uris, event.albumName);
+                handleDeleteEvent(event.uris);
             }
         });
     }
 
-    private void handleDeleteEvent(List<Uri> uris, String albumName) {
-        fileRepository.deleteAlbum(uris, new FileRepository.DeleteRequestProvider() {
-            @Override
-            public void provideDeleteRequest(PendingIntent deleteIntent) {
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        Log.d("Delete", "版本正确");
-                    startIntentSenderForResult(
-                                deleteIntent.getIntentSender(),
-                                FileRepository.DELETE_REQUEST_CODE,
-                                null, 0, 0, 0,
-                                null
-                        );
-                    } else {
-                        startIntentSenderForResult(
-                                deleteIntent.getIntentSender(),
-                                FileRepository.DELETE_REQUEST_CODE,
-                                null, 0, 0, 0
-                        );
-                    }
-                } catch (IntentSender.SendIntentException e) {
-                    Log.e("Delete", "启动删除请求失败", e);
-                }
+    private void handleDeleteEvent(List<Uri> uris) {
+        pendingDeleteUris = uris;
+        fileRepository.deletePhotos(uris, deleteIntent -> {
+            // 创建自定义Intent携带数据
+            Intent fillInIntent = new Intent();
+            fillInIntent.putParcelableArrayListExtra("DELETE_URIS", new ArrayList<>(uris));
+
+            // 构建请求
+            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                    deleteIntent.getIntentSender())
+                    .setFillInIntent(fillInIntent) // 附加数据
+                    .build();
+
+//            deleteLauncher.launch(request);
+            Log.d("Delete", "准备启动 deleteLauncher");
+            try {
+                deleteLauncher.launch(request);
+            } catch (Exception e) {
+                Log.e("Delete", "启动 deleteLauncher 失败", e);
             }
         });
     }
+
+    private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Log.d("Delete", "成功返回 ");
+                    List<String> uris = UriToPathHelper.uriToString(pendingDeleteUris);
+                    MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                    MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
+                }
+                viewModel.loadAlbums();
+            });
 
 
     private void setupNavHeader() {
@@ -209,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         View headerView = binding.navigationDrawer.getHeaderView(0);
         ImageView imageView = headerView.findViewById(R.id.imageView);
         TextView usernameTextView = headerView.findViewById(R.id.username);
-        TextView emailTextView = headerView.findViewById(R.id.email);
+        //TextView emailTextView = headerView.findViewById(R.id.email);
 
         // 使用Glide加载头像,由于Url未实现，头像部分注释
 //        Glide.with(this)
@@ -222,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         // 设置用户名和邮箱
 //        usernameTextView.setText(getUsername());
 //        emailTextView.setText(getEmail());
-          usernameTextView.setText("getUsername()");
-          emailTextView.setText("getEmail()");
+          usernameTextView.setText(UserRepository.getUsername());
+          //emailTextView.setText("getEmail()");
     }
     private void setupNavigationDrawerMenu() {
         // 根据登录状态加载不同的菜单
@@ -236,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
             if (id == R.id.nav_login) {
                 // 处理登录/注册
-                //startActivity(new Intent(this, LoginActivity.class));
+                startActivity(new Intent(this, LoginActivity.class));
                 binding.drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             }
@@ -278,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
 
                     // 可选：跳转到登录页面
                     //startActivity(new Intent(this, LoginActivity.class));
-                    finish();
+                    recreate();
                 })
                 .setNegativeButton(getString(R.string.negative_button), null)
                 .show();
@@ -563,13 +565,21 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         app.getPhotoDao().clearTable();
         app.getUserDao().clearTable();
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 每次返回时重新检查登录状态
+        isLoggedIn = checkLoginStatus(this);
+        setupNavigationDrawerMenu();
+        setupNavHeader();
+    }
 
     @Override
     protected void onDestroy() {
 
-        clearAllTables((MyApplication) getApplication());
-        Log.d("Database", "Cleaned up all test data");
-
+        //clearAllTables((MyApplication) getApplication());
+        //Log.d("Database", "Cleaned up all test data");
+        removeLogin.removeLoginStatus(this);
         super.onDestroy();
     }
 

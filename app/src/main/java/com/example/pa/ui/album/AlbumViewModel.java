@@ -24,6 +24,7 @@ import com.example.pa.MyApplication;
 import com.example.pa.data.Daos.AlbumDao;
 import com.example.pa.data.Daos.AlbumDao.Album;
 import com.example.pa.data.FileRepository;
+import com.example.pa.data.MainRepository;
 
 /**
  * AI-generated-content
@@ -36,21 +37,22 @@ public class AlbumViewModel extends ViewModel {
 
     public static class DeleteEvent {
         public final List<Uri> uris;
-        public final String albumName;
 
-        public DeleteEvent(List<Uri> uris, String albumName) {
+        public DeleteEvent(List<Uri> uris) {
             this.uris = uris;
-            this.albumName = albumName;
         }
     }
 
     private final MutableLiveData<DeleteEvent> deleteEvent = new MutableLiveData<>();
     private MutableLiveData<List<Album>> albumList = new MutableLiveData<>();
     private MutableLiveData<String> event = new MutableLiveData<>();
+    private MainRepository mainRepository;
     private AlbumDao albumDao;
     private final FileRepository fileRepository;
+    private int userId = 1;
 
     public AlbumViewModel() {
+        this.mainRepository = MyApplication.getInstance().getMainRepository();
         this.albumDao = MyApplication.getInstance().getAlbumDao();
         this.fileRepository = MyApplication.getInstance().getFileRepository();
 //        initialAlbums();  //仅用作展示
@@ -63,7 +65,9 @@ public class AlbumViewModel extends ViewModel {
 
     // 加载用户相册列表
     public void loadAlbums() {
-        List<Album> albums = getAlbumsByUserId(1);
+        List<Album> albums = new ArrayList<>();
+        albums.add(new Album(0, "所有照片", userId, false, false, "private", null));
+        albums.addAll(getAlbumsByUserId(userId));
         albumList.setValue(albums);
     }
 
@@ -136,15 +140,9 @@ public class AlbumViewModel extends ViewModel {
 
     // 删除相册
     public void deleteAlbum(int albumId, String name) {
-        boolean result = albumDao.deleteAlbum(albumId);
-        if (result) {
-            List<Uri> albumUris = fileRepository.getAlbumImages(name);
-            Log.d("Delete", "找到图片" + albumUris);
-            deleteEvent.postValue(new DeleteEvent(albumUris, name));
-            loadAlbums(); // 重新加载相册列表
-            event.setValue("Album deleted successfully");
-        } else {
-            event.setValue("Failed to delete album");
-        }
+        List<Uri> albumUris = fileRepository.getAlbumImages(name);
+        Log.d("Delete", "找到图片" + albumUris);
+        deleteEvent.postValue(new DeleteEvent(albumUris));
+        event.setValue("Album deleted successfully");
     }
 }

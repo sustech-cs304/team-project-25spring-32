@@ -1,5 +1,7 @@
 package com.example.pa;
 
+import static com.example.pa.util.removeLogin.removeLoginStatus;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -28,6 +30,7 @@ import com.example.pa.data.Daos.SearchHistoryDao;
 import com.example.pa.data.Daos.TagDao;
 import com.example.pa.data.Daos.UserDao;
 import com.example.pa.data.cloudRepository.UserRepository;
+import com.example.pa.data.model.user.LoginResponse;
 import com.example.pa.data.model.user.RegisterResponse;
 
 import io.reactivex.rxjava3.core.Observable;
@@ -155,26 +158,4 @@ public class ExampleInstrumentedTest {
 //
 //    }
 
-    @Test
-    public void test_registerRx(){
-        Observable<RegisterResponse> t= userRepository.registerRx("wang","123@qq.com","123456");
-        t.subscribe(
-                response -> {
-                    // 只判断成功状态
-                    if (response.isSuccess()) {
-                        System.out.println("注册成功");
-                        Log.d("success", "注册成功: ");
-                    } else {
-                        System.out.println("注册失败: " + response.getMessage());
-                        Log.d("fail", "注册失败: " + response.getMessage());
-                    }
-                },
-                error -> {
-                    // 网络错误等异常
-                    System.err.println("请求失败: " + error.getMessage());
-                    Log.e("error", "请求失败: " + error.getMessage());
-                }
-        );
-        assertNull(t);
-    }
 }

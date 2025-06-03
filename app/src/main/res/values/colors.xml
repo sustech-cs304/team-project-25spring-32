@@ -13,4 +13,5 @@
     <color name="red">#FF0000</color>
     <color name="error_red">#F44336</color>
     <color name="gray_600">#757575</color>
+    <color name="gray_200">#EEEEEE</color>
 </resources>

@@ -2,7 +2,9 @@ package com.example.pa.util;
 
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.example.pa.MyApplication;
@@ -11,6 +13,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class UriToPathHelper {
@@ -57,6 +61,22 @@ public class UriToPathHelper {
         }
     }
 
+    public static String getRealPathFromUri(Context context, Uri uri) {
+        String[] projection = {MediaStore.Images.Media.DATA};
+        try (Cursor cursor = context.getContentResolver().query(
+                uri,
+                projection,
+                null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                return cursor.getString(columnIndex);
+            }
+        } catch (SecurityException e) {
+            Log.e("Photo", "Error getting real path: " + e.getMessage());
+        }
+        return null;
+    }
+
     // 简单的文件名提取 (可能不总是准确，取决于URI提供者)
     private static String getFileName(Uri uri) {
         String result = null;
@@ -90,5 +110,14 @@ public class UriToPathHelper {
             result = UUID.randomUUID().toString(); // 备用文件名
         }
         return result;
+    }
+
+    // 批量URI转换为String
+    public static List<String> uriToString(List<Uri> uris) {
+        List<String> uriStrings = new ArrayList<>();
+        for (Uri uri: uris) {
+            uriStrings.add(uri.toString());
+        }
+        return uriStrings;
     }
 }

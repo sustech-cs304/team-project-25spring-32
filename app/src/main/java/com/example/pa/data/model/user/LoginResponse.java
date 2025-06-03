@@ -1,7 +1,7 @@
 package com.example.pa.data.model.user;
 
 public class LoginResponse {
-    private boolean success;
+    private final boolean success;
     private String token;
     private String message;
     private User user;

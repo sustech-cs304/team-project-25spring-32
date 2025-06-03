@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:soundEffectsEnabled="false">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -45,14 +46,14 @@
                         android:src="@drawable/ic_add"
                         tools:ignore="SpeakableTextPresentCheck" />
 
-                    <ImageButton
-                        android:id="@+id/btn_delete"
-                        android:layout_width="50dp"
-                        android:layout_height="match_parent"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="12dp"
-                        android:src="@drawable/delete"
-                        tools:ignore="SpeakableTextPresentCheck" />
+<!--                    <ImageButton-->
+<!--                        android:id="@+id/btn_delete"-->
+<!--                        android:layout_width="50dp"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:background="?attr/selectableItemBackgroundBorderless"-->
+<!--                        android:padding="12dp"-->
+<!--                        android:src="@drawable/delete"-->
+<!--                        tools:ignore="SpeakableTextPresentCheck" />-->
 
                     <ImageButton
                         android:id="@+id/btn_export"
@@ -60,7 +61,8 @@
                         android:layout_height="match_parent"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:padding="12dp"
-                        android:src="@drawable/export"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_generate_video"
                         tools:ignore="SpeakableTextPresentCheck" />
                 </LinearLayout>
             </RelativeLayout>
@@ -89,23 +91,13 @@
                     android:id="@+id/player_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:soundEffectsEnabled="false"
+                    app:hide_on_touch="true"
                     app:resize_mode="zoom"
                     app:show_buffering="when_playing"
-                    app:use_controller="false" />
-
-                <include
-                    android:id="@+id/custom_controls"
-                    layout="@layout/layout_video_player_controls" />
-
-                <ProgressBar
-                    android:id="@+id/progress_bar_loading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
+                    app:show_timeout="3000"
+                    app:use_controller="true" />
             </FrameLayout>
-
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/photo_recycler_view"
