@@ -74,11 +74,27 @@ public class SocialFragment extends Fragment {
     private void loadUserGroups() {
         // 临时使用模拟数据
         List<GroupInfo> mockGroups = new ArrayList<>();
-        GroupInfo mockGroup = new GroupInfo();
-        mockGroup.setId("1");
-        mockGroup.setName("测试群组");
-        mockGroup.setDescription("这是一个测试群组");
-        mockGroups.add(mockGroup);
+        
+        // 测试群组1
+        GroupInfo mockGroup1 = new GroupInfo();
+        mockGroup1.setId("1");
+        mockGroup1.setName("摄影爱好者");
+        mockGroup1.setDescription("分享摄影技巧和作品");
+        mockGroups.add(mockGroup1);
+        
+        // 测试群组2
+        GroupInfo mockGroup2 = new GroupInfo();
+        mockGroup2.setId("2");
+        mockGroup2.setName("旅行日记");
+        mockGroup2.setDescription("记录旅行中的美好瞬间");
+        mockGroups.add(mockGroup2);
+        
+        // 测试群组3
+        GroupInfo mockGroup3 = new GroupInfo();
+        mockGroup3.setId("3");
+        mockGroup3.setName("美食分享");
+        mockGroup3.setDescription("分享美食照片和食谱");
+        mockGroups.add(mockGroup3);
 
         // 创建群组标签
         createGroupChips(mockGroups);
@@ -148,29 +164,21 @@ public class SocialFragment extends Fragment {
     }
 
     private void loadGroupPosts(String groupId) {
-        // 使用MockDataManager获取帖子数据
-        List<Post> mockPosts = MockDataManager.getInstance().getMockPosts();
+        // 使用MockDataManager获取特定群组的帖子数据
+        List<Post> mockPosts = MockDataManager.getInstance().getMockPosts(groupId);
 
         postList.clear();
         for (Post post : mockPosts) {
             String[] imageUrls = post.getImageUrls();
             String imageUrl = imageUrls != null && imageUrls.length > 0 ? imageUrls[0] : null;
             
-            if (imageUrl != null) {
-                postList.add(new SocialPost(
-                    "用户" + post.getId(),
-                    "分享了一张照片",
-                    imageUrl,
-                    "测试群组"
-                ));
-            } else {
-                postList.add(new SocialPost(
-                    "用户" + post.getId(),
-                    "分享了一张照片",
-                    R.drawable.sample_image,
-                    "测试群组"
-                ));
-            }
+            SocialPost socialPost = new SocialPost(
+                "用户" + post.getId(),
+                "分享了一张照片",
+                imageUrl != null ? imageUrl : String.valueOf(R.drawable.sample_image),
+                "测试群组"
+            );
+            postList.add(socialPost);
         }
         updatePostList();
     }
@@ -178,8 +186,21 @@ public class SocialFragment extends Fragment {
     private void loadAllGroupPosts(List<GroupInfo> groups) {
         postList.clear();
         for (GroupInfo group : groups) {
-            loadGroupPosts(group.getId());
+            List<Post> groupPosts = MockDataManager.getInstance().getMockPosts(group.getId());
+            for (Post post : groupPosts) {
+                String[] imageUrls = post.getImageUrls();
+                String imageUrl = imageUrls != null && imageUrls.length > 0 ? imageUrls[0] : null;
+                
+                SocialPost socialPost = new SocialPost(
+                    "用户" + post.getId(),
+                    "分享了一张照片",
+                    imageUrl != null ? imageUrl : String.valueOf(R.drawable.sample_image),
+                    group.getName()
+                );
+                postList.add(socialPost);
+            }
         }
+        updatePostList();
     }
 
     private void updatePostList() {
