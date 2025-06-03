@@ -76,6 +76,8 @@ public class RetrofitClient {
             postApiService = retrofit.create(PostApiService.class);
         }
         return postApiService;
+    }
+
     // 新增获取GroupApiService实例的方法
     public GroupApiService getGroupApiService() {
         if (groupApiService == null) {
