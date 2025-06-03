@@ -24,6 +24,7 @@ public class RetrofitClient {
 
     private PhotoApiService photoApiService;
     private UserApiService userApiService;
+    private PostApiService postApiService;
 
     private RetrofitClient() {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
@@ -67,6 +68,13 @@ public class RetrofitClient {
             userApiService = retrofit.create(UserApiService.class);
         }
         return userApiService;
+    }
+
+    public PostApiService getPostApiService() {
+        if (postApiService == null) {
+            postApiService = retrofit.create(PostApiService.class);
+        }
+        return postApiService;
     }
 
     public static String getBaseUrl() {

@@ -80,6 +80,9 @@
         <activity
             android:name=".auth.RegisterActivity"
             android:theme="@style/Theme.PA"/>
+        <activity
+            android:name=".ui.post.PostCreateActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
 
 </manifest>
