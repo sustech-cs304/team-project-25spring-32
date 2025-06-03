@@ -24,6 +24,7 @@ public class RetrofitClient {
 
     private PhotoApiService photoApiService;
     private UserApiService userApiService;
+    private PostApiService postApiService;
     private GroupApiService groupApiService;
 
     private RetrofitClient() {
@@ -68,6 +69,13 @@ public class RetrofitClient {
             userApiService = retrofit.create(UserApiService.class);
         }
         return userApiService;
+    }
+
+    public PostApiService getPostApiService() {
+        if (postApiService == null) {
+            postApiService = retrofit.create(PostApiService.class);
+        }
+        return postApiService;
     }
 
     // 新增获取GroupApiService实例的方法

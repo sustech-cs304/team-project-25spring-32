@@ -7,6 +7,7 @@ import com.example.pa.data.model.UploadResponse;
 import com.example.pa.data.model.group.GroupInfo;
 import com.example.pa.data.network.GroupApiService;
 import com.example.pa.data.network.RetrofitClient;
+import com.example.pa.data.model.post.Post;
 
 import java.io.File;
 import java.util.List;
@@ -76,5 +77,43 @@ public class GroupRepository {
         } catch (Exception e) {
             callback.onError("准备文件失败: " + e.getMessage());
         }
+    }
+
+    // 获取用户已加入的群组
+    public void getJoinedGroups(final GroupCallback<List<GroupInfo>> callback) {
+        apiService.getJoinedGroups().enqueue(new Callback<List<GroupInfo>>() {
+            @Override
+            public void onResponse(Call<List<GroupInfo>> call, Response<List<GroupInfo>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("获取群组列表失败: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<GroupInfo>> call, Throwable t) {
+                callback.onError("网络错误: " + t.getMessage());
+            }
+        });
+    }
+
+    // 获取群组帖子
+    public void getGroupPosts(String groupId, final GroupCallback<List<Post>> callback) {
+        apiService.getGroupPosts(groupId).enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("获取群组帖子失败: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
+                callback.onError("网络错误: " + t.getMessage());
+            }
+        });
     }
 }
