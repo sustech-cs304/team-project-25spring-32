@@ -7,6 +7,7 @@ import com.example.pa.data.model.UploadResponse;
 import com.example.pa.data.model.group.GroupInfo;
 import com.example.pa.data.network.GroupApiService;
 import com.example.pa.data.network.RetrofitClient;
+import com.example.pa.data.model.post.Post;
 
 import java.io.File;
 import java.util.List;
@@ -92,6 +93,25 @@ public class GroupRepository {
 
             @Override
             public void onFailure(Call<List<GroupInfo>> call, Throwable t) {
+                callback.onError("网络错误: " + t.getMessage());
+            }
+        });
+    }
+
+    // 获取群组帖子
+    public void getGroupPosts(String groupId, final GroupCallback<List<Post>> callback) {
+        apiService.getGroupPosts(groupId).enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("获取群组帖子失败: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
                 callback.onError("网络错误: " + t.getMessage());
             }
         });
