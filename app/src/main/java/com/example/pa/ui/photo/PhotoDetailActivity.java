@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.pa.R;
+import com.example.pa.util.UriToPathHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,14 +72,15 @@ public class PhotoDetailActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btn_back); // 左上角返回键
         toolbar = findViewById(R.id.toolbar); // 底部工具栏
 
-        String imagePath = getIntent().getStringExtra("image_path");
-        Glide.with(this)
-                .load(imagePath)
-                .into(ivDetail);
+//        String imagePath = getIntent().getStringExtra("image_path");
+//        Glide.with(this)
+//                .load(imagePath)
+//                .into(ivDetail);
 
 
         // 正确获取 Uri 对象
         Uri imageUri = getIntent().getParcelableExtra("Uri");
+        String imagePath = UriToPathHelper.getPathFromUri(getApplicationContext(), imageUri);
 
         // 添加 Uri 有效性检查
         if (imageUri != null && isUriValid(imageUri)) {
@@ -191,6 +193,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
                     String filename = new File(imagePath).getName();
 
                     // 调用 ViewModel 的删除方法
+                    Log.d("DDDDDDelete", filename);
                     photoViewModel.deletePhoto(filename);
 
                     // 设置结果并关闭页面

@@ -108,7 +108,9 @@ dependencies {
     androidTestImplementation("androidx.test:rules:1.5.0")
 
     // Mockito for mocking
-    testImplementation("org.mockito:mockito-core:5.3.1")
+
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation("org.robolectric:robolectric:4.10.3")
 
     //这两个有冲突不能同时使用，同时下面那个inline安卓环境有点不支持
     androidTestImplementation("org.mockito:mockito-android:5.3.1")
