@@ -77,4 +77,23 @@ public class GroupRepository {
             callback.onError("准备文件失败: " + e.getMessage());
         }
     }
+
+    // 获取用户已加入的群组
+    public void getJoinedGroups(final GroupCallback<List<GroupInfo>> callback) {
+        apiService.getJoinedGroups().enqueue(new Callback<List<GroupInfo>>() {
+            @Override
+            public void onResponse(Call<List<GroupInfo>> call, Response<List<GroupInfo>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onError("获取群组列表失败: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<GroupInfo>> call, Throwable t) {
+                callback.onError("网络错误: " + t.getMessage());
+            }
+        });
+    }
 }

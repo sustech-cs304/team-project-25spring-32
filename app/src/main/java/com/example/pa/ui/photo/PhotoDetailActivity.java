@@ -23,10 +23,14 @@ import com.bumptech.glide.Glide;
 import com.example.pa.R;
 import com.example.pa.ui.post.PostCreateActivity;
 import com.example.pa.util.UriToPathHelper;
+import com.example.pa.data.model.group.GroupInfo;
+import com.example.pa.data.cloudRepository.GroupRepository;
+import com.example.pa.data.model.UploadResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
+import java.util.List;
 
 // 点击图片之后能够看到的视图
 public class PhotoDetailActivity extends AppCompatActivity {
@@ -116,16 +120,60 @@ public class PhotoDetailActivity extends AppCompatActivity {
         //TODO: 实现share按钮
         Button btnShare = findViewById(R.id.btn_share);
         btnShare.setOnClickListener(v -> {
-            try {
-                // 创建跳转到 PostCreateActivity 的意图
-                Intent intent = new Intent(PhotoDetailActivity.this, PostCreateActivity.class);
-                intent.putExtra("Uri", imageUri);  // 使用与 PostCreateActivity 一致的 key
-                Log.d("PhotoDetailActivity", "Sharing image with URI: " + imageUri);
-                startActivity(intent);
-            } catch (Exception e) {
-                Log.e("PhotoDetailActivity", "Error sharing image: " + e.getMessage(), e);
-                Toast.makeText(this, "分享失败，请重试", Toast.LENGTH_SHORT).show();
-            }
+            // 创建 GroupRepository 实例
+            GroupRepository groupRepository = new GroupRepository();
+            
+            // 获取用户已加入的群组
+            groupRepository.getJoinedGroups(new GroupRepository.GroupCallback<List<GroupInfo>>() {
+                @Override
+                public void onSuccess(List<GroupInfo> groups) {
+                    if (groups.isEmpty()) {
+                        Toast.makeText(PhotoDetailActivity.this, "您还没有加入任何群组", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // 创建群组选择对话框
+                    String[] groupNames = groups.stream()
+                            .map(GroupInfo::getName)
+                            .toArray(String[]::new);
+
+                    new AlertDialog.Builder(PhotoDetailActivity.this)
+                            .setTitle("选择要分享到的群组")
+                            .setItems(groupNames, (dialog, which) -> {
+                                GroupInfo selectedGroup = groups.get(which);
+                                // 上传照片到选中的群组
+                                groupRepository.uploadGroupPhoto(
+                                    selectedGroup.getId(),
+                                    imageUri,
+                                    PhotoDetailActivity.this,
+                                    new GroupRepository.GroupCallback<UploadResponse>() {
+                                        @Override
+                                        public void onSuccess(UploadResponse response) {
+                                            Toast.makeText(PhotoDetailActivity.this, 
+                                                "照片已成功分享到群组: " + selectedGroup.getName(), 
+                                                Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        @Override
+                                        public void onError(String errorMessage) {
+                                            Toast.makeText(PhotoDetailActivity.this, 
+                                                "分享失败: " + errorMessage, 
+                                                Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                );
+                            })
+                            .setNegativeButton("取消", null)
+                            .show();
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    Toast.makeText(PhotoDetailActivity.this, 
+                        "获取群组列表失败: " + errorMessage, 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
 
