@@ -26,11 +26,13 @@ import com.example.pa.util.UriToPathHelper;
 import com.example.pa.data.model.group.GroupInfo;
 import com.example.pa.data.cloudRepository.GroupRepository;
 import com.example.pa.data.model.UploadResponse;
+import com.example.pa.data.MockDataManager;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
 import java.util.List;
+import java.util.ArrayList;
 
 // 点击图片之后能够看到的视图
 public class PhotoDetailActivity extends AppCompatActivity {
@@ -120,6 +122,36 @@ public class PhotoDetailActivity extends AppCompatActivity {
         //TODO: 实现share按钮
         Button btnShare = findViewById(R.id.btn_share);
         btnShare.setOnClickListener(v -> {
+            // 创建模拟群组数据
+            List<GroupInfo> mockGroups = new ArrayList<>();
+            GroupInfo mockGroup = new GroupInfo();
+            mockGroup.setId("1");
+            mockGroup.setName("测试群组");
+            mockGroup.setDescription("这是一个测试群组");
+            mockGroups.add(mockGroup);
+
+            // 创建群组选择对话框
+            String[] groupNames = mockGroups.stream()
+                    .map(GroupInfo::getName)
+                    .toArray(String[]::new);
+
+            new AlertDialog.Builder(PhotoDetailActivity.this)
+                    .setTitle("选择要分享到的群组")
+                    .setItems(groupNames, (dialog, which) -> {
+                        GroupInfo selectedGroup = mockGroups.get(which);
+                        // 将图片URL添加到模拟数据中
+                        String imageUrl = imageUri.toString();
+                        MockDataManager.getInstance().addMockPost(imageUrl);
+                        
+                        Toast.makeText(PhotoDetailActivity.this, 
+                            "照片已成功分享到群组: " + selectedGroup.getName(), 
+                            Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("取消", null)
+                    .show();
+
+            // 注释掉实际的API调用，等后端准备好后再启用
+            /*
             // 创建 GroupRepository 实例
             GroupRepository groupRepository = new GroupRepository();
             
@@ -174,6 +206,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 }
             });
+            */
         });
 
 
