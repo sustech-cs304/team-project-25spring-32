@@ -1,3 +1,6 @@
+import com.android.build.api.dsl.AndroidResources
+import org.gradle.internal.classpath.Instrumented.systemProperty
+
 plugins {
     alias(libs.plugins.android.application)
     id("org.sonarqube") version "4.4.1.3373"

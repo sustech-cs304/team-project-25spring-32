@@ -42,7 +42,6 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
     private List<Uri> pendingDeleteUris;
 
 
-
     public static PhotoinAlbumFragment newInstance(String albumName) {
         PhotoinAlbumFragment fragment = new PhotoinAlbumFragment();
         Bundle args = new Bundle();
@@ -84,6 +83,14 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
         observeViewModel();
 
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (albumName != null) {
+            photoinAlbumViewModel.loadAlbumPhotos(albumName);
+        }
     }
 
     private void observeViewModel() {
@@ -129,6 +136,8 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
         if (context != null) {
             Intent intent = new Intent(context, PhotoDetailActivity.class);
             intent.putExtra("Uri", imageUri);
+            intent.putExtra("albumName", albumName);
+
             startActivity(intent);
 
             // 添加Activity过渡动画
@@ -178,9 +187,9 @@ public class PhotoinAlbumFragment extends Fragment implements PhotoinAlbumAdapte
 
     private ArrayList<Uri> getNeedToChangePhotos(ArrayList<Uri> photos) {
         ArrayList<Uri> changedPhotos = new ArrayList<>();
-        for (Uri photo: photos) {
+        for (Uri photo : photos) {
             Log.d("getNeedToChangePhotos", "getNeedToChangePhotos: " + MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()));
-            if (!albumName.equals(MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()))){
+            if (!albumName.equals(MyApplication.getInstance().getMainRepository().getAlbumNameOfPhoto(photo.toString()))) {
                 changedPhotos.add(photo);
             }
         }

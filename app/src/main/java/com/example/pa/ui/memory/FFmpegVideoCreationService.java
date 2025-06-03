@@ -175,7 +175,7 @@ public class FFmpegVideoCreationService implements VideoCreationService {
         });
     }
 
-    private long calculateTotalVideoDurationMillis(int numImages, VideoCreationOptions options) {
+    public long calculateTotalVideoDurationMillis(int numImages, VideoCreationOptions options) {
         if (numImages <= 0) return 0; // Modified check for clarity
 
         long imageDisplayMs = options.getImageDisplayDurationMs();
