@@ -15,8 +15,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * usage: I directly copy the code from its response and modify the logic of some method, add some
      * methods we need but it did not generate, and add some logs.
      */
-    private static final String DATABASE_NAME = "app.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "pa.db";
+    private static final int DATABASE_VERSION = 2;
 
 
     // 单例模式
@@ -35,49 +35,74 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // 创建所有表
-        db.execSQL(UserDao.CREATE_TABLE);
-        Log.d("Database", "创建表User");
+        try {
+            // 创建所有表
+            db.execSQL(UserDao.CREATE_TABLE);
+            Log.d("Database", "创建表User");
 
-        db.execSQL(PhotoDao.CREATE_TABLE);
-        Log.d("Database", "创建表Photo");
+            db.execSQL(PhotoDao.CREATE_TABLE);
+            Log.d("Database", "创建表Photo");
 
-        db.execSQL(AlbumDao.CREATE_TABLE);
-        Log.d("Database", "创建表Album");
+            db.execSQL(AlbumDao.CREATE_TABLE);
+            Log.d("Database", "创建表Album");
 
-        db.execSQL(AlbumPhotoDao.CREATE_TABLE);
-        Log.d("Database", "创建表AlbumPhoto");
+            db.execSQL(AlbumPhotoDao.CREATE_TABLE);
+            Log.d("Database", "创建表AlbumPhoto");
 
-        db.execSQL(TagDao.CREATE_TABLE);
-        Log.d("Database", "创建表Tag");
+            db.execSQL(TagDao.CREATE_TABLE);
+            Log.d("Database", "创建表Tag");
 
-        db.execSQL(PhotoTagDao.CREATE_TABLE);
-        Log.d("Database", "创建表PhotoTag");
+            db.execSQL(PhotoTagDao.CREATE_TABLE);
+            Log.d("Database", "创建表PhotoTag");
 
-        db.execSQL(SearchHistoryDao.CREATE_TABLE);
-        Log.d("Database", "创建表SearchHistory");
+            db.execSQL(SearchHistoryDao.CREATE_TABLE);
+            Log.d("Database", "创建表SearchHistory");
 
-        db.execSQL(MemoryVideoDao.CREATE_TABLE);
-        Log.d("Database", "创建表MemoryVideo");
+            db.execSQL(MemoryVideoDao.CREATE_TABLE);
+            Log.d("Database", "创建表MemoryVideo");
 
-        db.execSQL(MemoryVideoPhotoDao.CREATE_TABLE);
-        Log.d("Database", "创建表MemoryVideoPhoto");
+            db.execSQL(MemoryVideoPhotoDao.CREATE_TABLE);
+            Log.d("Database", "创建表MemoryVideoPhoto");
+
+            db.execSQL(GroupDao.CREATE_TABLE);
+            Log.d("Database", "创建表Groups");
+
+            db.execSQL(GroupMemberDao.CREATE_TABLE);
+            Log.d("Database", "创建表GroupMembers");
+
+            db.execSQL(PostDao.CREATE_TABLE);
+            Log.d("Database", "创建表Posts");
+
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "创建表失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // 删除表的顺序要考虑外键约束
-        db.execSQL("DROP TABLE IF EXISTS " + MemoryVideoPhotoDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + MemoryVideoDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + SearchHistoryDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + PhotoTagDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + AlbumPhotoDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + TagDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + AlbumDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + PhotoDao.TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + UserDao.TABLE_NAME);
+        try {
+            // 删除表的顺序要考虑外键约束
+            db.execSQL("DROP TABLE IF EXISTS " + MemoryVideoPhotoDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + MemoryVideoDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + SearchHistoryDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + PhotoTagDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + AlbumPhotoDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TagDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + AlbumDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + PhotoDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + PostDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + GroupMemberDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + GroupDao.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + UserDao.TABLE_NAME);
 
-        onCreate(db);
+            // 创建新表
+            onCreate(db);
+            Log.d("DatabaseHelper", "数据库升级成功");
+        } catch (Exception e) {
+            Log.e("DatabaseHelper", "数据库升级失败: " + e.getMessage());
+            throw e;
+        }
     }
 
     @Override

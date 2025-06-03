@@ -11,11 +11,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pa.R;
 import com.example.pa.util.checkLogin;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.example.pa.data.cloudRepository.GroupRepository;
+import com.example.pa.data.model.group.GroupInfo;
+import com.example.pa.data.model.post.PostResponse;
+import com.example.pa.data.model.post.Post;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +36,7 @@ public class SocialFragment extends Fragment {
     private TextView notLoggedInText;
     private ChipGroup groupChipGroup;
     private String currentSelectedGroup = null;
+    private GroupRepository groupRepository;
 
     public SocialFragment() {
         // Required empty public constructor
@@ -47,6 +53,9 @@ public class SocialFragment extends Fragment {
         notLoggedInText = view.findViewById(R.id.notLoggedInText);
         groupChipGroup = view.findViewById(R.id.groupChipGroup);
 
+        // 初始化 GroupRepository
+        groupRepository = new GroupRepository();
+
         // 用户已登录，显示帖子列表
         recyclerView.setVisibility(View.VISIBLE);
         notLoggedInText.setVisibility(View.GONE);
@@ -55,40 +64,39 @@ public class SocialFragment extends Fragment {
         postList = new ArrayList<>();
         filteredPostList = new ArrayList<>();
         
-        // 示例数据 - 按群组分类
-        // 群组1的帖子
-        postList.add(new SocialPost("用户A", "这是群组1的第一条帖子", R.drawable.sample_image, "学习交流群"));
-        postList.add(new SocialPost("用户B", "群组1的分享", R.drawable.sample_image, "学习交流群"));
-        
-        // 群组2的帖子
-        postList.add(new SocialPost("用户C", "这是群组2的帖子", R.drawable.sample_image, "运动健身群"));
-        postList.add(new SocialPost("用户D", "群组2的日常分享", R.drawable.sample_image, "运动健身群"));
-        
-        // 群组3的帖子
-        postList.add(new SocialPost("用户E", "群组3的讨论", R.drawable.sample_image, "美食分享群"));
-        postList.add(new SocialPost("用户F", "群组3的美食分享", R.drawable.sample_image, "美食分享群"));
-
-        // 群组4的帖子
-        postList.add(new SocialPost("用户E", "群组4的讨论", R.drawable.sample_image, "分享群"));
-        postList.add(new SocialPost("用户F", "群组4的美食分享", R.drawable.sample_image, "分享群"));
-
-        // 创建群组标签
-        createGroupChips();
-        
-        // 初始化显示所有帖子
-        filteredPostList.addAll(postList);
-        adapter = new SocialPostAdapter(filteredPostList);
-        recyclerView.setAdapter(adapter);
+        // 加载用户已加入的群组
+        loadUserGroups();
 
         return view;
     }
 
-    private void createGroupChips() {
-        // 获取所有不重复的群组名称
-        Set<String> groupNames = new HashSet<>();
-        for (SocialPost post : postList) {
-            groupNames.add(post.getGroupName());
-        }
+    private void loadUserGroups() {
+        groupRepository.getJoinedGroups(new GroupRepository.GroupCallback<List<GroupInfo>>() {
+            @Override
+            public void onSuccess(List<GroupInfo> groups) {
+                if (groups.isEmpty()) {
+                    Toast.makeText(getContext(), "您还没有加入任何群组", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // 创建群组标签
+                createGroupChips(groups);
+                
+                // 加载第一个群组的帖子
+                if (!groups.isEmpty()) {
+                    loadGroupPosts(groups.get(0).getId());
+                }
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Toast.makeText(getContext(), "获取群组列表失败: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void createGroupChips(List<GroupInfo> groups) {
+        groupChipGroup.removeAllViews();
 
         // 创建"全部"标签
         Chip allChip = createChip("全部");
@@ -96,8 +104,9 @@ public class SocialFragment extends Fragment {
         groupChipGroup.addView(allChip);
 
         // 为每个群组创建标签
-        for (String groupName : groupNames) {
-            Chip chip = createChip(groupName);
+        for (GroupInfo group : groups) {
+            Chip chip = createChip(group.getName());
+            chip.setTag(group.getId()); // 存储群组ID
             groupChipGroup.addView(chip);
         }
 
@@ -106,9 +115,72 @@ public class SocialFragment extends Fragment {
             Chip selectedChip = group.findViewById(checkedId);
             if (selectedChip != null) {
                 String selectedGroup = selectedChip.getText().toString();
-                filterPosts(selectedGroup);
+                if (selectedGroup.equals("全部")) {
+                    // 显示所有群组的帖子
+                    loadAllGroupPosts(groups);
+                } else {
+                    // 加载选中群组的帖子
+                    String groupId = (String) selectedChip.getTag();
+                    loadGroupPosts(groupId);
+                }
             }
         });
+    }
+
+    private void loadGroupPosts(String groupId) {
+        groupRepository.getGroupPosts(groupId, new GroupRepository.GroupCallback<List<Post>>() {
+            @Override
+            public void onSuccess(List<Post> posts) {
+                postList.clear();
+                for (Post post : posts) {
+                    // 使用Post类中的正确字段
+                    String[] imageUrls = post.getImageUrls();
+                    String imageUrl = imageUrls != null && imageUrls.length > 0 ? imageUrls[0] : null;
+                    
+                    if (imageUrl != null) {
+                        // 使用URL构造函数
+                        postList.add(new SocialPost(
+                            String.valueOf(post.getId()), // 临时使用ID作为用户名
+                            "分享了一张照片", // 临时使用固定文本
+                            imageUrl,
+                            groupId // 临时使用groupId作为群组名
+                        ));
+                    } else {
+                        // 使用资源ID构造函数
+                        postList.add(new SocialPost(
+                            String.valueOf(post.getId()),
+                            "分享了一张照片",
+                            R.drawable.sample_image,
+                            groupId
+                        ));
+                    }
+                }
+                updatePostList();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Toast.makeText(getContext(), "获取群组帖子失败: " + errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadAllGroupPosts(List<GroupInfo> groups) {
+        postList.clear();
+        for (GroupInfo group : groups) {
+            loadGroupPosts(group.getId());
+        }
+    }
+
+    private void updatePostList() {
+        filteredPostList.clear();
+        filteredPostList.addAll(postList);
+        if (adapter == null) {
+            adapter = new SocialPostAdapter(filteredPostList);
+            recyclerView.setAdapter(adapter);
+        } else {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private Chip createChip(String text) {
@@ -117,19 +189,5 @@ public class SocialFragment extends Fragment {
         chip.setCheckable(true);
         chip.setClickable(true);
         return chip;
-    }
-
-    private void filterPosts(String groupName) {
-        filteredPostList.clear();
-        if (groupName.equals("全部")) {
-            filteredPostList.addAll(postList);
-        } else {
-            for (SocialPost post : postList) {
-                if (post.getGroupName().equals(groupName)) {
-                    filteredPostList.add(post);
-                }
-            }
-        }
-        adapter.notifyDataSetChanged();
     }
 }

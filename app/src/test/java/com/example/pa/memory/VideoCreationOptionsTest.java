@@ -1,4 +1,4 @@
-package com.example.pa;
+package com.example.pa.memory;
 
 import android.net.Uri;
 

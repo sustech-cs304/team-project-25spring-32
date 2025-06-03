@@ -6,7 +6,6 @@ import com.example.pa.data.model.UploadResponse;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.rxjava3.core.Observable;
 import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.DELETE;
@@ -28,15 +27,4 @@ public interface PhotoApiService {
 
     @DELETE("photos/{filename}")
     Call<Map<String, String>> deletePhoto(@Path("filename") String filename);
-
-    // RxJava版本的接口 (可选)
-    @GET("photos")
-    Observable<List<Photo>> getPhotosRx();
-
-    @Multipart
-    @POST("upload")
-    Observable<UploadResponse> uploadPhotoRx(@Part MultipartBody.Part photo);
-
-    @DELETE("photos/{filename}")
-    Observable<Map<String, String>> deletePhotoRx(@Path("filename") String filename);
 }

@@ -15,17 +15,27 @@ import android.widget.LinearLayout;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.example.pa.MyApplication;
 import com.example.pa.R;
+import com.example.pa.ui.post.PostCreateActivity;
 import com.example.pa.util.UriToPathHelper;
+import com.example.pa.data.model.group.GroupInfo;
+import com.example.pa.data.cloudRepository.GroupRepository;
+import com.example.pa.data.model.UploadResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 // 点击图片之后能够看到的视图
 public class PhotoDetailActivity extends AppCompatActivity {
@@ -35,6 +45,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
     private boolean isToolbarVisible = true; // 工具栏和返回键是否可见
     private Button btn_edit;
     private PhotoViewModel photoViewModel;
+    private List<Uri> pendingDeleteUris;
 
     // 验证 Uri 有效性
     private boolean isUriValid(Uri uri) {
@@ -80,6 +91,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         // 正确获取 Uri 对象
         Uri imageUri = getIntent().getParcelableExtra("Uri");
+        String albumName = getIntent().getStringExtra("albumName");
         String imagePath = UriToPathHelper.getPathFromUri(getApplicationContext(), imageUri);
 
         // 添加 Uri 有效性检查
@@ -108,46 +120,72 @@ public class PhotoDetailActivity extends AppCompatActivity {
         Button btnDelete = findViewById(R.id.btn_delete);
         btnDelete.setOnClickListener(v -> {
             // 获取当前图片路径
-            //String imagePath = getIntent().getStringExtra("image_path");
-            showDeleteConfirmDialog(imagePath);
+            ArrayList<Uri> imageUris = new ArrayList<>();
+            imageUris.add(imageUri);
+            photoViewModel.deletePhotos(imageUris, albumName);
         });
 
         //TODO: 实现share按钮
         Button btnShare = findViewById(R.id.btn_share);
         btnShare.setOnClickListener(v -> {
-            // 获取当前图片路径
-            if (imagePath != null) {
-                // 将文件路径转换为 Uri
-                File imageFile = new File(imagePath);
-
-                // 调用 ViewModel 的上传方法
-                photoViewModel.uploadPhoto(imageUri, this);
-
-                // 显示上传中提示
-                Toast.makeText(this, "正在上传中...", Toast.LENGTH_SHORT).show();
-
-                // 监听上传结果
-                photoViewModel.getError().observe(this, errorMsg -> {
-                    if (errorMsg != null) {
-                        Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+            // 创建 GroupRepository 实例
+            GroupRepository groupRepository = new GroupRepository();
+            
+            // 获取用户已加入的群组
+            groupRepository.getJoinedGroups(new GroupRepository.GroupCallback<List<GroupInfo>>() {
+                @Override
+                public void onSuccess(List<GroupInfo> groups) {
+                    if (groups.isEmpty()) {
+                        Toast.makeText(PhotoDetailActivity.this, "您还没有加入任何群组", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
 
-                photoViewModel.getIsLoading().observe(this, isLoading -> {
-                    if (isLoading != null && !isLoading) {
-                        // 上传完成且无错误，说明上传成功
-                        if (photoViewModel.getError().getValue() == null) {
-                            Toast.makeText(this, "上传成功", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            } else {
-                Toast.makeText(this, "无法获取图片路径", Toast.LENGTH_SHORT).show();
-            }
+                    // 创建群组选择对话框
+                    String[] groupNames = groups.stream()
+                            .map(GroupInfo::getName)
+                            .toArray(String[]::new);
+
+                    new AlertDialog.Builder(PhotoDetailActivity.this)
+                            .setTitle("选择要分享到的群组")
+                            .setItems(groupNames, (dialog, which) -> {
+                                GroupInfo selectedGroup = groups.get(which);
+                                // 上传照片到选中的群组
+                                groupRepository.uploadGroupPhoto(
+                                    selectedGroup.getId(),
+                                    imageUri,
+                                    PhotoDetailActivity.this,
+                                    new GroupRepository.GroupCallback<UploadResponse>() {
+                                        @Override
+                                        public void onSuccess(UploadResponse response) {
+                                            Toast.makeText(PhotoDetailActivity.this, 
+                                                "照片已成功分享到群组: " + selectedGroup.getName(), 
+                                                Toast.LENGTH_SHORT).show();
+                                        }
+
+                                        @Override
+                                        public void onError(String errorMessage) {
+                                            Toast.makeText(PhotoDetailActivity.this, 
+                                                "分享失败: " + errorMessage, 
+                                                Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                );
+                            })
+                            .setNegativeButton("取消", null)
+                            .show();
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    Toast.makeText(PhotoDetailActivity.this, 
+                        "获取群组列表失败: " + errorMessage, 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
 
-        // 点击图片切换工具栏可见性s
+        // 点击图片切换工具栏可见性
         ivDetail.setOnClickListener(v -> toggleToolbar());
 
         // 返回按钮点击事件
@@ -155,6 +193,7 @@ public class PhotoDetailActivity extends AppCompatActivity {
 
         // 初始显示工具栏
         showToolbar(true);
+        observeViewModel();
     }
 
     private void toggleToolbar() {
@@ -184,26 +223,42 @@ public class PhotoDetailActivity extends AppCompatActivity {
     }
 
 
-    private void showDeleteConfirmDialog(String imagePath) {
-        new AlertDialog.Builder(this)
-                .setTitle("Confirm Delete")
-                .setMessage("the operation cannot be undone, are you sure you want to delete this photo?")
-                .setPositiveButton("delete", (dialog, which) -> {
-                    // 从文件路径获取文件名
-                    String filename = new File(imagePath).getName();
-
-                    // 调用 ViewModel 的删除方法
-                    Log.d("DDDDDDelete", filename);
-                    photoViewModel.deletePhoto(filename);
-
-                    // 设置结果并关闭页面
-                    setResult(RESULT_OK);
-                    finish();
-
-                    // 显示删除成功提示
-                    Toast.makeText(this, "deleted", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("cancel", null)
-                .show();
+    private void observeViewModel() {
+        photoViewModel.getDeleteEvent().observe(this, event -> {
+            if (event != null) {
+                Log.d("Delete", "成功观察");
+                handleDeleteEvent(event.uris);
+            }
+        });
     }
+
+    private void handleDeleteEvent(List<Uri> uris) {
+        pendingDeleteUris = uris;
+        MyApplication.getInstance().getFileRepository().deletePhotos(uris, deleteIntent -> {
+            // 创建自定义Intent携带数据
+            Intent fillInIntent = new Intent();
+            fillInIntent.putParcelableArrayListExtra("DELETE_URIS", new ArrayList<>(uris));
+
+            // 构建请求
+            IntentSenderRequest request = new IntentSenderRequest.Builder(
+                    deleteIntent.getIntentSender())
+                    .setFillInIntent(fillInIntent) // 附加数据
+                    .build();
+
+            deleteLauncher.launch(request);
+        });
+    }
+
+    private final ActivityResultLauncher<IntentSenderRequest> deleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Log.d("Delete", "成功返回 ");
+                    List<String> uris = UriToPathHelper.uriToString(pendingDeleteUris);
+                    MyApplication.getInstance().getMainRepository().deletePhotosByUri(uris);
+                    MyApplication.getInstance().getMainRepository().cleanEmptyAlbums();
+                    finish();
+                }
+            });
+
+
 }

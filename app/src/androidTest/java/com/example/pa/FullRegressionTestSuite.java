@@ -6,7 +6,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
         UserTest.class,
-        ExampleInstrumentedTest.class
+        ExampleInstrumentedTest.class,
+        SearchViewModelTest.class
 
 })
 public class FullRegressionTestSuite {
