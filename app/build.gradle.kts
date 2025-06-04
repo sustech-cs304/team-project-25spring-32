@@ -58,6 +58,13 @@ android {
         viewBinding = true
         dataBinding = true
     }
+    testOptions {
+        unitTests {
+            // 这个设置强制 Robolectric 使用最新的 Android 资源处理管道
+            // 解决 "legacy resources mode" 问题
+            isIncludeAndroidResources = true
+        }
+    }
 }
 tasks.register<JacocoReport>("jacocoTestReport") {
     dependsOn("connectedDebugAndroidTest")
@@ -114,6 +121,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.flexbox)
     implementation(libs.room.common)
+//    implementation(libs.firebase.appdistribution.gradle)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -156,7 +164,7 @@ dependencies {
     // Mockito for mocking
 
     testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.robolectric:robolectric:4.10.3")
+    testImplementation("org.robolectric:robolectric:4.12.1")
 
     //这两个有冲突不能同时使用，同时下面那个inline安卓环境有点不支持
     androidTestImplementation("org.mockito:mockito-android:5.3.1")
@@ -174,4 +182,6 @@ dependencies {
     androidTestImplementation ("androidx.test:runner:1.6.1")
     androidTestImplementation ("androidx.test.ext:junit:1.2.1")
 
+    testImplementation("androidx.recyclerview:recyclerview")
+    testImplementation("org.hamcrest:hamcrest-all:1.3")
 }
