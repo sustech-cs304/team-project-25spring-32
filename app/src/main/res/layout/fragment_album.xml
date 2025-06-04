@@ -79,7 +79,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="我的相册"
+                android:text="@string/mine"
                 android:textSize="18sp"
                 android:textColor="@color/black"
                 android:textStyle="bold"
@@ -90,7 +90,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0个相册"
+                android:text="0"
                 android:textSize="14sp"
                 android:textColor="@color/gray_600"
                 android:gravity="end"/>
@@ -145,7 +145,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="时光回忆"
+                android:text="@string/time"
                 android:textSize="18sp"
                 android:textColor="@color/black"
                 android:textStyle="bold"
@@ -156,7 +156,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0个相册"
+                android:text="0"
                 android:textSize="14sp"
                 android:textColor="@color/gray_600"
                 android:gravity="end"/>
@@ -210,7 +210,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="旅途足迹"
+                android:text="@string/location"
                 android:textSize="18sp"
                 android:textColor="@color/black"
                 android:textStyle="bold"
@@ -221,7 +221,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="0个相册"
+                android:text="0"
                 android:textSize="14sp"
                 android:textColor="@color/gray_600"
                 android:gravity="end"/>

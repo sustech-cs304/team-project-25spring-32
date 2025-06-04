@@ -43,10 +43,7 @@ import java.util.List;
  */
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
-    private RecyclerView recyclerView;
-    private AlbumAdapter albumAdapter;
     private AlbumViewModel albumViewModel;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     // 分组视图
     private LinearLayout customSection;
@@ -167,9 +164,9 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
             locationAdapter.updateAlbums(locationAlbums);
 
             // 更新分组标题计数
-            ((TextView) rootView.findViewById(R.id.custom_count)).setText(customAlbums.size() + "个相册");
-            ((TextView) rootView.findViewById(R.id.time_count)).setText(timeAlbums.size() + "个相册");
-            ((TextView) rootView.findViewById(R.id.location_count)).setText(locationAlbums.size() + "个相册");
+            ((TextView) rootView.findViewById(R.id.custom_count)).setText(String.valueOf(customAlbums.size()));
+            ((TextView) rootView.findViewById(R.id.time_count)).setText(String.valueOf(timeAlbums.size()));
+            ((TextView) rootView.findViewById(R.id.location_count)).setText(String.valueOf(locationAlbums.size()));
 
             // 如果没有自动生成的相册，隐藏对应分组
             if (timeAlbums.isEmpty()) {

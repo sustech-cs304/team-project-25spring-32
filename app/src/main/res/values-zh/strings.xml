@@ -143,5 +143,8 @@
     <string name="register_now">立即注册</string>
 
     <string name="remove_bg">移除背景</string>
+    <string name="mine">我的相册</string>
+    <string name="time">时光回忆</string>
+    <string name="location">旅途足迹</string>
 
 </resources>

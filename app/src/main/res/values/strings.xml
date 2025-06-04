@@ -165,5 +165,8 @@
     <string name="failed_to_get_photos">Failed to get group photos: %1$s</string>
 
     <string name="remove_bg">Remove BG</string>
+    <string name="mine">Mine</string>
+    <string name="time">Time</string>
+    <string name="location">Location</string>
 
 </resources>

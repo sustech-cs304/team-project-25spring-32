@@ -5,9 +5,7 @@ import static android.app.Activity.RESULT_OK;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,9 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pa.MyApplication;
 import com.example.pa.R;
-import com.example.pa.data.FileRepository;
 import com.example.pa.ui.photo.PhotoDetailActivity;
-import com.example.pa.data.model.Photo;
 import com.example.pa.util.UriToPathHelper;
 
 import java.util.ArrayList;

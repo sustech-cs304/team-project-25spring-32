@@ -217,9 +217,9 @@ public class PhotoViewModel extends AndroidViewModel {
         fileRepository = new FileRepository(context);
     }
 
-    // 直接从文件系统里面读取 DCIM/Camera文件夹下的所有照片
+    // 直接从文件系统里面读取 DCIM/Camera文件夹下的All Photos
     public void loadURIFromRepository() {
-        List<Uri> uriList = fileRepository.getAlbumImages("所有照片");
+        List<Uri> uriList = fileRepository.getAlbumImages("All Photos");
         System.out.println(uriList);
         URiList.setValue(uriList);
     }

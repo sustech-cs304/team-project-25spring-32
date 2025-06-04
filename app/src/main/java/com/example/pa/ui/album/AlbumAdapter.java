@@ -18,7 +18,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.MyApplication;
 import com.example.pa.R;
-import com.example.pa.data.Daos.AlbumDao;
 import com.example.pa.data.Daos.AlbumDao.Album;
 import com.example.pa.data.FileRepository;
 import com.example.pa.data.MainRepository;

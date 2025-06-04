@@ -1,6 +1,5 @@
 package com.example.pa.data;
 
-import static com.example.pa.util.UriToPathHelper.getRealPathFromUri;
 
 import android.app.PendingIntent;
 import android.content.ContentResolver;
@@ -8,7 +7,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,7 +18,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.system.Os;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -62,11 +59,7 @@ public class FileRepository {
     private final Context context;
     private final MyApplication myApplication;
     private List<Uri> pendingDeleteUris;
-    private final Handler handler = new Handler(Looper.getMainLooper());
-    // 新增同步状态标记
-    private volatile boolean isIncrementalSyncing = false;
     private final ReentrantLock syncLock = new ReentrantLock(true); // 使用公平锁
-    private ContentObserver mediaObserver;
     private Map<String, File> albumDirCache = new HashMap<>();
 
     public void setAlbumDirCache(Map<String, File> albumDirCache) {
@@ -307,16 +300,6 @@ public class FileRepository {
         // 处理照片新增/修改
         Map<String, Integer> albumCache = new HashMap<>(); // 相册名 -> albumId
         for (Photo photo : changedPhotos) {
-//            // 1. 插入或更新 Photo 表
-//            myApplication.getPhotoDao().addFullPhoto(photo);
-//
-//            // 2. 处理相册关联
-//            String albumName = photo.extractAlbumName(context);
-//            Log.d("sync", "AlbumName: " + albumName);
-//            if (albumName != null) {
-//                int albumId = myApplication.getAlbumDao().getOrCreateAlbum(albumName, userId, albumCache);
-//                myApplication.getAlbumPhotoDao().addPhotoToAlbum(albumId, photo.id);
-//            }
             String tagName = null;
             try {
                 // 初始化分类器
@@ -559,32 +542,7 @@ public class FileRepository {
         albumDirCache.put(albumName, albumDir);
         return albumDir;
     }
-
-    // 核心重命名方法
-    private boolean renameFile(File source, File dest) {
-        try {
-            // 使用 Linux 级别的重命名（最快最有效）
-            Os.rename(source.getAbsolutePath(), dest.getAbsolutePath());
-            return true;
-        } catch (Exception e) {
-            Log.e("FileMove", "重命名失败", e);
-            return false;
-        }
-    }
-
-    // 更新媒体库路径
-    private void updateMediaStorePath(Uri originalUri, File newFile) {
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DATA, newFile.getAbsolutePath());
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, newFile.getName());
-
-        context.getContentResolver().update(
-                originalUri,
-                values,
-                null,
-                null
-        );
-    }
+    
     //=== 辅助方法 ===//
     private ContentValues getMediaInfo(Uri uri) {
         ContentResolver resolver = context.getContentResolver();
@@ -637,7 +595,7 @@ public class FileRepository {
         // 调整查询条件：使用 LIKE 和通配符
         String selection = MediaStore.Images.Media.RELATIVE_PATH + " LIKE ?";
         String[] selectionArgs;
-        if (albumName.equals("所有照片")) {
+        if (albumName.equals("All Photos")) {
             selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/%"};
         } else {
             selectionArgs = new String[]{Environment.DIRECTORY_DCIM + "/" + albumName + "/%"};
@@ -735,28 +693,7 @@ public class FileRepository {
                 }
         );
     }
-
-//    public void triggerMediaScanForDirectory(File directory, MediaScanCallback callback) {
-//        ContentResolver resolver = context.getContentResolver();
-//        Uri collection = MediaStore.Images.Media.getContentUri(
-//                MediaStore.VOLUME_EXTERNAL_PRIMARY);
-//
-//        ContentValues values = new ContentValues();
-//        values.put(MediaStore.Images.Media.RELATIVE_PATH, "DCIM/");
-//        values.put(MediaStore.Images.Media.IS_PENDING, 1);
-//
-//        try {
-//            Uri uri = resolver.insert(collection, values);
-//            if (uri != null) {
-//                values.clear();
-//                values.put(MediaStore.Images.Media.IS_PENDING, 0);
-//                resolver.update(uri, values, null, null);
-//                callback.onScanCompleted(uri);
-//            }
-//        } catch (Exception e) {
-//            callback.onScanFailed(e.getMessage());
-//        }
-//    }
+    
 public void triggerMediaScanForDirectory(File rootDir, MediaScanCallback callback) {
     List<File> allDirs = new ArrayList<>();
     collectAllDirectories(rootDir, allDirs);
@@ -837,10 +774,6 @@ public void triggerMediaScanForDirectory(File rootDir, MediaScanCallback callbac
                 scaledBitmap.recycle(); // 回收临时bitmap
                 scaledBitmap = argbBitmap;
             }
-            // 确保 scaledBitmap 是 RGB_565 或使用 copy 去掉 alpha
-            //保存bitmap为图片并存储
-            //String path = fileRepository.saveBitmapToFile(scaledBitmap, "test_image.jpg");
-            //Log.d(TAG, "保存图片路径: " + path);
 
 
 

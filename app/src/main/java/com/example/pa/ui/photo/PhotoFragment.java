@@ -51,7 +51,7 @@ public class PhotoFragment extends Fragment implements PhotoAdapter.OnPhotoClick
         // 从数据库加载数据
 //        photoViewModel.loadPhotosFromDatabase();
 
-        // 直接从文件系统里面读取 DCIM/Camera文件夹下的所有照片
+        // 直接从文件系统里面读取 DCIM/Camera文件夹下的All Photos
         photoViewModel.loadURIFromRepository();
 
         return root;

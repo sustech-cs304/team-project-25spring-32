@@ -63,7 +63,7 @@
 //        List<Album> result = viewModel.getAlbumList().getValue();
 //        assertNotNull(result);
 //        assertEquals(2, result.size());
-//        assertEquals("所有照片", result.get(0).name);
+//        assertEquals("All Photos", result.get(0).name);
 //        assertEquals("测试", result.get(1).name);
 //    }
 //
