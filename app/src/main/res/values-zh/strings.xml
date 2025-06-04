@@ -122,6 +122,14 @@
     <string name="hint">请输入内容</string>
     <string name="confirm">确认</string>
 
+    <!-- 社交相关翻译 -->
+    <string name="please_login_first">请先登录以查看社交内容</string>
+    <string name="group_photo">群组照片</string>
+    <string name="shared_photo">分享了一张照片</string>
+    <string name="public_group">公开群组</string>
+    <string name="no_public_groups">暂无公开群组</string>
+    <string name="failed_to_get_groups">获取群组列表失败: %1$s</string>
+    <string name="failed_to_get_photos">获取群组照片失败: %1$s</string>
 
     <string name="app_logo">应用Logo</string>
     <string name="login_title">用户登录</string>

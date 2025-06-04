@@ -154,6 +154,14 @@
     <string name="login">login</string>
     <string name="logging_in">logging in...</string>
     <string name="exit_group">exit gruop</string>
+    <string name="please_login_first">Please login to view social content</string>
 
+    <!-- Social related strings -->
+    <string name="group_photo">Group Photo</string>
+    <string name="shared_photo">Shared a photo</string>
+    <string name="public_group">Public Group</string>
+    <string name="no_public_groups">No public groups available</string>
+    <string name="failed_to_get_groups">Failed to get group list: %1$s</string>
+    <string name="failed_to_get_photos">Failed to get group photos: %1$s</string>
 
 </resources>

@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,16 +55,26 @@ public class SocialFragment extends Fragment {
         notLoggedInText = view.findViewById(R.id.notLoggedInText);
         groupChipGroup = view.findViewById(R.id.groupChipGroup);
 
-        // 初始化 GroupRepository
-        groupRepository = new GroupRepository();
+        // 检查用户登录状态
+        if (!checkLogin.checkLoginStatus(requireContext())) {
+            // 用户未登录，显示提示信息
+            recyclerView.setVisibility(View.GONE);
+            notLoggedInText.setVisibility(View.VISIBLE);
+            groupChipGroup.setVisibility(View.GONE);
+            return view;
+        }
 
         // 用户已登录，显示帖子列表
         recyclerView.setVisibility(View.VISIBLE);
         notLoggedInText.setVisibility(View.GONE);
+        groupChipGroup.setVisibility(View.VISIBLE);
         
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         postList = new ArrayList<>();
         filteredPostList = new ArrayList<>();
+        
+        // 初始化 GroupRepository
+        groupRepository = new GroupRepository();
         
         // 加载用户已加入的群组
         loadUserGroups();
@@ -72,45 +83,11 @@ public class SocialFragment extends Fragment {
     }
 
     private void loadUserGroups() {
-        // 临时使用模拟数据
-        List<GroupInfo> mockGroups = new ArrayList<>();
-        
-        // 测试群组1
-        GroupInfo mockGroup1 = new GroupInfo();
-        mockGroup1.setId("1");
-        mockGroup1.setName("摄影爱好者");
-        mockGroup1.setDescription("分享摄影技巧和作品");
-        mockGroups.add(mockGroup1);
-        
-        // 测试群组2
-        GroupInfo mockGroup2 = new GroupInfo();
-        mockGroup2.setId("2");
-        mockGroup2.setName("旅行日记");
-        mockGroup2.setDescription("记录旅行中的美好瞬间");
-        mockGroups.add(mockGroup2);
-        
-        // 测试群组3
-        GroupInfo mockGroup3 = new GroupInfo();
-        mockGroup3.setId("3");
-        mockGroup3.setName("美食分享");
-        mockGroup3.setDescription("分享美食照片和食谱");
-        mockGroups.add(mockGroup3);
-
-        // 创建群组标签
-        createGroupChips(mockGroups);
-        
-        // 加载第一个群组的帖子
-        if (!mockGroups.isEmpty()) {
-            loadGroupPosts(mockGroups.get(0).getId());
-        }
-
-        // 注释掉实际的API调用，等后端准备好后再启用
-        /*
-        groupRepository.getJoinedGroups(new GroupRepository.GroupCallback<List<GroupInfo>>() {
+        groupRepository.getAvailableGroups(0, 10, new GroupRepository.GroupCallback<List<GroupInfo>>() {
             @Override
             public void onSuccess(List<GroupInfo> groups) {
                 if (groups.isEmpty()) {
-                    Toast.makeText(getContext(), "您还没有加入任何群组", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.no_public_groups), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -125,10 +102,9 @@ public class SocialFragment extends Fragment {
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(getContext(), "获取群组列表失败: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.failed_to_get_groups, errorMessage), Toast.LENGTH_SHORT).show();
             }
         });
-        */
     }
 
     private void createGroupChips(List<GroupInfo> groups) {
@@ -164,43 +140,57 @@ public class SocialFragment extends Fragment {
     }
 
     private void loadGroupPosts(String groupId) {
-        // 使用MockDataManager获取特定群组的帖子数据
-        List<Post> mockPosts = MockDataManager.getInstance().getMockPosts(groupId);
+        groupRepository.getGroupPhotos(groupId, new GroupRepository.GroupCallback<List<String>>() {
+            @Override
+            public void onSuccess(List<String> photoUrls) {
+                postList.clear();
+                for (String photoUrl : photoUrls) {
+                    Log.d("SocialFragment", "单个群组照片URL: " + photoUrl);
+                    SocialPost socialPost = new SocialPost(
+                        getString(R.string.group_photo),
+                        getString(R.string.shared_photo),
+                        photoUrl,
+                        getString(R.string.public_group)
+                    );
+                    postList.add(socialPost);
+                }
+                updatePostList();
+            }
 
-        postList.clear();
-        for (Post post : mockPosts) {
-            String[] imageUrls = post.getImageUrls();
-            String imageUrl = imageUrls != null && imageUrls.length > 0 ? imageUrls[0] : null;
-            
-            SocialPost socialPost = new SocialPost(
-                "用户" + post.getId(),
-                "分享了一张照片",
-                imageUrl != null ? imageUrl : String.valueOf(R.drawable.sample_image),
-                "测试群组"
-            );
-            postList.add(socialPost);
-        }
-        updatePostList();
+            @Override
+            public void onError(String errorMessage) {
+                Log.e("SocialFragment", "获取群组照片失败: " + errorMessage);
+                Toast.makeText(getContext(), getString(R.string.failed_to_get_photos, errorMessage), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadAllGroupPosts(List<GroupInfo> groups) {
         postList.clear();
         for (GroupInfo group : groups) {
-            List<Post> groupPosts = MockDataManager.getInstance().getMockPosts(group.getId());
-            for (Post post : groupPosts) {
-                String[] imageUrls = post.getImageUrls();
-                String imageUrl = imageUrls != null && imageUrls.length > 0 ? imageUrls[0] : null;
-                
-                SocialPost socialPost = new SocialPost(
-                    "用户" + post.getId(),
-                    "分享了一张照片",
-                    imageUrl != null ? imageUrl : String.valueOf(R.drawable.sample_image),
-                    group.getName()
-                );
-                postList.add(socialPost);
-            }
+            groupRepository.getGroupPhotos(group.getId(), new GroupRepository.GroupCallback<List<String>>() {
+                @Override
+                public void onSuccess(List<String> photoUrls) {
+                    for (String photoUrl : photoUrls) {
+                        Log.d("SocialFragment", "所有群组照片URL - 群组[" + group.getName() + "]: " + photoUrl);
+                        SocialPost socialPost = new SocialPost(
+                            getString(R.string.group_photo),
+                            getString(R.string.shared_photo),
+                            photoUrl,
+                            group.getName()
+                        );
+                        postList.add(socialPost);
+                    }
+                    updatePostList();
+                }
+
+                @Override
+                public void onError(String errorMessage) {
+                    Log.e("SocialFragment", "获取群组照片失败 - 群组[" + group.getName() + "]: " + errorMessage);
+                    Toast.makeText(getContext(), getString(R.string.failed_to_get_photos, errorMessage), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        updatePostList();
     }
 
     private void updatePostList() {

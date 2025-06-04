@@ -36,7 +36,7 @@
         android:id="@+id/notLoggedInText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="请先登录以查看社交内容"
+        android:text="@string/please_login_first"
         android:textSize="18sp"
         android:textColor="@android:color/darker_gray"
         android:visibility="gone"
