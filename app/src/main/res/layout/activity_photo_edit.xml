@@ -200,7 +200,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/editToolsLayout">
 
-        <!-- 比例选择按钮 -->
+        <!-- 确认/取消按钮 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -208,54 +208,12 @@
             android:gravity="center">
 
             <Button
-                android:id="@+id/btnCropFree"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/free"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btnCrop11"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratio_1_1"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btnCrop43"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratio_4_3"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="8dp"/>
-
-            <Button
-                android:id="@+id/btnCrop169"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ratio_16_9"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
-
-        <!-- 确认/取消按钮 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
-
-            <Button
                 android:id="@+id/btnCropCancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableTop="@drawable/icon_delete"
-                android:drawablePadding="8dp"
-                android:drawableTint="@android:color/white"
-                android:gravity="center"
                 android:text="@string/cancel"
+                android:drawableLeft="@drawable/icon_delete"
+                android:drawableTint="@android:color/white"
                 android:textColor="#FFFFFF"
                 android:layout_marginEnd="16dp"/>
 

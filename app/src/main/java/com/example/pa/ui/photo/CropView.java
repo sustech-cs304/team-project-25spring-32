@@ -89,7 +89,6 @@ public class CropView extends View {
         this.viewScale = dispWidth / origWidth;
         
         // 使用实际图像显示区域设置裁剪框
-        // 首先设置为整个图像区域
         cropRect.set(
             displayOffsetX,
             displayOffsetY,
@@ -103,6 +102,9 @@ public class CropView extends View {
         Log.d("CropView", String.format("cropRect: (%f,%f,%f,%f)", 
                                         cropRect.left, cropRect.top, cropRect.right, cropRect.bottom));
         
+        // 确保使用自由比例模式 (0)
+        this.aspectRatio = 0;
+        
         initialized = true;
         invalidate();
     }
@@ -111,35 +113,88 @@ public class CropView extends View {
     public void setImageDimensions(int width, int height) {
         this.imageWidth = width;
         this.imageHeight = height;
-
-        // 计算图片在视图中的实际显示比例和位置
-        calculateImageLayout();
-
-        // 初始化裁剪框为图像的100%
-        cropRect.set(offsetX, offsetY, 
-                    offsetX + imageWidth * viewScale, 
-                    offsetY + imageHeight * viewScale);
         
-        initialized = true;
-        invalidate();
+        // 保存原始图像尺寸
+        Log.d("CropView", "setImageDimensions: width=" + width + ", height=" + height);
+
+        // 等待视图测量完成后再初始化裁剪框
+        post(() -> {
+            // 计算图片在视图中的实际显示比例和位置
+            calculateImageLayout();
+    
+            // 初始化裁剪框，设置为图像实际显示区域的95%，确保覆盖大部分图像区域
+            float cropWidth = displayWidth * 0.95f;
+            float cropHeight = displayHeight * 0.95f;
+            
+            // 计算裁剪框的中心点位置，确保在图像中心
+            float centerX = displayOffsetX + displayWidth / 2;
+            float centerY = displayOffsetY + displayHeight / 2;
+            
+            // 设置裁剪矩形，确保对齐到显示的图像
+            cropRect.set(
+                centerX - cropWidth / 2, 
+                centerY - cropHeight / 2,
+                centerX + cropWidth / 2, 
+                centerY + cropHeight / 2
+            );
+            
+            Log.d("CropView", "初始化裁剪框:");
+            Log.d("CropView", String.format("  - 显示区: x=%.1f, y=%.1f, w=%.1f, h=%.1f", 
+                displayOffsetX, displayOffsetY, displayWidth, displayHeight));
+            Log.d("CropView", String.format("  - 中心点: (%.1f, %.1f)", centerX, centerY));
+            Log.d("CropView", String.format("  - 裁剪框: (%.1f, %.1f, %.1f, %.1f)", 
+                cropRect.left, cropRect.top, cropRect.right, cropRect.bottom));
+            
+            // 设置自由比例模式
+            aspectRatio = 0;
+            
+            initialized = true;
+            invalidate();
+        });
     }
 
     // 计算图片在视图中的实际布局
     private void calculateImageLayout() {
-        // 计算图片缩放以适应视图
-        float scaleX = (float) getWidth() / imageWidth;
-        float scaleY = (float) getHeight() / imageHeight;
-        viewScale = Math.min(scaleX, scaleY);  // 保持宽高比
-
-        // 计算居中显示的偏移量
-        offsetX = (getWidth() - imageWidth * viewScale) / 2;
-        offsetY = (getHeight() - imageHeight * viewScale) / 2;
+        if (getWidth() <= 0 || getHeight() <= 0 || imageWidth <= 0 || imageHeight <= 0) {
+            Log.e("CropView", "calculateImageLayout: 无效尺寸");
+            return;
+        }
         
-        // 更新显示区域
-        displayOffsetX = offsetX;
-        displayOffsetY = offsetY;
-        displayWidth = imageWidth * viewScale;
-        displayHeight = imageHeight * viewScale;
+        try {
+            // 获取视图属性
+            int viewWidth = getWidth();
+            int viewHeight = getHeight();
+            
+            // 使用虚拟屏幕尺寸计算比例
+            float screenRatio = (float) viewHeight / viewWidth;
+            float imageRatio = (float) imageHeight / imageWidth;
+            
+            // 计算图像大小调整以适应视图
+            float scaleX = (float) viewWidth / imageWidth;
+            float scaleY = (float) viewHeight / imageHeight;
+            viewScale = Math.min(scaleX, scaleY);  // 保持宽高比
+            
+            // 计算图像实际显示尺寸
+            displayWidth = imageWidth * viewScale;
+            displayHeight = imageHeight * viewScale;
+            
+            // 图像会居中显示，计算居中显示的偏移量
+            displayOffsetX = (viewWidth - displayWidth) / 2;
+            displayOffsetY = (viewHeight - displayHeight) / 2;
+            
+            // 更新便于引用的变量
+            offsetX = displayOffsetX;
+            offsetY = displayOffsetY;
+            
+            Log.d("CropView", "视图布局计算:");
+            Log.d("CropView", String.format("  - 视图尺寸: %d x %d", viewWidth, viewHeight));
+            Log.d("CropView", String.format("  - 图像原始尺寸: %d x %d", imageWidth, imageHeight));
+            Log.d("CropView", String.format("  - 计算比例: %f", viewScale));
+            Log.d("CropView", String.format("  - 图像显示尺寸: %.1f x %.1f", displayWidth, displayHeight));
+            Log.d("CropView", String.format("  - 图像偏移: (%.1f, %.1f)", displayOffsetX, displayOffsetY));
+        } catch (Exception e) {
+            Log.e("CropView", "计算布局错误", e);
+        }
     }
 
     @Override
@@ -174,19 +229,40 @@ public class CropView extends View {
 
     // 转换视图坐标为图像坐标
     public RectF getCropRect() {
+        if (!initialized || viewScale <= 0) {
+            Log.e("CropView", "getCropRect: 视图未初始化或缩放比例无效");
+            return new RectF(0, 0, imageWidth, imageHeight);
+        }
+        
         RectF imageRect = new RectF();
         
+        // 计算相对于显示区域的偏移
+        float relLeft = cropRect.left - displayOffsetX;
+        float relTop = cropRect.top - displayOffsetY;
+        float relRight = cropRect.right - displayOffsetX;
+        float relBottom = cropRect.bottom - displayOffsetY;
+        
         // 转换为原始图像坐标
-        imageRect.left = (cropRect.left - displayOffsetX) / viewScale;
-        imageRect.top = (cropRect.top - displayOffsetY) / viewScale;
-        imageRect.right = (cropRect.right - displayOffsetX) / viewScale;
-        imageRect.bottom = (cropRect.bottom - displayOffsetY) / viewScale;
+        imageRect.left = relLeft / viewScale;
+        imageRect.top = relTop / viewScale;
+        imageRect.right = relRight / viewScale;
+        imageRect.bottom = relBottom / viewScale;
         
         // 确保坐标在图像范围内
         imageRect.left = Math.max(0, Math.min(imageRect.left, imageWidth));
         imageRect.top = Math.max(0, Math.min(imageRect.top, imageHeight));
         imageRect.right = Math.max(0, Math.min(imageRect.right, imageWidth));
         imageRect.bottom = Math.max(0, Math.min(imageRect.bottom, imageHeight));
+        
+        // 记录日志以便调试
+        Log.d("CropView", "转换裁剪框坐标:");
+        Log.d("CropView", String.format("  - 视图裁剪框: (%.1f, %.1f, %.1f, %.1f)", 
+                cropRect.left, cropRect.top, cropRect.right, cropRect.bottom));
+        Log.d("CropView", String.format("  - 图像偏移: (%.1f, %.1f)", displayOffsetX, displayOffsetY));
+        Log.d("CropView", String.format("  - 相对位置: (%.1f, %.1f, %.1f, %.1f)", 
+                relLeft, relTop, relRight, relBottom));
+        Log.d("CropView", String.format("  - 转换后图像裁剪区: (%.1f, %.1f, %.1f, %.1f)", 
+                imageRect.left, imageRect.top, imageRect.right, imageRect.bottom));
         
         return imageRect;
     }
@@ -195,14 +271,14 @@ public class CropView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         
-        // 绘制边界调试框，用于验证坐标系
-        Paint debugPaint = new Paint();
-        debugPaint.setColor(Color.GREEN);
-        debugPaint.setStyle(Paint.Style.STROKE);
-        debugPaint.setStrokeWidth(2);
-        canvas.drawRect(displayOffsetX, displayOffsetY, 
-                        displayOffsetX + displayWidth, displayOffsetY + displayHeight, 
-                        debugPaint);
+        if (!initialized) {
+            return;
+        }
+        
+        // 输出绘制前的关键信息
+        Log.d("CropView", String.format("绘制: 视图尺寸=%dx%d, 裁剪框=(%f,%f,%f,%f)",
+            getWidth(), getHeight(), 
+            cropRect.left, cropRect.top, cropRect.right, cropRect.bottom));
 
         // 绘制四周暗色区域
         canvas.drawRect(0, 0, getWidth(), cropRect.top, dimPaint);
@@ -232,55 +308,69 @@ public class CropView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touchStartX = x;
-                touchStartY = y;
-
-                // 检测是否触摸到控制点
-                touchHandle = getTouchedHandle(x, y);
-                if (touchHandle >= 0) {
+        // 确保触摸事件可以被处理，即使在裁剪框外部
+        try {
+            getParent().requestDisallowInterceptTouchEvent(true);
+            
+            float x = event.getX();
+            float y = event.getY();
+    
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    touchStartX = x;
+                    touchStartY = y;
+    
+                    // 检测是否触摸到控制点
+                    touchHandle = getTouchedHandle(x, y);
+                    if (touchHandle >= 0) {
+                        return true;
+                    }
+    
+                    // 检测是否在裁剪框内部
+                    if (cropRect.contains(x, y)) {
+                        isMoving = true;
+                        return true;
+                    }
+                    // 即使点击在裁剪框外部，仍然返回true以便我们能处理后续事件
                     return true;
-                }
-
-                // 检测是否在裁剪框内部
-                if (cropRect.contains(x, y)) {
-                    isMoving = true;
+    
+                case MotionEvent.ACTION_MOVE:
+                    if (!initialized) {
+                        return true;
+                    }
+                    
+                    float dx = x - touchStartX;
+                    float dy = y - touchStartY;
+    
+                    if (isMoving) {
+                        // 移动整个裁剪框
+                        cropRect.offset(dx, dy);
+                        constrainRect();
+                        invalidate();
+                    } else if (touchHandle >= 0) {
+                        // 调整裁剪框大小
+                        resizeRect(touchHandle, dx, dy);
+                        constrainRect();
+                        invalidate();
+                    }
+    
+                    touchStartX = x;
+                    touchStartY = y;
                     return true;
-                }
-                return false;
-
-            case MotionEvent.ACTION_MOVE:
-                float dx = x - touchStartX;
-                float dy = y - touchStartY;
-
-                if (isMoving) {
-                    // 移动整个裁剪框
-                    cropRect.offset(dx, dy);
-                    constrainRect();
-                    invalidate();
-                } else if (touchHandle >= 0) {
-                    // 调整裁剪框大小
-                    resizeRect(touchHandle, dx, dy);
-                    constrainRect();
-                    invalidate();
-                }
-
-                touchStartX = x;
-                touchStartY = y;
-                return true;
-
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                isMoving = false;
-                touchHandle = -1;
-                return true;
+    
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    isMoving = false;
+                    touchHandle = -1;
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                    return true;
+            }
+            
+            return true;
+        } catch (Exception e) {
+            Log.e("CropView", "触摸事件处理错误", e);
+            return false;
         }
-
-        return super.onTouchEvent(event);
     }
 
     private int getTouchedHandle(float x, float y) {
@@ -438,5 +528,56 @@ public class CropView extends View {
                 cropRect.bottom = cropRect.top + minSize;
             }
         }
+    }
+
+    /**
+     * 手动设置图像显示区域
+     * 此方法允许外部直接指定图像的显示位置和大小
+     * @param x 图像显示左上角的X坐标
+     * @param y 图像显示左上角的Y坐标
+     * @param width 图像显示宽度
+     * @param height 图像显示高度
+     */
+    public void setImageDisplayManual(int x, int y, int width, int height) {
+        if (width <= 0 || height <= 0) {
+            Log.e("CropView", "setImageDisplayManual: 无效的尺寸参数");
+            return;
+        }
+        
+        Log.d("CropView", String.format("手动设置图像区域: (%d,%d) %dx%d", x, y, width, height));
+        
+        // 直接设置显示区域
+        this.displayOffsetX = x;
+        this.displayOffsetY = y;
+        this.displayWidth = width;
+        this.displayHeight = height;
+        
+        // 更新引用变量
+        this.offsetX = x;
+        this.offsetY = y;
+        
+        // 计算显示比例
+        this.viewScale = (float)width / imageWidth;
+        
+        // 重新初始化裁剪框
+        float cropWidth = width * 0.95f;
+        float cropHeight = height * 0.95f;
+        float centerX = x + width / 2f;
+        float centerY = y + height / 2f;
+        
+        cropRect.set(
+            centerX - cropWidth / 2f,
+            centerY - cropHeight / 2f,
+            centerX + cropWidth / 2f,
+            centerY + cropHeight / 2f
+        );
+        
+        Log.d("CropView", "手动调整后的裁剪框:");
+        Log.d("CropView", String.format("  - 中心点: (%.1f, %.1f)", centerX, centerY));
+        Log.d("CropView", String.format("  - 裁剪框: (%.1f, %.1f, %.1f, %.1f)",
+                cropRect.left, cropRect.top, cropRect.right, cropRect.bottom));
+        
+        initialized = true;
+        invalidate();
     }
 }

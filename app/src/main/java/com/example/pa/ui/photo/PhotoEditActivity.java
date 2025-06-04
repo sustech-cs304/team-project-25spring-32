@@ -73,7 +73,6 @@ public class PhotoEditActivity extends AppCompatActivity {
     private FrameLayout cropOverlay;
     private CropView cropView;
     private LinearLayout cropControlsLayout;
-    private Button btnCropFree, btnCrop11, btnCrop43, btnCrop169;
     private Button btnCropCancel, btnCropApply;
 
     private Bitmap currentBitmap;//current photo after edit
@@ -143,11 +142,6 @@ public class PhotoEditActivity extends AppCompatActivity {
         cropView = findViewById(R.id.cropView);
         cropControlsLayout = findViewById(R.id.cropControlsLayout);
 
-        btnCropFree = findViewById(R.id.btnCropFree);
-        btnCrop11 = findViewById(R.id.btnCrop11);
-        btnCrop43 = findViewById(R.id.btnCrop43);
-        btnCrop169 = findViewById(R.id.btnCrop169);
-
         btnCropCancel = findViewById(R.id.btnCropCancel);
         btnCropApply = findViewById(R.id.btnCropApply);
 
@@ -215,12 +209,6 @@ public class PhotoEditActivity extends AppCompatActivity {
 
         // 裁剪按钮监听器
         btnCrop.setOnClickListener(v -> showCropMode());
-
-        // 裁剪比例按钮 监听器
-        btnCropFree.setOnClickListener(v -> cropView.setAspectRatio(0)); // 自由比例
-        btnCrop11.setOnClickListener(v -> cropView.setAspectRatio(1.0f)); // 1:1
-        btnCrop43.setOnClickListener(v -> cropView.setAspectRatio(4.0f/3.0f)); // 4:3
-        btnCrop169.setOnClickListener(v -> cropView.setAspectRatio(16.0f/9.0f)); // 16:9
 
         // 裁剪取消和应用按钮
         btnCropCancel.setOnClickListener(v -> hideCropMode());
@@ -318,16 +306,6 @@ public class PhotoEditActivity extends AppCompatActivity {
         int topReservedSpace = 180; // 基础顶部控件的预留空间(像素)
         int bottomReservedSpace = 200; // 基础底部控件的高度(像素)
         
-        // 检查是否为横向图片被旋转为纵向 (可能需要更多顶部空间)
-        boolean isLandscapeRotatedToPortrait = 
-            (currentRotation == 90 || currentRotation == 270) && 
-            currentBitmap.getWidth() > currentBitmap.getHeight() * 1.5;
-            
-        // 对于宽图旋转后变高的情况，增加顶部预留空间
-        if (isLandscapeRotatedToPortrait) {
-            topReservedSpace = Math.max(topReservedSpace, 220);  // 增加更多顶部空间
-        }
-        
         // 根据图片比例动态调整padding
         float imageRatio = (float) currentBitmap.getWidth() / currentBitmap.getHeight();
         if (currentRotation == 90 || currentRotation == 270) {
@@ -335,9 +313,15 @@ public class PhotoEditActivity extends AppCompatActivity {
             imageRatio = 1.0f / imageRatio;
         }
         
-        // 对于特别宽的图片，可能需要更多的顶部空间
-        if (imageRatio > 2.0f) {
+        // 对于特别宽的图片旋转后需要更多顶部空间
+        if ((currentRotation == 90 || currentRotation == 270) && imageRatio > 1.5f) {
+            topReservedSpace = Math.max(topReservedSpace, 220);
+        } else if (imageRatio > 2.0f) {
+            // 对于超宽图片可能需要更多空间
             topReservedSpace = Math.max(topReservedSpace, 250);
+        } else {
+            // 正常图片使用标准值
+            topReservedSpace = 180;
         }
         
         // 设置ImageView的padding以保留空间
@@ -445,9 +429,17 @@ public class PhotoEditActivity extends AppCompatActivity {
             return new float[] {0, 0, 0, 0};
         }
         
-        // 获取图像实际尺寸
+        // 获取图像实际尺寸（考虑旋转）
         int imageWidth = currentBitmap.getWidth();
         int imageHeight = currentBitmap.getHeight();
+        
+        // 对于旋转后的图像，需要调整宽高
+        int effectiveImageWidth = imageWidth;
+        int effectiveImageHeight = imageHeight;
+        if (currentRotation == 90 || currentRotation == 270) {
+            effectiveImageWidth = imageHeight;
+            effectiveImageHeight = imageWidth;
+        }
         
         // 获取ImageView尺寸（需要考虑内边距）
         int paddingLeft = imageView.getPaddingLeft();
@@ -461,15 +453,15 @@ public class PhotoEditActivity extends AppCompatActivity {
         
         // 计算图像在视图中的缩放比例
         float scale;
-        float scaleX = (float) contentWidth / imageWidth;
-        float scaleY = (float) contentHeight / imageHeight;
+        float scaleX = (float) contentWidth / effectiveImageWidth;
+        float scaleY = (float) contentHeight / effectiveImageHeight;
         
         // 使用FIT_CENTER类似的计算
         scale = Math.min(scaleX, scaleY);
         
         // 计算缩放后图像大小
-        float displayWidth = imageWidth * scale;
-        float displayHeight = imageHeight * scale;
+        float displayWidth = effectiveImageWidth * scale;
+        float displayHeight = effectiveImageHeight * scale;
         
         // 计算居中偏移，需要考虑ImageView的padding和内容居中
         float offsetX = paddingLeft + (contentWidth - displayWidth) / 2f;
@@ -477,8 +469,9 @@ public class PhotoEditActivity extends AppCompatActivity {
         
         // 添加日志输出用于调试
         Log.d("PhotoEditActivity", String.format(
-            "ImageInfo: content=(%d,%d), image=(%d,%d), scaled=(%f,%f), offset=(%f,%f)", 
+            "ImageInfo: content=(%d,%d), image=(%d,%d), effective=(%d,%d), scaled=(%f,%f), offset=(%f,%f)", 
             contentWidth, contentHeight, imageWidth, imageHeight, 
+            effectiveImageWidth, effectiveImageHeight,
             displayWidth, displayHeight, offsetX, offsetY));
         
         return new float[] {offsetX, offsetY, displayWidth, displayHeight};
@@ -487,72 +480,118 @@ public class PhotoEditActivity extends AppCompatActivity {
     /**
      * 显示裁剪界面
      */
-    // 显示裁剪模式
     private void showCropMode() {
         if (currentBitmap == null) {
             Toast.makeText(this, "当前图像不可用", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (cropView == null) {
-            Toast.makeText(this, "裁剪控件未初始化", Toast.LENGTH_SHORT).show();
             return;
         }
         
         // 隐藏其他调整界面
         adjustmentLayout.setVisibility(View.GONE);
         
-        // 确保cropOverlay与ImageView有相同的padding
-        cropOverlay.setPadding(
-            editImageView.getPaddingLeft(),
-            editImageView.getPaddingTop(),
-            editImageView.getPaddingRight(),
-            editImageView.getPaddingBottom()
-        );
-
-        // 获取ImageView中图像的实际显示区域
-        float[] imageDisplayInfo = getImageDisplayInfo(editImageView);
+        // 移除所有padding，让图像完全显示
+        editImageView.setPadding(0, 0, 0, 0);
+        editImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
         
-        // 设置裁剪视图尺寸和位置
-        cropView.setImageDisplay(currentBitmap.getWidth(), currentBitmap.getHeight(), 
-                                 imageDisplayInfo[0], imageDisplayInfo[1], 
-                                 imageDisplayInfo[2], imageDisplayInfo[3]);
-
-        // 显示裁剪界面
-        cropOverlay.setVisibility(View.VISIBLE);
-        cropControlsLayout.setVisibility(View.VISIBLE);
+        // 重新设置图像，应用新的scale type和padding
+        editImageView.setImageBitmap(currentBitmap);
+        
+        try {
+            // 获取ImageView的位置信息
+            int[] imageViewLocation = new int[2];
+            editImageView.getLocationOnScreen(imageViewLocation);
+            
+            Log.d("PhotoEdit", String.format("ImageView位置: (%d,%d), 大小: %dx%d", 
+                    imageViewLocation[0], imageViewLocation[1],
+                    editImageView.getWidth(), editImageView.getHeight()));
+            
+            // 直接使用图像原始尺寸初始化裁剪视图
+            cropView.setImageDimensions(currentBitmap.getWidth(), currentBitmap.getHeight());
+            
+            // 显示裁剪界面
+            cropOverlay.setVisibility(View.VISIBLE);
+            cropControlsLayout.setVisibility(View.VISIBLE);
+            
+            // 使用用户可视化的方法快速修复
+            // 添加一个小延迟，确保UI更新完成后重新调整裁剪视图位置
+            cropView.postDelayed(() -> {
+                // 获取图像在ImageView中的实际显示位置和大小
+                float imageRatio = (float) currentBitmap.getWidth() / currentBitmap.getHeight();
+                int viewWidth = editImageView.getWidth();
+                int viewHeight = editImageView.getHeight();
+                int displayWidth, displayHeight;
+                int topOffset = 0;
+                
+                if (imageRatio > (float)viewWidth/viewHeight) {
+                    // 图像按宽度缩放
+                    displayWidth = viewWidth;
+                    displayHeight = (int)(viewWidth / imageRatio);
+                    topOffset = (viewHeight - displayHeight) / 2;
+                } else {
+                    // 图像按高度缩放
+                    displayHeight = viewHeight;
+                    displayWidth = (int)(viewHeight * imageRatio);
+                }
+                
+                // 手动调整裁剪框位置以匹配图像
+                // 向上移动裁剪框，使其更接近图像中心
+                int adjustedTopOffset = Math.max(0, topOffset - 200);
+                cropView.setImageDisplayManual(0, adjustedTopOffset, displayWidth, displayHeight);
+                
+                Log.d("PhotoEdit", String.format("裁剪框手动调整: offset=(%d,%d), size=%dx%d", 
+                        0, adjustedTopOffset, displayWidth, displayHeight));
+            }, 100);
+            
+        } catch (Exception e) {
+            Log.e("PhotoEdit", "初始化裁剪区域失败", e);
+            Toast.makeText(this, "初始化裁剪失败", Toast.LENGTH_SHORT).show();
+            hideCropMode();
+        }
     }
-
-    // 隐藏裁剪模式
+    
+    /**
+     * 隐藏裁剪模式
+     */
     private void hideCropMode() {
+        // 隐藏裁剪相关UI
         cropOverlay.setVisibility(View.GONE);
         cropControlsLayout.setVisibility(View.GONE);
+        
+        // 恢复正常的图像显示和padding
+        adjustImageViewForRotation();
     }
 
     // 应用裁剪
     private void applyCrop() {
-        if (currentBitmap == null) return;
-
-        // 获取裁剪区域
-        RectF cropRect = cropView.getCropRect();
-
-        // 创建裁剪后的位图
-        int x = (int) cropRect.left;
-        int y = (int) cropRect.top;
-        int width = (int) cropRect.width();
-        int height = (int) cropRect.height();
-
-        // 检查裁剪区域是否有效
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x + width > currentBitmap.getWidth()) width = currentBitmap.getWidth() - x;
-        if (y + height > currentBitmap.getHeight()) height = currentBitmap.getHeight() - y;
-
-        if (width <= 0 || height <= 0) {
-            Toast.makeText(this, "无效的裁剪区域", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         try {
+            if (currentBitmap == null || cropView == null) {
+                Toast.makeText(this, "图像或裁剪视图不可用", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 获取裁剪区域
+            RectF cropRect = cropView.getCropRect();
+            if (cropRect == null) {
+                Toast.makeText(this, "无法获取裁剪区域", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 创建裁剪后的位图
+            int x = Math.max(0, (int) cropRect.left);
+            int y = Math.max(0, (int) cropRect.top);
+            int width = Math.min(currentBitmap.getWidth() - x, (int) cropRect.width());
+            int height = Math.min(currentBitmap.getHeight() - y, (int) cropRect.height());
+
+            // 检查裁剪区域是否有效
+            if (width <= 0 || height <= 0 || x >= currentBitmap.getWidth() || y >= currentBitmap.getHeight()) {
+                Toast.makeText(this, "无效的裁剪区域", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // 记录裁剪参数以便调试
+            Log.d("PhotoEdit", String.format("应用裁剪: x=%d, y=%d, width=%d, height=%d, 原图尺寸=%dx%d",
+                    x, y, width, height, currentBitmap.getWidth(), currentBitmap.getHeight()));
+
             // 应用裁剪
             Bitmap croppedBitmap = Bitmap.createBitmap(currentBitmap, x, y, width, height);
 
@@ -563,7 +602,7 @@ public class PhotoEditActivity extends AppCompatActivity {
             currentBitmap = croppedBitmap;
             
             // 确保图像适应视图区域
-            adjustImageViewForRotation();
+            editImageView.setImageBitmap(currentBitmap);
 
             // 注意：裁剪会改变图像尺寸，需要更新原始位图以使其他效果基于新尺寸
             originalBitmap = currentBitmap.copy(currentBitmap.getConfig(), true);
@@ -572,8 +611,16 @@ public class PhotoEditActivity extends AppCompatActivity {
             brightness = 0f;
             contrast = 1f;
             currentRotation = 0f;
+            
+            // 确保调整视图区域
+            adjustImageViewForRotation();
+            
+            // 添加新状态到历史记录
+            addNewState();
 
+            Toast.makeText(this, "裁剪成功", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
+            Log.e("PhotoEdit", "裁剪失败", e);
             Toast.makeText(this, "裁剪失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
