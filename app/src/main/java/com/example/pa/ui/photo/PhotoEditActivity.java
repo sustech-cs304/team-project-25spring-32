@@ -118,6 +118,9 @@ public class PhotoEditActivity extends AppCompatActivity {
         initViews();
         loadImage();
         setupListeners();
+        
+        // 初始设置ImageView预留空间
+        adjustImageViewForRotation();
     }
 
     private void initViews() {
@@ -176,9 +179,10 @@ public class PhotoEditActivity extends AppCompatActivity {
                 return;
             }
 
-
             currentBitmap = originalBitmap.copy(originalBitmap.getConfig(), true);  // 使用copy而不是直接赋值
-            editImageView.setImageBitmap(currentBitmap);
+            
+            // 确保图像适应视图区域
+            adjustImageViewForRotation();
 
             // 初始化编辑历史，保存初始状态
             addNewState();
@@ -292,14 +296,63 @@ public class PhotoEditActivity extends AppCompatActivity {
         Canvas canvas = new Canvas(out);
         canvas.drawBitmap(rotated, 0, 0, paint);
 
+        if (currentBitmap != originalBitmap && currentBitmap != null) {
+            currentBitmap.recycle();
+        }
         currentBitmap = out;
+        
+        // 确保图像适应视图区域，不遮挡顶部和底部的控件
+        adjustImageViewForRotation();
+    }
+    
+    /**
+     * 根据图像旋转调整ImageView的显示方式，确保不会遮挡顶部和底部控件
+     */
+    private void adjustImageViewForRotation() {
+        if (currentBitmap == null || editImageView == null) return;
+        
+        // 设置适当的ScaleType以确保图像完全可见
+        editImageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        
+        // 计算基础的顶部和底部控制区域预留空间
+        int topReservedSpace = 180; // 基础顶部控件的预留空间(像素)
+        int bottomReservedSpace = 200; // 基础底部控件的高度(像素)
+        
+        // 检查是否为横向图片被旋转为纵向 (可能需要更多顶部空间)
+        boolean isLandscapeRotatedToPortrait = 
+            (currentRotation == 90 || currentRotation == 270) && 
+            currentBitmap.getWidth() > currentBitmap.getHeight() * 1.5;
+            
+        // 对于宽图旋转后变高的情况，增加顶部预留空间
+        if (isLandscapeRotatedToPortrait) {
+            topReservedSpace = Math.max(topReservedSpace, 220);  // 增加更多顶部空间
+        }
+        
+        // 根据图片比例动态调整padding
+        float imageRatio = (float) currentBitmap.getWidth() / currentBitmap.getHeight();
+        if (currentRotation == 90 || currentRotation == 270) {
+            // 旋转后宽高对调
+            imageRatio = 1.0f / imageRatio;
+        }
+        
+        // 对于特别宽的图片，可能需要更多的顶部空间
+        if (imageRatio > 2.0f) {
+            topReservedSpace = Math.max(topReservedSpace, 250);
+        }
+        
+        // 设置ImageView的padding以保留空间
+        editImageView.setPadding(0, topReservedSpace, 0, bottomReservedSpace);
+        
+        // 显示图像
         editImageView.setImageBitmap(currentBitmap);
     }
-
 
     private void rotateImage() {
         currentRotation = (currentRotation + 90) % 360;
         render();
+        
+        // 将旋转后的状态添加到历史记录
+        addNewState();
     }
 
     private void applyImageAdjustments() {
@@ -383,6 +436,55 @@ public class PhotoEditActivity extends AppCompatActivity {
     }
 
     /**
+     * 计算ImageView中图像的实际显示区域
+     * @param imageView 图像视图
+     * @return float[4] 数组，包含 {offsetX, offsetY, displayWidth, displayHeight}
+     */
+    private float[] getImageDisplayInfo(ImageView imageView) {
+        if (imageView == null || imageView.getDrawable() == null) {
+            return new float[] {0, 0, 0, 0};
+        }
+        
+        // 获取图像实际尺寸
+        int imageWidth = currentBitmap.getWidth();
+        int imageHeight = currentBitmap.getHeight();
+        
+        // 获取ImageView尺寸（需要考虑内边距）
+        int paddingLeft = imageView.getPaddingLeft();
+        int paddingTop = imageView.getPaddingTop();
+        int paddingRight = imageView.getPaddingRight();
+        int paddingBottom = imageView.getPaddingBottom();
+        
+        // 计算内容区域的尺寸（减去padding）
+        int contentWidth = imageView.getWidth() - paddingLeft - paddingRight;
+        int contentHeight = imageView.getHeight() - paddingTop - paddingBottom;
+        
+        // 计算图像在视图中的缩放比例
+        float scale;
+        float scaleX = (float) contentWidth / imageWidth;
+        float scaleY = (float) contentHeight / imageHeight;
+        
+        // 使用FIT_CENTER类似的计算
+        scale = Math.min(scaleX, scaleY);
+        
+        // 计算缩放后图像大小
+        float displayWidth = imageWidth * scale;
+        float displayHeight = imageHeight * scale;
+        
+        // 计算居中偏移，需要考虑ImageView的padding和内容居中
+        float offsetX = paddingLeft + (contentWidth - displayWidth) / 2f;
+        float offsetY = paddingTop + (contentHeight - displayHeight) / 2f;
+        
+        // 添加日志输出用于调试
+        Log.d("PhotoEditActivity", String.format(
+            "ImageInfo: content=(%d,%d), image=(%d,%d), scaled=(%f,%f), offset=(%f,%f)", 
+            contentWidth, contentHeight, imageWidth, imageHeight, 
+            displayWidth, displayHeight, offsetX, offsetY));
+        
+        return new float[] {offsetX, offsetY, displayWidth, displayHeight};
+    }
+
+    /**
      * 显示裁剪界面
      */
     // 显示裁剪模式
@@ -395,11 +497,25 @@ public class PhotoEditActivity extends AppCompatActivity {
             Toast.makeText(this, "裁剪控件未初始化", Toast.LENGTH_SHORT).show();
             return;
         }
+        
         // 隐藏其他调整界面
         adjustmentLayout.setVisibility(View.GONE);
+        
+        // 确保cropOverlay与ImageView有相同的padding
+        cropOverlay.setPadding(
+            editImageView.getPaddingLeft(),
+            editImageView.getPaddingTop(),
+            editImageView.getPaddingRight(),
+            editImageView.getPaddingBottom()
+        );
 
-        // 设置裁剪视图尺寸
-        cropView.setImageDimensions(currentBitmap.getWidth(), currentBitmap.getHeight());
+        // 获取ImageView中图像的实际显示区域
+        float[] imageDisplayInfo = getImageDisplayInfo(editImageView);
+        
+        // 设置裁剪视图尺寸和位置
+        cropView.setImageDisplay(currentBitmap.getWidth(), currentBitmap.getHeight(), 
+                                 imageDisplayInfo[0], imageDisplayInfo[1], 
+                                 imageDisplayInfo[2], imageDisplayInfo[3]);
 
         // 显示裁剪界面
         cropOverlay.setVisibility(View.VISIBLE);
@@ -445,7 +561,9 @@ public class PhotoEditActivity extends AppCompatActivity {
                 currentBitmap.recycle(); // 回收旧位图
             }
             currentBitmap = croppedBitmap;
-            editImageView.setImageBitmap(currentBitmap);
+            
+            // 确保图像适应视图区域
+            adjustImageViewForRotation();
 
             // 注意：裁剪会改变图像尺寸，需要更新原始位图以使其他效果基于新尺寸
             originalBitmap = currentBitmap.copy(currentBitmap.getConfig(), true);

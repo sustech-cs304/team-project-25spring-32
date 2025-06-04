@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -27,9 +28,18 @@ public class CropView extends View {
     // 比例控制
     private float aspectRatio = 0; // 0表示自由比例
 
+    // 图像在视图中的实际显示区域
+    private float displayOffsetX = 0;
+    private float displayOffsetY = 0;
+    private float displayWidth = 0;
+    private float displayHeight = 0;
+
     // 添加视图尺寸和偏移量属性
     private float viewScale = 1.0f;
     private float offsetX = 0, offsetY = 0;
+    
+    // 标记是否已初始化裁剪区域
+    private boolean initialized = false;
 
     public CropView(Context context) {
         super(context);
@@ -56,27 +66,61 @@ public class CropView extends View {
         dimPaint.setStyle(Paint.Style.FILL);
     }
 
+    /**
+     * 设置图像显示信息
+     * @param origWidth 原始图像宽度
+     * @param origHeight 原始图像高度 
+     * @param dispOffsetX 图像显示偏移X
+     * @param dispOffsetY 图像显示偏移Y
+     * @param dispWidth 图像显示宽度
+     * @param dispHeight 图像显示高度
+     */
+    public void setImageDisplay(int origWidth, int origHeight, 
+                               float dispOffsetX, float dispOffsetY,
+                               float dispWidth, float dispHeight) {
+        this.imageWidth = origWidth;
+        this.imageHeight = origHeight;
+        this.displayOffsetX = dispOffsetX;
+        this.displayOffsetY = dispOffsetY;
+        this.displayWidth = dispWidth;
+        this.displayHeight = dispHeight;
+        
+        // 计算视图到原图的缩放比例
+        this.viewScale = dispWidth / origWidth;
+        
+        // 使用实际图像显示区域设置裁剪框
+        // 首先设置为整个图像区域
+        cropRect.set(
+            displayOffsetX,
+            displayOffsetY,
+            displayOffsetX + displayWidth,
+            displayOffsetY + displayHeight
+        );
+        
+        // 添加日志输出帮助调试
+        Log.d("CropView", String.format("setImageDisplay: offset=(%f,%f), size=(%f,%f), scale=%f", 
+                                        dispOffsetX, dispOffsetY, dispWidth, dispHeight, viewScale));
+        Log.d("CropView", String.format("cropRect: (%f,%f,%f,%f)", 
+                                        cropRect.left, cropRect.top, cropRect.right, cropRect.bottom));
+        
+        initialized = true;
+        invalidate();
+    }
+
+    // 原有setImageDimensions方法保留，但现在优先使用新方法
     public void setImageDimensions(int width, int height) {
         this.imageWidth = width;
         this.imageHeight = height;
 
-
         // 计算图片在视图中的实际显示比例和位置
         calculateImageLayout();
 
-//        // 初始化裁剪框为图像的80%
-//        float initialWidth = width * 1.0f;
-//        float initialHeight = height * 1.0f;
-
-//        if (aspectRatio > 0) {
-//            // 如果设置了比例约束，调整高度
-//            initialHeight = initialWidth / aspectRatio;
-//        }
-//        float left = (width - initialWidth) / 2;
-//        float top = (height - initialHeight) / 2;
-//        cropRect.set(left, top, left + initialWidth, top + initialHeight);
-
-        cropRect.set(offsetX, offsetY, offsetX + width * viewScale, offsetY + height * viewScale);
+        // 初始化裁剪框为图像的100%
+        cropRect.set(offsetX, offsetY, 
+                    offsetX + imageWidth * viewScale, 
+                    offsetY + imageHeight * viewScale);
+        
+        initialized = true;
         invalidate();
     }
 
@@ -90,15 +134,23 @@ public class CropView extends View {
         // 计算居中显示的偏移量
         offsetX = (getWidth() - imageWidth * viewScale) / 2;
         offsetY = (getHeight() - imageHeight * viewScale) / 2;
+        
+        // 更新显示区域
+        displayOffsetX = offsetX;
+        displayOffsetY = offsetY;
+        displayWidth = imageWidth * viewScale;
+        displayHeight = imageHeight * viewScale;
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        if (imageWidth > 0 && imageHeight > 0) {
+        if (!initialized && imageWidth > 0 && imageHeight > 0) {
             // 视图大小变化时重新计算裁剪框
             calculateImageLayout();
-            cropRect.set(offsetX, offsetY, offsetX + imageWidth * viewScale, offsetY + imageHeight * viewScale);
+            cropRect.set(offsetX, offsetY, 
+                        offsetX + imageWidth * viewScale, 
+                        offsetY + imageHeight * viewScale);
         }
     }
 
@@ -120,13 +172,37 @@ public class CropView extends View {
         }
     }
 
+    // 转换视图坐标为图像坐标
     public RectF getCropRect() {
-        return new RectF(cropRect);
+        RectF imageRect = new RectF();
+        
+        // 转换为原始图像坐标
+        imageRect.left = (cropRect.left - displayOffsetX) / viewScale;
+        imageRect.top = (cropRect.top - displayOffsetY) / viewScale;
+        imageRect.right = (cropRect.right - displayOffsetX) / viewScale;
+        imageRect.bottom = (cropRect.bottom - displayOffsetY) / viewScale;
+        
+        // 确保坐标在图像范围内
+        imageRect.left = Math.max(0, Math.min(imageRect.left, imageWidth));
+        imageRect.top = Math.max(0, Math.min(imageRect.top, imageHeight));
+        imageRect.right = Math.max(0, Math.min(imageRect.right, imageWidth));
+        imageRect.bottom = Math.max(0, Math.min(imageRect.bottom, imageHeight));
+        
+        return imageRect;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        
+        // 绘制边界调试框，用于验证坐标系
+        Paint debugPaint = new Paint();
+        debugPaint.setColor(Color.GREEN);
+        debugPaint.setStyle(Paint.Style.STROKE);
+        debugPaint.setStrokeWidth(2);
+        canvas.drawRect(displayOffsetX, displayOffsetY, 
+                        displayOffsetX + displayWidth, displayOffsetY + displayHeight, 
+                        debugPaint);
 
         // 绘制四周暗色区域
         canvas.drawRect(0, 0, getWidth(), cropRect.top, dimPaint);
@@ -312,31 +388,52 @@ public class CropView extends View {
 
         // 设置新的裁剪矩形
         cropRect.set(left, top, right, bottom);
-
-        // 调用约束函数确保不超出边界且符合最小尺寸
-        constrainRect();
     }
 
     private void constrainRect() {
-        // 防止裁剪框超出图像边界
-        if (cropRect.left < 0) cropRect.offset(-cropRect.left, 0);
-        if (cropRect.top < 0) cropRect.offset(0, -cropRect.top);
-        if (cropRect.right > imageWidth) cropRect.offset(imageWidth - cropRect.right, 0);
-        if (cropRect.bottom > imageHeight) cropRect.offset(0, imageHeight - cropRect.bottom);
+        // 防止裁剪框超出图像边界(使用视图坐标系)
+        float minLeft = displayOffsetX;
+        float minTop = displayOffsetY;
+        float maxRight = displayOffsetX + displayWidth;
+        float maxBottom = displayOffsetY + displayHeight;
+        
+        // 限制左边界
+        if (cropRect.left < minLeft) {
+            cropRect.left = minLeft;
+        }
+        
+        // 限制上边界
+        if (cropRect.top < minTop) {
+            cropRect.top = minTop;
+        }
+        
+        // 限制右边界
+        if (cropRect.right > maxRight) {
+            cropRect.right = maxRight;
+        }
+        
+        // 限制下边界
+        if (cropRect.bottom > maxBottom) {
+            cropRect.bottom = maxBottom;
+        }
 
-        // 最小尺寸限制
-        float minSize = 50;
+        // 最小尺寸限制(视图坐标系)
+        float minSize = 50 * viewScale;
+        
+        // 宽度最小值限制
         if (cropRect.width() < minSize) {
-            if (cropRect.right == imageWidth) {
-                cropRect.left = imageWidth - minSize;
+            // 根据当前边界情况决定调整哪一边
+            if (cropRect.right >= maxRight) {
+                cropRect.left = cropRect.right - minSize;
             } else {
                 cropRect.right = cropRect.left + minSize;
             }
         }
 
+        // 高度最小值限制
         if (cropRect.height() < minSize) {
-            if (cropRect.bottom == imageHeight) {
-                cropRect.top = imageHeight - minSize;
+            if (cropRect.bottom >= maxBottom) {
+                cropRect.top = cropRect.bottom - minSize;
             } else {
                 cropRect.bottom = cropRect.top + minSize;
             }
