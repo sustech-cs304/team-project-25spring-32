@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences("auth_prefs", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("auth_token", response.getToken());
+                editor.putString("username",username);
                 editor.putBoolean("is_logged_in", true);
                 editor.apply();
 

@@ -16,6 +16,7 @@ import com.example.pa.data.Daos.UserDao;
 import com.example.pa.data.DatabaseHelper;
 import com.example.pa.data.FileRepository;
 import com.example.pa.data.MainRepository;
+import com.example.pa.data.cloudRepository.GroupRepository;
 import com.example.pa.data.cloudRepository.UserRepository;
 
 import org.tensorflow.lite.support.common.FileUtil;
@@ -31,6 +32,7 @@ public class MyApplication extends Application {
     private MainRepository mainRepository;
     private FileRepository fileRepository;
     private UserRepository userRepository;
+    private GroupRepository groupRepository;
     private UserDao userDao;
     private PhotoDao photoDao;
     private AlbumDao albumDao;
@@ -63,6 +65,10 @@ public class MyApplication extends Application {
         return userRepository;
     }
 
+    public GroupRepository getGroupRepository() {
+        return groupRepository;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -93,6 +99,7 @@ public class MyApplication extends Application {
 
         fileRepository = new FileRepository(this);
         userRepository = new UserRepository(this);
+        groupRepository = new GroupRepository();
 
         Log.d("MyApplication", "Application and DAOs initialized");
     }
