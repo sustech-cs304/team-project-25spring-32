@@ -128,6 +128,39 @@ public class MainRepository {
                 albumPhotoDao.addPhotoToAlbum(albumId, id);
             }
 
+            int photoTag0 = tagDao.getTagIdByNameSpec("2024");
+            int photoTag1 = tagDao.getTagIdByNameSpec("2025");
+            int photoTag2 = tagDao.getTagIdByNameSpec("January");
+            int photoTag3 = tagDao.getTagIdByNameSpec("February");
+            int photoTag4 = tagDao.getTagIdByNameSpec("Beijing");
+            int photoTag5 = tagDao.getTagIdByNameSpec("Shanghai");
+            int photoTag6 = tagDao.getTagIdByNameSpec("Guangzhou");
+            int photoTag7 = tagDao.getTagIdByNameSpec("Shenzhen");
+
+
+            switch (photo.description) {
+                case "0":
+                    photoTagDao.addTagToPhoto(id, photoTag0);
+                    photoTagDao.addTagToPhoto(id, photoTag2);
+                    photoTagDao.addTagToPhoto(id, photoTag4);
+                    break;
+                case "1":
+                    photoTagDao.addTagToPhoto(id, photoTag0);
+                    photoTagDao.addTagToPhoto(id, photoTag3);
+                    photoTagDao.addTagToPhoto(id, photoTag5);
+                    break;
+                case "2":
+                    photoTagDao.addTagToPhoto(id, photoTag1);
+                    photoTagDao.addTagToPhoto(id, photoTag2);
+                    photoTagDao.addTagToPhoto(id, photoTag6);
+                    break;
+                case "3":
+                    photoTagDao.addTagToPhoto(id, photoTag1);
+                    photoTagDao.addTagToPhoto(id, photoTag3);
+                    photoTagDao.addTagToPhoto(id, photoTag7);
+                    break;
+            }
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

@@ -175,6 +175,16 @@ public class FileRepository {
                 double latitude = cursor.getDouble(5);
                 String uploadedTime = null;
                 String location = null;
+                String description = null;
+                MyApplication.getInstance().getTagDao().addTag("2024", false);
+                MyApplication.getInstance().getTagDao().addTag("2025", false);
+                MyApplication.getInstance().getTagDao().addTag("January", false);
+                MyApplication.getInstance().getTagDao().addTag("February", false);
+
+                MyApplication.getInstance().getTagDao().addTag("Beijing", false);
+                MyApplication.getInstance().getTagDao().addTag("Shanghai", false);
+                MyApplication.getInstance().getTagDao().addTag("Guangzhou", false);
+                MyApplication.getInstance().getTagDao().addTag("Shenzhen", false);
 
                 // 如果图片没有位置信息，分配测试位置
                 if (longitude == 0 && latitude == 0) {
@@ -182,17 +192,19 @@ public class FileRepository {
                     switch (photoCount % 4) {
                         case 0:
                             // 北京天安门
-                            uploadedTime = "2023-01-01 12:00:00";
+                            uploadedTime = "2024-01-01 12:00:00";
                             location = "Beijing";
                             latitude = 39.9087;
                             longitude = 116.3975;
+                            description = "0";
                             break;
                         case 1:
                             // 上海东方明珠
-                            uploadedTime = "2024-01-01 12:00:00";
+                            uploadedTime = "2024-02-01 12:00:00";
                             location = "Shanghai";
                             latitude = 31.2397;
                             longitude = 121.4998;
+                            description = "1";
                             break;
                         case 2:
                             // 广州塔
@@ -200,13 +212,15 @@ public class FileRepository {
                             location = "Guangzhou";
                             latitude = 23.1144;
                             longitude = 113.3248;
+                            description = "2";
                             break;
                         case 3:
                             // 深圳腾讯大厦
-                            uploadedTime = "2025-05-01 12:00:00";
+                            uploadedTime = "2025-02-01 12:00:00";
                             location = "Shenzhen";
                             latitude = 22.5407;
                             longitude = 114.0543;
+                            description = "3";
                             break;
                     }
                     photoCount++;
@@ -220,7 +234,7 @@ public class FileRepository {
                         null, uploadedTime, null,
                         cursor.getDouble(4),
                         cursor.getDouble(5),
-                        location, null, null
+                        location, description, null
                 );
                 Log.d("Sync", "addPhotos: " + id);
                 photos.add(photo);
