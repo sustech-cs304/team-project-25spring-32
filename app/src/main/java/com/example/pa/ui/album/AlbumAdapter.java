@@ -42,7 +42,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     private AlbumFragment.AlbumType albumType;
 
     public interface OnAlbumClickListener {
-        void onAlbumClick(String albumName);
+        void onAlbumClick(Album album);
         void onDeleteAlbum(Album album);
     }
 
@@ -132,7 +132,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onAlbumClick(album.name);
+                listener.onAlbumClick(album);
             }
         });
 

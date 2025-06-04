@@ -210,4 +210,14 @@ public class MainRepository {
         return photoPath;
     }
 
+    public List<String> getPhotoUrisByAlbumName(String albumName) {
+        List<String> photoUris = new ArrayList<>();
+        int albumId = albumDao.getAlbumIdByName(albumName);
+        List<Integer> photoIds = albumPhotoDao.getPhotoIdsInAlbum(albumId);
+        for (int photoId: photoIds) {
+            photoUris.add(photoDao.getPhotoPathById(photoId));
+        }
+        return photoUris;
+    }
+
 }
