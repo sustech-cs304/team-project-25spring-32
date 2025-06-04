@@ -142,4 +142,6 @@
     <string name="no_account">没有账号?</string>
     <string name="register_now">立即注册</string>
 
+    <string name="remove_bg">移除背景</string>
+
 </resources>
