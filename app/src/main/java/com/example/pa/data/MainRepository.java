@@ -106,12 +106,25 @@ public class MainRepository {
 
             // 2. 插入 Album 和关联
             if (albumName != null) {
-                int albumId = albumDao.getOrCreateAlbum(albumName, userId, albumCache);
+                int albumId = albumDao.getOrCreateAlbum(albumName, userId, albumCache, false);
                 albumPhotoDao.addPhotoToAlbum(albumId, id);
             }
 
             // 3. 插入 Tag
             photoTagDao.addTagToPhoto(id, tagId);
+
+            // 插入地点相册
+            if (photo.location != null) {
+                int albumId = albumDao.getOrCreateAlbum(photo.location, userId, albumCache, true);
+                albumPhotoDao.addPhotoToAlbum(albumId, id);
+            }
+
+            // 插入时间相册
+            if (photo.uploadedTime != null) {
+                String month = photo.uploadedTime.substring(0, 7);
+                int albumId = albumDao.getOrCreateAlbum(month, userId, albumCache, true);
+                albumPhotoDao.addPhotoToAlbum(albumId, id);
+            }
 
             db.setTransactionSuccessful();
         } finally {
