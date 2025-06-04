@@ -158,6 +158,18 @@
                     android:gravity="center"
                     android:text="@string/crop"
                     android:textColor="#FFFFFF"/>
+
+                <Button
+                    android:id="@+id/btnRemoveBg"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/icon_remove_bg"
+                    android:drawablePadding="8dp"
+                    android:drawableTint="@android:color/white"
+                    android:gravity="center"
+                    android:text="@string/remove_bg"
+                    android:textColor="#FFFFFF"/>
             </LinearLayout>
         </HorizontalScrollView>
     </LinearLayout>
@@ -255,15 +267,5 @@
                 android:textColor="#FFFFFF"/>
         </LinearLayout>
     </LinearLayout>
-
-    <Button
-        android:id="@+id/btnRemoveBg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="remove background"
-        app:layout_constraintBottom_toTopOf="@id/editToolsLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
