@@ -87,7 +87,7 @@ public class SocialFragment extends Fragment {
             @Override
             public void onSuccess(List<GroupInfo> groups) {
                 if (groups.isEmpty()) {
-                    Toast.makeText(getContext(), "暂无公开群组", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.no_public_groups), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -102,7 +102,7 @@ public class SocialFragment extends Fragment {
 
             @Override
             public void onError(String errorMessage) {
-                Toast.makeText(getContext(), "获取群组列表失败: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.failed_to_get_groups, errorMessage), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -147,10 +147,10 @@ public class SocialFragment extends Fragment {
                 for (String photoUrl : photoUrls) {
                     Log.d("SocialFragment", "单个群组照片URL: " + photoUrl);
                     SocialPost socialPost = new SocialPost(
-                        "群组照片",
-                        "分享了一张照片",
+                        getString(R.string.group_photo),
+                        getString(R.string.shared_photo),
                         photoUrl,
-                        "公开群组"
+                        getString(R.string.public_group)
                     );
                     postList.add(socialPost);
                 }
@@ -160,7 +160,7 @@ public class SocialFragment extends Fragment {
             @Override
             public void onError(String errorMessage) {
                 Log.e("SocialFragment", "获取群组照片失败: " + errorMessage);
-                Toast.makeText(getContext(), "获取群组照片失败: " + errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getString(R.string.failed_to_get_photos, errorMessage), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -174,8 +174,8 @@ public class SocialFragment extends Fragment {
                     for (String photoUrl : photoUrls) {
                         Log.d("SocialFragment", "所有群组照片URL - 群组[" + group.getName() + "]: " + photoUrl);
                         SocialPost socialPost = new SocialPost(
-                            "群组照片",
-                            "分享了一张照片",
+                            getString(R.string.group_photo),
+                            getString(R.string.shared_photo),
                             photoUrl,
                             group.getName()
                         );
@@ -187,7 +187,7 @@ public class SocialFragment extends Fragment {
                 @Override
                 public void onError(String errorMessage) {
                     Log.e("SocialFragment", "获取群组照片失败 - 群组[" + group.getName() + "]: " + errorMessage);
-                    Toast.makeText(getContext(), "获取群组照片失败: " + errorMessage, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), getString(R.string.failed_to_get_photos, errorMessage), Toast.LENGTH_SHORT).show();
                 }
             });
         }

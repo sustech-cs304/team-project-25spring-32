@@ -116,4 +116,13 @@
     <string name="positive_button">はい</string>
     <string name="negative_button">いいえ</string>
     <string name="return_">戻る</string>
+
+    <!-- 社交関連の翻訳 -->
+    <string name="please_login_first">ソーシャルコンテンツを表示するにはログインしてください</string>
+    <string name="group_photo">グループ写真</string>
+    <string name="shared_photo">写真を共有しました</string>
+    <string name="public_group">公開グループ</string>
+    <string name="no_public_groups">公開グループはありません</string>
+    <string name="failed_to_get_groups">グループリストの取得に失敗しました: %1$s</string>
+    <string name="failed_to_get_photos">グループ写真の取得に失敗しました: %1$s</string>
 </resources>
