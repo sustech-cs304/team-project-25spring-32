@@ -63,7 +63,24 @@ public class MemoryDetailViewModel extends ViewModel {
         this.photoinAlbumViewModel = new PhotoinAlbumViewModel();
 //        loadLastVideoUri(); // 初始化时加载上次的 Uri
     }
+    public MemoryDetailViewModel(Context context, FileRepository fileRepository,
+                                 FFmpegVideoCreationService videoCreationService, // 使用具体的实现类
+                                 UriToPathHelper uriToPathHelper,
+                                 PhotoinAlbumViewModel photoinAlbumViewModel) {
+        // 如果是 AndroidViewModel, 构造函数应该是 public MemoryDetailViewModel(Application application, ...)
+        // 并在此处调用 super(application);
+        // 为了方便测试，我们直接注入 Context
+        this.appContext = context;
+        this.fileRepository = fileRepository;
+        this.videoCreationService = videoCreationService;
+        this.uriToPathHelper = uriToPathHelper;
+        this.photoinAlbumViewModel = photoinAlbumViewModel;
+        this.prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); // 初始化 SharedPreferences
 
+
+        // 可以在这里进行其他初始化，比如从 SharedPreferences 加载数据
+        // getSharedPreferences() 需要 Context
+    }
     public LiveData<List<Uri>> getPhotoUris() {
         return photoUris;
     }
@@ -296,7 +313,7 @@ public class MemoryDetailViewModel extends ViewModel {
     }
 
     @Override
-    protected void onCleared() {
+    public void onCleared() {
         super.onCleared();
         // 当 ViewModel 被销毁时，取消正在进行的 FFmpeg 任务和关闭线程池
         videoCreationService.cancelCurrentTask();
@@ -322,7 +339,7 @@ public class MemoryDetailViewModel extends ViewModel {
     }
 
     // 在生成视频之后，将最新的 Uri保存至 prefs
-    private void saveLastVideoUri(Uri videoUri) {
+    public void saveLastVideoUri(Uri videoUri) {
         if (currentMemoryIdentifier == null || currentMemoryIdentifier.isEmpty()) {
             Log.w(TAG, "Cannot save last video URI, memory identifier is not set.");
             return;

@@ -6,7 +6,6 @@ import com.example.pa.data.model.UploadResponse;
 import com.example.pa.data.model.group.GroupInfo;
 import com.example.pa.data.model.group.GroupOperationResponse;
 import com.example.pa.data.model.group.JoinGroupRequest;
-import com.example.pa.data.model.post.Post;
 
 import java.util.List;
 
@@ -76,12 +75,4 @@ public interface GroupApiService {
     @POST("groups/{groupId}/leave")
     Call<GroupOperationResponse> leaveGroup(@Path("groupId") String groupId);
 
-    @POST("groups/{groupId}/leave")
-    Observable<GroupOperationResponse> leaveGroupRx(@Path("groupId") String groupId);
-
-    @GET("groups/{groupId}/posts")
-    Call<List<Post>> getGroupPosts(@Path("groupId") String groupId);
-
-    @GET("groups/{groupId}/posts")
-    Observable<List<Post>> getGroupPostsRx(@Path("groupId") String groupId);
 }

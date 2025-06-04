@@ -173,6 +173,14 @@ public class MemoryDetailFragment extends Fragment implements MemoryPhotoAdapter
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (viewModel.getCurrentMemoryIdentifier() != null) {
+            viewModel.loadPhotos(viewModel.getCurrentMemoryIdentifier());
+        }
+    }
+
     private void initToolbar(View rootView) {
         btnBack = rootView.findViewById(R.id.btn_back);
         btnAdd = rootView.findViewById(R.id.btn_add);
