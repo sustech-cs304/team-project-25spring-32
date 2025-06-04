@@ -122,6 +122,7 @@ dependencies {
     implementation(libs.flexbox)
     implementation(libs.room.common)
 //    implementation(libs.firebase.appdistribution.gradle)
+    testImplementation(libs.ext.junit)
     annotationProcessor(libs.compiler)
     implementation(libs.appcompat)
     implementation(libs.material)
