@@ -165,8 +165,6 @@ dependencies {
     // Mockito for mocking
 
     testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.mockito:mockito-inline:5.2.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
     testImplementation("org.robolectric:robolectric:4.12.1")
 
     //这两个有冲突不能同时使用，同时下面那个inline安卓环境有点不支持
