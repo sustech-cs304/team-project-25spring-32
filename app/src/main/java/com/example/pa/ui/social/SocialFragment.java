@@ -55,16 +55,26 @@ public class SocialFragment extends Fragment {
         notLoggedInText = view.findViewById(R.id.notLoggedInText);
         groupChipGroup = view.findViewById(R.id.groupChipGroup);
 
-        // 初始化 GroupRepository
-        groupRepository = new GroupRepository();
+        // 检查用户登录状态
+        if (!checkLogin.checkLoginStatus(requireContext())) {
+            // 用户未登录，显示提示信息
+            recyclerView.setVisibility(View.GONE);
+            notLoggedInText.setVisibility(View.VISIBLE);
+            groupChipGroup.setVisibility(View.GONE);
+            return view;
+        }
 
         // 用户已登录，显示帖子列表
         recyclerView.setVisibility(View.VISIBLE);
         notLoggedInText.setVisibility(View.GONE);
+        groupChipGroup.setVisibility(View.VISIBLE);
         
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         postList = new ArrayList<>();
         filteredPostList = new ArrayList<>();
+        
+        // 初始化 GroupRepository
+        groupRepository = new GroupRepository();
         
         // 加载用户已加入的群组
         loadUserGroups();

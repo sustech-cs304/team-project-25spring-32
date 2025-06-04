@@ -154,6 +154,6 @@
     <string name="login">login</string>
     <string name="logging_in">logging in...</string>
     <string name="exit_group">exit gruop</string>
-
+    <string name="please_login_first">请先登录以查看社交内容</string>
 
 </resources>
