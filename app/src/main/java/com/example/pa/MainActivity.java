@@ -146,15 +146,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         fileRepository.setDeleteCallback(this);
 
 
-        String pwdHash1 = null;
-        try {
-            pwdHash1 = PasswordUtil.sha256("123456");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
-        UserDao userDao = MyApplication.getInstance().getUserDao();
-        long userId1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
+        initialDao();
 
 
         // 首次启动时请求权限
@@ -170,6 +162,27 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
         observeViewModel();
         // 设置底部导航
         //setupBottomNavigation();
+    }
+
+    private void initialDao() {
+        // 测试用户
+        String pwdHash1 = null;
+        try {
+            pwdHash1 = PasswordUtil.sha256("123456");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        UserDao userDao = MyApplication.getInstance().getUserDao();
+        long userId1 = userDao.addUser("张三", "zhangsan@example.com", pwdHash1);
+
+        // 测试标签
+        TagDao tagDao = MyApplication.getInstance().getTagDao();
+        long tagId1 = tagDao.addTag("apple", false);
+        long tagId2 = tagDao.addTag("mouse", false);
+        long tagId3 = tagDao.addTag("house", false);
+        long tagId4 = tagDao.addTag("sky", false);
+        long tagId6 = tagDao.addTag("rose", false);
     }
 
     private void observeViewModel() {
@@ -396,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements FileRepository.De
     @Override
     protected void onDestroy() {
 
-        //clearAllTables((MyApplication) getApplication());
+//        clearAllTables((MyApplication) getApplication());
         //Log.d("Database", "Cleaned up all test data");
         removeLogin.removeLoginStatus(this);
         super.onDestroy();
