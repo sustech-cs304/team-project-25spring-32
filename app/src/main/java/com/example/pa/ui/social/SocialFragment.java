@@ -147,7 +147,7 @@ public class SocialFragment extends Fragment {
                 for (String photoUrl : photoUrls) {
                     Log.d("SocialFragment", "单个群组照片URL: " + photoUrl);
                     SocialPost socialPost = new SocialPost(
-                        getString(R.string.group_photo),
+                        "",
                         getString(R.string.shared_photo),
                         photoUrl,
                         getString(R.string.public_group)
@@ -174,7 +174,7 @@ public class SocialFragment extends Fragment {
                     for (String photoUrl : photoUrls) {
                         Log.d("SocialFragment", "所有群组照片URL - 群组[" + group.getName() + "]: " + photoUrl);
                         SocialPost socialPost = new SocialPost(
-                            getString(R.string.group_photo),
+                            "",
                             getString(R.string.shared_photo),
                             photoUrl,
                             group.getName()
