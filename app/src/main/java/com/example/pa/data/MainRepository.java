@@ -1,6 +1,8 @@
 package com.example.pa.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -106,12 +108,25 @@ public class MainRepository {
 
             // 2. 插入 Album 和关联
             if (albumName != null) {
-                int albumId = albumDao.getOrCreateAlbum(albumName, userId, albumCache);
+                int albumId = albumDao.getOrCreateAlbum(albumName, userId, albumCache, false);
                 albumPhotoDao.addPhotoToAlbum(albumId, id);
             }
 
             // 3. 插入 Tag
             photoTagDao.addTagToPhoto(id, tagId);
+
+            // 插入地点相册
+            if (photo.location != null) {
+                int albumId = albumDao.getOrCreateAlbum(photo.location, userId, albumCache, true);
+                albumPhotoDao.addPhotoToAlbum(albumId, id);
+            }
+
+            // 插入时间相册
+            if (photo.uploadedTime != null) {
+                String month = photo.uploadedTime.substring(0, 7);
+                int albumId = albumDao.getOrCreateAlbum(month, userId, albumCache, true);
+                albumPhotoDao.addPhotoToAlbum(albumId, id);
+            }
 
             db.setTransactionSuccessful();
         } finally {
@@ -172,6 +187,37 @@ public class MainRepository {
     public void movePhotosToAlbum(List<String> photoUris, String albumName) {
         copyPhotosToAlbum(photoUris, albumName);
         deletePhotosByUri(photoUris);
+    }
+
+    @SuppressLint("Range")
+    public String getLatestPhotoPath(String albumName) {
+        String photoPath = null;
+        String query = "SELECT p." + PhotoDao.COLUMN_FILE_PATH +
+                " FROM " + AlbumDao.TABLE_NAME + " a" +
+                " INNER JOIN " + AlbumPhotoDao.TABLE_NAME + " ap ON a." + AlbumDao.COLUMN_ID + " = ap." + AlbumPhotoDao.COLUMN_ALBUM_ID +
+                " INNER JOIN " + PhotoDao.TABLE_NAME + " p ON ap." + AlbumPhotoDao.COLUMN_PHOTO_ID + " = p." + PhotoDao.COLUMN_ID +
+                " WHERE a." + AlbumDao.COLUMN_NAME + " = ?" +
+                " ORDER BY p." + PhotoDao.COLUMN_UPLOADED_TIME + " DESC" +
+                " LIMIT 1";
+
+        Cursor cursor = db.rawQuery(query, new String[]{albumName});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                photoPath = cursor.getString(cursor.getColumnIndex(PhotoDao.COLUMN_FILE_PATH));
+            }
+            cursor.close();
+        }
+        return photoPath;
+    }
+
+    public List<String> getPhotoUrisByAlbumName(String albumName) {
+        List<String> photoUris = new ArrayList<>();
+        int albumId = albumDao.getAlbumIdByName(albumName);
+        List<Integer> photoIds = albumPhotoDao.getPhotoIdsInAlbum(albumId);
+        for (int photoId: photoIds) {
+            photoUris.add(photoDao.getPhotoPathById(photoId));
+        }
+        return photoUris;
     }
 
 }

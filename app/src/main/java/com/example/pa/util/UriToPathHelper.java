@@ -120,4 +120,12 @@ public class UriToPathHelper {
         }
         return uriStrings;
     }
+
+    public static List<Uri> stringToUri(List<String> uris) {
+        List<Uri> uriStrings = new ArrayList<>();
+        for (String uri: uris) {
+            uriStrings.add(Uri.parse(uri));
+        }
+        return uriStrings;
+    }
 }

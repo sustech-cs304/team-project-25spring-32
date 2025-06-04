@@ -155,6 +155,8 @@ public class FileRepository {
                 Environment.DIRECTORY_DCIM + "/%/" // 仅同步 DCIM 子目录
         };
 
+        int photoCount = 0;
+
         // 查询并转换 Photo 对象时设置 userId
         try (Cursor cursor = context.getContentResolver().query(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -167,15 +169,58 @@ public class FileRepository {
                 long id = cursor.getLong(0);
                 Uri uri = ContentUris.withAppendedId(
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+                // 获取实际经纬度
+                double longitude = cursor.getDouble(4);
+                double latitude = cursor.getDouble(5);
+                String uploadedTime = null;
+                String location = null;
+
+                // 如果图片没有位置信息，分配测试位置
+                if (longitude == 0 && latitude == 0) {
+                    // 为不同的图片分配不同的测试位置
+                    switch (photoCount % 4) {
+                        case 0:
+                            // 北京天安门
+                            uploadedTime = "2023-01-01 12:00:00";
+                            location = "Beijing";
+                            latitude = 39.9087;
+                            longitude = 116.3975;
+                            break;
+                        case 1:
+                            // 上海东方明珠
+                            uploadedTime = "2024-01-01 12:00:00";
+                            location = "Shanghai";
+                            latitude = 31.2397;
+                            longitude = 121.4998;
+                            break;
+                        case 2:
+                            // 广州塔
+                            uploadedTime = "2025-01-01 12:00:00";
+                            location = "Guangzhou";
+                            latitude = 23.1144;
+                            longitude = 113.3248;
+                            break;
+                        case 3:
+                            // 深圳腾讯大厦
+                            uploadedTime = "2025-05-01 12:00:00";
+                            location = "Shenzhen";
+                            latitude = 22.5407;
+                            longitude = 114.0543;
+                            break;
+                    }
+                    photoCount++;
+                }
+
                 Photo photo = new Photo(
                         (int)id,
                         userId,
                         "photo",
                         uri.toString(),
-                        null, null, null,
+                        null, uploadedTime, null,
                         cursor.getDouble(4),
                         cursor.getDouble(5),
-                        null, null, null
+                        location, null, null
                 );
                 Log.d("Sync", "addPhotos: " + id);
                 photos.add(photo);

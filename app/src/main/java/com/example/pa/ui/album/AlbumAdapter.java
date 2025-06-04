@@ -1,5 +1,7 @@
 package com.example.pa.ui.album;
 
+import static com.example.pa.ui.album.AlbumFragment.AlbumType.CUSTOM;
+
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.util.Log;
@@ -16,8 +18,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.pa.MyApplication;
 import com.example.pa.R;
+import com.example.pa.data.Daos.AlbumDao;
 import com.example.pa.data.Daos.AlbumDao.Album;
 import com.example.pa.data.FileRepository;
+import com.example.pa.data.MainRepository;
 
 import java.util.List;
 
@@ -38,7 +42,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     private AlbumFragment.AlbumType albumType;
 
     public interface OnAlbumClickListener {
-        void onAlbumClick(String albumName);
+        void onAlbumClick(Album album);
         void onDeleteAlbum(Album album);
     }
 
@@ -73,7 +77,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
         holder.textView.setText(album.name);
         Log.d("AlbumAdapter", "onBindViewHolder: " + album.name);
 
-//        // 根据相册类型设置样式
+        // 根据相册类型设置样式
 //        switch (albumType) {
 //            case CUSTOM:
 //                holder.typeBadge.setVisibility(View.VISIBLE);
@@ -93,9 +97,16 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 //        }
 
         // 你可以使用 Glide 或 Picasso 来加载图片
-        Glide.with(holder.itemView.getContext())
-                .load(getAlbumCover(album))
-                .into(holder.imageView);
+        if (albumType == CUSTOM) {
+            Glide.with(holder.itemView.getContext())
+                    .load(getAlbumCover(album))
+                    .into(holder.imageView);
+        } else {
+            Glide.with(holder.itemView.getContext())
+                    .load(getAutoAlbumCover(album))
+                    .into(holder.imageView);
+        }
+
 
         // 带回调的扫描
         fileRepository.triggerMediaScanForAlbum(album.name, new FileRepository.MediaScanCallback() {
@@ -121,7 +132,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onAlbumClick(album.name);
+                listener.onAlbumClick(album);
             }
         });
 
@@ -140,6 +151,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
     private Uri getAlbumCover(Album album) {
         return album.cover != null ? Uri.parse(album.cover) : fileRepository.getAlbumCover(album.name);
+    }
+
+    private Uri getAutoAlbumCover(Album album) {
+        MainRepository mainRepository = MyApplication.getInstance().getMainRepository();
+        return Uri.parse(mainRepository.getLatestPhotoPath(album.name));
     }
 
     @Override
