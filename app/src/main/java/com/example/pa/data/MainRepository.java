@@ -1,6 +1,8 @@
 package com.example.pa.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -185,6 +187,27 @@ public class MainRepository {
     public void movePhotosToAlbum(List<String> photoUris, String albumName) {
         copyPhotosToAlbum(photoUris, albumName);
         deletePhotosByUri(photoUris);
+    }
+
+    @SuppressLint("Range")
+    public String getLatestPhotoPath(String albumName) {
+        String photoPath = null;
+        String query = "SELECT p." + PhotoDao.COLUMN_FILE_PATH +
+                " FROM " + AlbumDao.TABLE_NAME + " a" +
+                " INNER JOIN " + AlbumPhotoDao.TABLE_NAME + " ap ON a." + AlbumDao.COLUMN_ID + " = ap." + AlbumPhotoDao.COLUMN_ALBUM_ID +
+                " INNER JOIN " + PhotoDao.TABLE_NAME + " p ON ap." + AlbumPhotoDao.COLUMN_PHOTO_ID + " = p." + PhotoDao.COLUMN_ID +
+                " WHERE a." + AlbumDao.COLUMN_NAME + " = ?" +
+                " ORDER BY p." + PhotoDao.COLUMN_UPLOADED_TIME + " DESC" +
+                " LIMIT 1";
+
+        Cursor cursor = db.rawQuery(query, new String[]{albumName});
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                photoPath = cursor.getString(cursor.getColumnIndex(PhotoDao.COLUMN_FILE_PATH));
+            }
+            cursor.close();
+        }
+        return photoPath;
     }
 
 }
