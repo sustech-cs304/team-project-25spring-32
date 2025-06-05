@@ -7,7 +7,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         UserTest.class,
         ExampleInstrumentedTest.class,
-//        SearchViewModelTest.class
+        SearchViewModelTest.class
 
 })
 public class FullRegressionTestSuite {

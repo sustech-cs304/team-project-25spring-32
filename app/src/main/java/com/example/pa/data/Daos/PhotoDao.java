@@ -240,7 +240,7 @@ public class PhotoDao {
     }
 
     /**
-     * 获取用户的所有照片
+     * 获取用户的All Photos
      */
     public Cursor getPhotosByUser(int userId) {
         return db.query(TABLE_NAME,
@@ -251,7 +251,7 @@ public class PhotoDao {
     }
 
     /**
-     * 获取用户的所有照片路径
+     * 获取用户的All Photos路径
      */
     @SuppressLint("Range")
     public List<String> getPhotoPathByUser(int userId) {

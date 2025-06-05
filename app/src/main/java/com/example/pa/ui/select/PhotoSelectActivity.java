@@ -1,20 +1,13 @@
 package com.example.pa.ui.select;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.pa.R;
 import com.example.pa.databinding.ActivityMultiSelectBinding;
 
 import java.util.ArrayList;
@@ -46,7 +39,7 @@ public class PhotoSelectActivity extends AppCompatActivity {
         setupObservers();
 
         // 加载数据（示例使用固定值，实际应从 Intent 获取）
-        viewModel.loadPhotos("所有照片");
+        viewModel.loadPhotos("All Photos");
     }
 
     private void OnDoneClicked() {
@@ -86,7 +79,6 @@ public class PhotoSelectActivity extends AppCompatActivity {
         });
 
         binding.recyclerView.setAdapter(adapter);
-//        binding.recyclerView.addItemDecoration(new GridSpacingItemDecoration(3, 4, true));
     }
 
     private void setupObservers() {
@@ -120,21 +112,4 @@ public class PhotoSelectActivity extends AppCompatActivity {
         setResult(RESULT_OK, result);
         finish();
     }
-
-//    // 处理配置变更（可选）
-//    @Override
-//    protected void onSaveInstanceState(@NonNull Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putParcelableArrayList("selected_uris",
-//                new ArrayList<>(adapter.getSelectedUris()));
-//    }
-//
-//    @Override
-//    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//        ArrayList<Uri> savedUris = savedInstanceState.getParcelableArrayList("selected_uris");
-//        if (savedUris != null) {
-//            adapter.restoreSelections(savedUris);
-//        }
-//    }
 }

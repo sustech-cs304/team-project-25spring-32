@@ -1,13 +1,6 @@
 package com.example.pa.ui.album;
 
-import static androidx.core.app.ActivityCompat.startIntentSenderForResult;
-
-import static com.example.pa.data.FileRepository.DELETE_REQUEST_CODE;
-
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.IntentSender;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
@@ -70,7 +63,7 @@ public class AlbumViewModel extends ViewModel {
     // 加载用户相册列表
     public void loadAlbums() {
         List<Album> albums = new ArrayList<>();
-        albums.add(new Album(0, "所有照片", userId, false, false, "private", null));
+        albums.add(new Album(0, "All Photos", userId, false, false, "private", null));
         albums.addAll(getAlbumsByUserId(userId));
         albumList.setValue(albums);
     }
@@ -97,15 +90,6 @@ public class AlbumViewModel extends ViewModel {
             cursor.close();
         }
         return albums;
-    }
-
-    //仅用作展示
-    public void initialAlbums() {
-        // 初始化数据
-        addAlbum("旅行", 1, false, false, "private");
-        addAlbum("家人", 1, false, false, "private");
-        addAlbum("朋友", 1, false, false, "private");
-        addAlbum("宠物", 1, false, false, "private");
     }
 
     public LiveData<List<Album>> getAlbumList() {
@@ -137,7 +121,6 @@ public class AlbumViewModel extends ViewModel {
                 loadAlbums(); // 重新加载相册列表
                 event.postValue("Album added successfully");
             } else {
-//                fileRepository.deleteAlbum(name);
                 event.postValue("Failed to add album");
             }
         } else {

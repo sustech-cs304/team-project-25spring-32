@@ -43,10 +43,7 @@ import java.util.List;
  */
 public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClickListener {
 
-    private RecyclerView recyclerView;
-    private AlbumAdapter albumAdapter;
     private AlbumViewModel albumViewModel;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     // 分组视图
     private LinearLayout customSection;
@@ -130,7 +127,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         // 初始化右上角的图标
         addIcon = rootView.findViewById(R.id.add_icon);
         manageIcon = rootView.findViewById(R.id.order_icon);
-        setIcon = rootView.findViewById(R.id.set_icon);
+//        setIcon = rootView.findViewById(R.id.set_icon);
 
         // 遮罩层和输入栏
         maskLayer = rootView.findViewById(R.id.mask_layer);
@@ -167,9 +164,9 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
             locationAdapter.updateAlbums(locationAlbums);
 
             // 更新分组标题计数
-            ((TextView) rootView.findViewById(R.id.custom_count)).setText(customAlbums.size() + "个相册");
-            ((TextView) rootView.findViewById(R.id.time_count)).setText(timeAlbums.size() + "个相册");
-            ((TextView) rootView.findViewById(R.id.location_count)).setText(locationAlbums.size() + "个相册");
+            ((TextView) rootView.findViewById(R.id.custom_count)).setText(String.valueOf(customAlbums.size()));
+            ((TextView) rootView.findViewById(R.id.time_count)).setText(String.valueOf(timeAlbums.size()));
+            ((TextView) rootView.findViewById(R.id.location_count)).setText(String.valueOf(locationAlbums.size()));
 
             // 如果没有自动生成的相册，隐藏对应分组
             if (timeAlbums.isEmpty()) {
@@ -188,7 +185,7 @@ public class AlbumFragment extends Fragment implements AlbumAdapter.OnAlbumClick
         // 设置点击事件
         addIcon.setOnClickListener(v -> showInputLayer());
         manageIcon.setOnClickListener(v -> toggleManageMode());
-        setIcon.setOnClickListener(v -> onSetClicked());
+//        setIcon.setOnClickListener(v -> onSetClicked());
         cancel.setOnClickListener(v -> onCancelClicked(requireView()));
         confirm.setOnClickListener(v -> onConfirmClicked(requireView()));
 
