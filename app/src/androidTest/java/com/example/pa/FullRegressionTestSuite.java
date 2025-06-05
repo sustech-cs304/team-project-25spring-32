@@ -7,8 +7,10 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
         UserTest.class,
         ExampleInstrumentedTest.class,
-        SearchViewModelTest.class
-
+        SearchViewModelTest.class,
+        AlbumViewModelTest.class,
+        PhotoinAlbumViewModelTest.class,
+        PhotoSelectViewModelTest.class
 })
 public class FullRegressionTestSuite {
     // 这个类只是一个容器，不需要内容

@@ -65,11 +65,11 @@ public class AlbumViewModel extends ViewModel {
         List<Album> albums = new ArrayList<>();
         albums.add(new Album(0, "All Photos", userId, false, false, "private", null));
         albums.addAll(getAlbumsByUserId(userId));
-        albumList.setValue(albums);
+        albumList.postValue(albums);
     }
 
     @NonNull
-    private List<Album> getAlbumsByUserId(int userId) {
+    public List<Album> getAlbumsByUserId(int userId) {
         List<Album> albums = new ArrayList<>();
         //TODO:实现user有关逻辑
         Cursor cursor = albumDao.getAlbumsByUser(userId); // 假设用户ID是1，可以改为动态获取

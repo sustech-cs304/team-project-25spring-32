@@ -75,7 +75,7 @@ public class PhotoinAlbumViewModel extends ViewModel {
         return deleteEvent;
     }
     public void setOperationType(String type) {
-        operationType.setValue(type);
+        operationType.postValue(type);
     }
 
     public LiveData<String> getOperationType() {

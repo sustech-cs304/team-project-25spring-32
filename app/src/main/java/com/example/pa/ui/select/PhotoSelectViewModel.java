@@ -29,7 +29,7 @@ public class PhotoSelectViewModel extends AndroidViewModel {
 
     public void loadPhotos(String albumName) {
         List<Uri> existPhotos = repository.getAlbumImages(albumName);
-        photos.setValue(existPhotos);
+        photos.postValue(existPhotos);
     }
 
     public void toggleSelection(Uri uri) {
