@@ -114,6 +114,13 @@ public class MainRepository {
 
             // 3. 插入 Tag
             photoTagDao.addTagToPhoto(id, tagId);
+//            int tag_id = tagDao.getTagIdByNameSpec("apple");
+//
+//            int tag_id = tagDao.getTagIdByNameSpec("mouse");
+//            int tag_id = tagDao.getTagIdByNameSpec("sky");
+//            int tag_id = tagDao.getTagIdByNameSpec("house");
+//            int tag_id = tagDao.getTagIdByNameSpec("rose");
+//            photoTagDao.addTagToPhoto(id, tag_id);
 
             // 插入地点相册
             if (photo.location != null) {
@@ -137,6 +144,7 @@ public class MainRepository {
             int photoTag6 = tagDao.getTagIdByNameSpec("Guangzhou");
             int photoTag7 = tagDao.getTagIdByNameSpec("Shenzhen");
 
+//            String description = "2";
 
             switch (photo.description) {
                 case "0":
