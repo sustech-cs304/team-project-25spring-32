@@ -31,7 +31,7 @@ InstrumentTest：[https://github.com/sustech-cs304/team-project-25spring-32/tree
 
 UnitTest：[https://github.com/sustech-cs304/team-project-25spring-32/tree/main/app/src/test/java/com/example/pa](https://github.com/sustech-cs304/team-project-25spring-32/tree/main/app/src/test/java/com/example/pa)
 
-UI测试及其他不便于自动化测试的部分采用人工测试，人工测试说明已写在test_method.md文件中。
+UI测试及其他不便于自动化测试的部分采用人工测试，人工测试说明已写在测试手册.pdf文件中。
 
 # 4. Build
 
