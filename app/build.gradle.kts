@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     id("org.sonarqube") version "4.4.1.3373"
     id("jacoco")
+    alias(libs.plugins.kotlin.android)
 }
 //sonarqube plugin configuration, 应当在依赖安装之后解析
 sonarqube {
@@ -65,6 +66,9 @@ android {
             isIncludeAndroidResources = true
         }
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 tasks.register<JacocoReport>("jacocoTestReport") {
     dependsOn("connectedDebugAndroidTest")
@@ -121,6 +125,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.flexbox)
     implementation(libs.room.common)
+    implementation(libs.core.ktx)
 //    implementation(libs.firebase.appdistribution.gradle)
     testImplementation(libs.ext.junit)
     annotationProcessor(libs.compiler)
