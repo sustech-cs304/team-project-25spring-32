@@ -20,14 +20,9 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.example.pa.data.cloudRepository.GroupRepository;
 import com.example.pa.data.model.group.GroupInfo;
-import com.example.pa.data.model.post.PostResponse;
-import com.example.pa.data.model.post.Post;
-import com.example.pa.data.MockDataManager;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class SocialFragment extends Fragment {
 

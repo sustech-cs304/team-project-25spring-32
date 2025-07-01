@@ -1,7 +1,5 @@
 package com.example.pa.ui.photo;
 
-import static androidx.databinding.DataBindingUtil.setContentView;
-
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -25,20 +23,15 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.pa.MyApplication;
 import com.example.pa.R;
-import com.example.pa.ui.post.PostCreateActivity;
 import com.example.pa.util.UriToPathHelper;
 import com.example.pa.data.model.group.GroupInfo;
 import com.example.pa.data.cloudRepository.GroupRepository;
 import com.example.pa.data.model.UploadResponse;
-import com.example.pa.data.MockDataManager;
-import com.example.pa.data.model.post.Post;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
 
 // 点击图片之后能够看到的视图
 public class PhotoDetailActivity extends AppCompatActivity {
